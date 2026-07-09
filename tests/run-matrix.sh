@@ -57,6 +57,8 @@ for planner in claude codex; do
     test -f "$MOCK/planner-$planner-01.prompt"
   assert "[$planner] approve-first: clean approval skips closing pass" \
     test "$(cat "$MOCK/planner-calls")" = 1
+  assert "[$planner] approve-first: no second opinion by default" \
+    test ! -e "$WS/rounds/second-opinion.md"
 
   # --- revise then approve ---------------------------------------------------
   new_ws
@@ -92,6 +94,37 @@ for planner in claude codex; do
   assert "[$planner] closing-pass-off: exit 0" test $? -eq 0
   assert "[$planner] closing-pass-off: no extra planner call" \
     test "$(cat "$MOCK/planner-calls")" = 1
+
+  # --- second opinion: swapped critic reviews, closing pass covers both -----------
+  new_ws
+  run_volley "$planner" 8 "APPROVE_REMARKS APPROVE_REMARKS" VOLLEY_SECOND_OPINION=1
+  assert "[$planner] second-opinion: exit 0" test $? -eq 0
+  assert "[$planner] second-opinion: review written" \
+    test -s "$WS/rounds/second-opinion.md"
+  assert "[$planner] second-opinion: reviewer is the non-incumbent ($planner)" \
+    test -f "$MOCK/critic-$planner-02.prompt"
+  assert "[$planner] second-opinion: exactly two critic calls" \
+    test "$(cat "$MOCK/critic-calls")" = 2
+  assert "[$planner] second-opinion: one closing pass covers both" \
+    test "$(cat "$MOCK/planner-calls")" = 2
+  assert "[$planner] second-opinion: closing prompt points at it" \
+    grep -q 'rounds/second-opinion.md' "$MOCK/planner-$planner-02.prompt"
+
+  # --- second opinion clean + clean approval: nothing to dispose ------------------
+  new_ws
+  run_volley "$planner" 8 "APPROVE APPROVE" VOLLEY_SECOND_OPINION=1
+  assert "[$planner] second-opinion-clean: exit 0" test $? -eq 0
+  assert "[$planner] second-opinion-clean: two critic calls" \
+    test "$(cat "$MOCK/critic-calls")" = 2
+  assert "[$planner] second-opinion-clean: closing pass skipped" \
+    test "$(cat "$MOCK/planner-calls")" = 1
+
+  # --- second opinion: impasse path unaffected -------------------------------------
+  new_ws
+  run_volley "$planner" 2 "REVISE" VOLLEY_SECOND_OPINION=1
+  assert "[$planner] second-opinion-impasse: exit 2" test $? -eq 2
+  assert "[$planner] second-opinion-impasse: no second opinion" \
+    test ! -e "$WS/rounds/second-opinion.md"
 
   # --- impasse at round cap ---------------------------------------------------
   new_ws

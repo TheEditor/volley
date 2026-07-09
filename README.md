@@ -34,6 +34,7 @@ Exit codes: `0` converged (critic approved), `2` impasse (round cap reached),
 | `SPEC.md` | The living plan, including a Decision Log of every fix and rebuttal |
 | `rounds/rNN.critique.md` | The critic's objections each round |
 | `rounds/rNN.spec.md` | Spec snapshot after each revision |
+| `rounds/second-opinion.md` | The swapped critic's advisory review (only with `VOLLEY_SECOND_OPINION=1`) |
 | `state/*.log` | Full planner/critic transcripts and the loop log |
 | `state/IMPASSE.md` | Written only if the round cap is hit without approval |
 
@@ -46,6 +47,7 @@ Exit codes: `0` converged (critic approved), `2` impasse (round cap reached),
 | `CALL_TIMEOUT` | `900` | Seconds per agent invocation (needs `timeout`/`gtimeout`; skipped if absent) |
 | `CLAUDE_BIN` / `CODEX_BIN` | `claude` / `codex` | Binary overrides |
 | `VOLLEY_CLOSING_PASS` | `1` | After APPROVE, one extra planner pass addresses or declines the critic's non-blocking remarks (Decision Log entries); `0` disables |
+| `VOLLEY_SECOND_OPINION` | `0` | After APPROVE, the *other* agent reviews the final spec once (`rounds/second-opinion.md`); advisory only — its remarks feed the closing pass, it cannot flip the verdict |
 
 ## Billing guard
 

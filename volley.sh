@@ -13,7 +13,9 @@
 #
 # Env overrides: VOLLEY_PLANNER (claude|codex), MAX_ROUNDS (default 8),
 #                CALL_TIMEOUT seconds (default 900), CLAUDE_BIN, CODEX_BIN,
-#                VOLLEY_CLOSING_PASS (default 1; 0 skips the closing pass).
+#                VOLLEY_CLOSING_PASS (default 1; 0 skips the closing pass),
+#                VOLLEY_SECOND_OPINION (default 0; 1 has the other agent
+#                review the approved spec once, feeding the closing pass).
 set -euo pipefail
 
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
@@ -27,6 +29,7 @@ STATE="$ROOT/state"
 
 MAX_ROUNDS="${MAX_ROUNDS:-8}"
 VOLLEY_CLOSING_PASS="${VOLLEY_CLOSING_PASS:-1}"
+VOLLEY_SECOND_OPINION="${VOLLEY_SECOND_OPINION:-0}"
 CALL_TIMEOUT="${CALL_TIMEOUT:-900}"
 CLAUDE_BIN="${CLAUDE_BIN:-claude}"
 CODEX_BIN="${CODEX_BIN:-codex}"
@@ -37,8 +40,10 @@ die() { echo "volley: $*" >&2; exit 1; }
 [[ -f "$BRIEF" ]] || die "no BRIEF.md in $ROOT — write the brief first"
 
 case "$VOLLEY_PLANNER" in
-  claude) PLAN_FN=claude_plan; CRIT_FN=codex_critique;  CRITIC=codex ;;
-  codex)  PLAN_FN=codex_plan;  CRIT_FN=claude_critique; CRITIC=claude ;;
+  claude) PLAN_FN=claude_plan; CRIT_FN=codex_critique;  CRITIC=codex
+          SECOND_FN=claude_critique; SECOND_AGENT=claude ;;
+  codex)  PLAN_FN=codex_plan;  CRIT_FN=claude_critique; CRITIC=claude
+          SECOND_FN=codex_critique;  SECOND_AGENT=codex ;;
   *) die "VOLLEY_PLANNER must be 'claude' or 'codex' (got '$VOLLEY_PLANNER')" ;;
 esac
 
@@ -121,17 +126,37 @@ verdict_of() { # print APPROVE or REVISE from the file's last verdict line, if a
     | tail -1 | grep -Eo 'APPROVE|REVISE' || true
 }
 
+REMARK_RE='non.?blocking|minor|remark|nitpick'
+
+second_opinion() { # <round> — after APPROVE, the other agent reviews SPEC.md
+  # once. Advisory only: it cannot flip the verdict; its remarks are input to
+  # the closing pass, which keeps this lightweight and non-recursive.
+  [[ "$VOLLEY_SECOND_OPINION" == "1" ]] || return 0
+  local out="$ROUNDS/second-opinion.md" n_remarks
+  log "second opinion: $SECOND_AGENT reviewing approved SPEC.md"
+  "$SECOND_FN" "$(render "$PROMPTS/critic.md" ROUND="$1" MAX="$MAX_ROUNDS")" "$out"
+  n_remarks="$(grep -cE '^[0-9]+\.' "$out" 2>/dev/null || true)"
+  log "second opinion from $SECOND_AGENT: ${n_remarks:-0} remark(s)"
+}
+
 closing_pass() { # <rNN> <critique-file> — after APPROVE, the planner addresses
-  # or consciously declines any non-blocking remarks. The approval stands; the
-  # critic is not re-run. Over-triggering is harmless (the planner declines
-  # vacuously), so the remark check errs toward running.
+  # or consciously declines any non-blocking remarks, incl. the second
+  # opinion's if one ran. The approval stands; the critic is not re-run.
+  # Over-triggering is harmless (the planner declines vacuously), so the
+  # remark check errs toward running.
   [[ "$VOLLEY_CLOSING_PASS" != "0" ]] || return 0
-  if ! grep -qiE 'non.?blocking|minor|remark|nitpick' "$2"; then
+  local so="$ROUNDS/second-opinion.md" extra="" has=0
+  grep -qiE "$REMARK_RE" "$2" && has=1
+  if [[ -f "$so" ]]; then
+    extra="A second-opinion review from another critic is in rounds/second-opinion.md. Read it too and dispose of each of its objections and remarks the same way; it is advisory and does not reopen the review."
+    grep -qiE "$REMARK_RE|^[0-9]+\." "$so" && has=1
+  fi
+  if (( ! has )); then
     log "$1: approval carries no remarks; skipping closing pass"
     return 0
   fi
   log "$1: closing pass — planner disposing of non-blocking remarks"
-  "$PLAN_FN" "$(render "$PROMPTS/closing-pass.md" ROUND="$1")"
+  "$PLAN_FN" "$(render "$PROMPTS/closing-pass.md" ROUND="$1" "SECOND_OPINION=$extra")"
 }
 
 log "roles: planner=$VOLLEY_PLANNER critic=$CRITIC"
@@ -165,6 +190,7 @@ REMINDER: your previous reply omitted the required final line. It must be exactl
   log "$N: verdict is $v"
 
   if [[ "$v" == "APPROVE" ]]; then
+    second_opinion "$n"
     closing_pass "$N" "$CRIT"
     log "converged after $n round(s) — SPEC.md is final"
     exit 0
