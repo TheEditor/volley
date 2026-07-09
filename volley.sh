@@ -12,7 +12,8 @@
 # codex-volley wrappers preset this.
 #
 # Env overrides: VOLLEY_PLANNER (claude|codex), MAX_ROUNDS (default 8),
-#                CALL_TIMEOUT seconds (default 900), CLAUDE_BIN, CODEX_BIN.
+#                CALL_TIMEOUT seconds (default 900), CLAUDE_BIN, CODEX_BIN,
+#                VOLLEY_CLOSING_PASS (default 1; 0 skips the closing pass).
 set -euo pipefail
 
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
@@ -25,6 +26,7 @@ ROUNDS="$ROOT/rounds"
 STATE="$ROOT/state"
 
 MAX_ROUNDS="${MAX_ROUNDS:-8}"
+VOLLEY_CLOSING_PASS="${VOLLEY_CLOSING_PASS:-1}"
 CALL_TIMEOUT="${CALL_TIMEOUT:-900}"
 CLAUDE_BIN="${CLAUDE_BIN:-claude}"
 CODEX_BIN="${CODEX_BIN:-codex}"
@@ -119,6 +121,19 @@ verdict_of() { # print APPROVE or REVISE from the file's last verdict line, if a
     | tail -1 | grep -Eo 'APPROVE|REVISE' || true
 }
 
+closing_pass() { # <rNN> <critique-file> — after APPROVE, the planner addresses
+  # or consciously declines any non-blocking remarks. The approval stands; the
+  # critic is not re-run. Over-triggering is harmless (the planner declines
+  # vacuously), so the remark check errs toward running.
+  [[ "$VOLLEY_CLOSING_PASS" != "0" ]] || return 0
+  if ! grep -qiE 'non.?blocking|minor|remark|nitpick' "$2"; then
+    log "$1: approval carries no remarks; skipping closing pass"
+    return 0
+  fi
+  log "$1: closing pass — planner disposing of non-blocking remarks"
+  "$PLAN_FN" "$(render "$PROMPTS/closing-pass.md" ROUND="$1")"
+}
+
 log "roles: planner=$VOLLEY_PLANNER critic=$CRITIC"
 
 # --- Round 0: initial spec (skipped on rerun so an interrupted loop resumes) ---
@@ -150,6 +165,7 @@ REMINDER: your previous reply omitted the required final line. It must be exactl
   log "$N: verdict is $v"
 
   if [[ "$v" == "APPROVE" ]]; then
+    closing_pass "$N" "$CRIT"
     log "converged after $n round(s) — SPEC.md is final"
     exit 0
   fi

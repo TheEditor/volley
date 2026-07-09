@@ -55,6 +55,8 @@ for planner in claude codex; do
     test -f "$MOCK/critic-$critic-01.prompt"
   assert "[$planner] approve-first: planner was $planner" \
     test -f "$MOCK/planner-$planner-01.prompt"
+  assert "[$planner] approve-first: clean approval skips closing pass" \
+    test "$(cat "$MOCK/planner-calls")" = 1
 
   # --- revise then approve ---------------------------------------------------
   new_ws
@@ -66,6 +68,30 @@ for planner in claude codex; do
     grep -q 'mock revision entry' "$WS/SPEC.md"
   assert "[$planner] revise-approve: two critiques" \
     test -f "$WS/rounds/r02.critique.md"
+  assert "[$planner] revise-approve: no closing pass on clean approve" \
+    test "$(cat "$MOCK/planner-calls")" = 2
+
+  # --- closing pass: approve with non-blocking remarks --------------------------
+  new_ws
+  run_volley "$planner" 8 "APPROVE_REMARKS"
+  assert "[$planner] closing-pass: exit 0" test $? -eq 0
+  assert "[$planner] closing-pass: one extra planner call" \
+    test "$(cat "$MOCK/planner-calls")" = 2
+  assert "[$planner] closing-pass: prompt names closing pass" \
+    grep -q 'closing pass' "$MOCK/planner-$planner-02.prompt"
+  assert "[$planner] closing-pass: prompt points at approving critique" \
+    grep -q 'rounds/r01.critique.md' "$MOCK/planner-$planner-02.prompt"
+  assert "[$planner] closing-pass: spec got a decision-log disposition" \
+    grep -q 'mock revision entry' "$WS/SPEC.md"
+  assert "[$planner] closing-pass: critic not re-run" \
+    test "$(cat "$MOCK/critic-calls")" = 1
+
+  # --- closing pass disabled -----------------------------------------------------
+  new_ws
+  run_volley "$planner" 8 "APPROVE_REMARKS" VOLLEY_CLOSING_PASS=0
+  assert "[$planner] closing-pass-off: exit 0" test $? -eq 0
+  assert "[$planner] closing-pass-off: no extra planner call" \
+    test "$(cat "$MOCK/planner-calls")" = 1
 
   # --- impasse at round cap ---------------------------------------------------
   new_ws

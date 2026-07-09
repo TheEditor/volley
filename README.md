@@ -45,6 +45,7 @@ Exit codes: `0` converged (critic approved), `2` impasse (round cap reached),
 | `MAX_ROUNDS` | `8` | Hard cap on critique/revise rounds |
 | `CALL_TIMEOUT` | `900` | Seconds per agent invocation (needs `timeout`/`gtimeout`; skipped if absent) |
 | `CLAUDE_BIN` / `CODEX_BIN` | `claude` / `codex` | Binary overrides |
+| `VOLLEY_CLOSING_PASS` | `1` | After APPROVE, one extra planner pass addresses or declines the critic's non-blocking remarks (Decision Log entries); `0` disables |
 
 ## Billing guard
 

@@ -9,6 +9,7 @@ Rules:
 - Only material defects justify an objection: incorrectness, infeasibility, a requirement in BRIEF.md the spec fails to satisfy, or an internal contradiction in the spec. Style preferences, alternative designs of roughly equal merit, and "could also consider" suggestions are not objections.
 - Do not re-raise a point the Decision Log shows was already fixed, or rebutted with defensible reasoning — even if you would have decided differently.
 - Approval is the expected terminal outcome of this loop. If no material defects remain, say so briefly and approve.
+- You may note non-blocking remarks alongside an APPROVE — label them clearly as non-blocking. The planner will address or consciously decline each one after approval; they do not delay it.
 - Raise the bar as rounds advance: by round {{MAX}}, only defects that would make the built software incorrect or unbuildable justify REVISE.
 
 The final line of your reply must be exactly one of:
