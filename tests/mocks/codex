@@ -1,0 +1,90 @@
+#!/usr/bin/env bash
+# Mock codex CLI for volley tests.
+#
+# Role detection mirrors how volley.sh invokes the real binary: the planner
+# runs with `--sandbox workspace-write`, the critic with `--sandbox read-only`
+# and `--output-last-message <file>` (the critique lands in that file, not on
+# stdout). Scripting knobs are identical to the claude mock: MOCK_STATE and
+# MOCK_VERDICTS, with a shared critic-calls counter so a verdict script spans
+# both agents in one run.
+set -euo pipefail
+
+: "${MOCK_STATE:?MOCK_STATE dir must be set}"
+mkdir -p "$MOCK_STATE"
+
+prompt=""
+sandbox=""
+cd_dir=""
+outfile=""
+while (( $# )); do
+  case "$1" in
+    exec|--skip-git-repo-check) ;;
+    --sandbox) sandbox="${2:-}"; shift ;;
+    --cd) cd_dir="${2:-}"; shift ;;
+    --output-last-message) outfile="${2:-}"; shift ;;
+    *) prompt="$1" ;;
+  esac
+  shift
+done
+[[ -n "$cd_dir" ]] && cd "$cd_dir"
+
+bump() { # bump <counter-name> -> new count on stdout
+  local n
+  n=$(( $(cat "$MOCK_STATE/$1" 2>/dev/null || echo 0) + 1 ))
+  echo "$n" >"$MOCK_STATE/$1"
+  echo "$n"
+}
+
+if [[ "$sandbox" == "workspace-write" ]]; then
+  n="$(bump planner-calls)"
+  printf '%s' "$prompt" >"$MOCK_STATE/planner-codex-$(printf '%02d' "$n").prompt"
+  if [[ ! -f SPEC.md ]]; then
+    cat >SPEC.md <<'EOF'
+# Mock spec
+
+Goals: satisfy the mock brief.
+
+## Decision Log
+(empty)
+EOF
+  else
+    echo "- mock revision entry (planner call $n)" >>SPEC.md
+  fi
+  echo "mock codex planner: call $n done"
+  exit 0
+fi
+
+n="$(bump critic-calls)"
+printf '%s' "$prompt" >"$MOCK_STATE/critic-codex-$(printf '%02d' "$n").prompt"
+verdicts=(${MOCK_VERDICTS:-APPROVE})
+idx=$(( n - 1 ))
+(( idx >= ${#verdicts[@]} )) && idx=$(( ${#verdicts[@]} - 1 ))
+critique=""
+case "${verdicts[idx]}" in
+  APPROVE)
+    critique='No material defects remain.
+
+VERDICT: APPROVE' ;;
+  APPROVE_REMARKS)
+    critique='No material defects remain.
+
+Non-blocking remarks:
+1. Mock nitpick one.
+2. Mock nitpick two.
+
+VERDICT: APPROVE' ;;
+  REVISE)
+    critique='1. Mock objection: the spec omits X, material because Y; add Z.
+
+VERDICT: REVISE' ;;
+  NONE)
+    critique='Rambling critique with no verdict line.' ;;
+  *)
+    echo "mock codex: unknown verdict token '${verdicts[idx]}'" >&2; exit 64 ;;
+esac
+if [[ -n "$outfile" ]]; then
+  printf '%s\n' "$critique" >"$outfile"
+  echo "mock codex critic: call $n done"
+else
+  printf '%s\n' "$critique"
+fi
