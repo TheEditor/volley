@@ -3,6 +3,7 @@
 # Per-run artifacts when volley runs in this directory
 BRIEF.md
 SPEC.md
+HUMAN.md
 rounds/
 state/
 

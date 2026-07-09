@@ -24,6 +24,15 @@ brief.
 A workspace remembers its role assignment (`state/roles`): an interrupted
 run must resume with the same planner, and volley refuses if it wouldn't.
 
+### Steering a running loop
+
+Drop a `HUMAN.md` into the workspace at any time. At the next round it is
+injected into both role prompts as a directive that outranks the critic —
+any point it settles is settled, and neither agent may re-litigate it — then
+archived to `rounds/rNN.human.md` so it applies exactly once. This is the
+only way to steer a run without killing it (`^C` discards an in-flight
+round).
+
 Exit codes: `0` converged (critic approved), `2` impasse (round cap reached),
 `1` setup or invocation failure.
 
@@ -35,6 +44,7 @@ Exit codes: `0` converged (critic approved), `2` impasse (round cap reached),
 | `rounds/rNN.critique.md` | The critic's objections each round |
 | `rounds/rNN.spec.md` | Spec snapshot after each revision |
 | `rounds/second-opinion.md` | The swapped critic's advisory review (only with `VOLLEY_SECOND_OPINION=1`) |
+| `rounds/rNN.human.md` | Archived one-shot `HUMAN.md` directive, if you steered round NN |
 | `state/*.log` | Full planner/critic transcripts and the loop log |
 | `state/IMPASSE.md` | Written only if the round cap is hit without approval |
 

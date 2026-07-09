@@ -134,7 +134,7 @@ second_opinion() { # <round> — after APPROVE, the other agent reviews SPEC.md
   [[ "$VOLLEY_SECOND_OPINION" == "1" ]] || return 0
   local out="$ROUNDS/second-opinion.md" n_remarks
   log "second opinion: $SECOND_AGENT reviewing approved SPEC.md"
-  "$SECOND_FN" "$(render "$PROMPTS/critic.md" ROUND="$1" MAX="$MAX_ROUNDS")" "$out"
+  "$SECOND_FN" "$(render "$PROMPTS/critic.md" ROUND="$1" MAX="$MAX_ROUNDS" "HUMAN=")" "$out"
   n_remarks="$(grep -cE '^[0-9]+\.' "$out" 2>/dev/null || true)"
   log "second opinion from $SECOND_AGENT: ${n_remarks:-0} remark(s)"
 }
@@ -175,13 +175,29 @@ for (( n=start; n<=MAX_ROUNDS; n++ )); do
   N="$(printf 'r%02d' "$n")"
   CRIT="$ROUNDS/$N.critique.md"
 
+  # HUMAN.md steering: a directive dropped into the workspace applies to both
+  # role prompts of exactly one round, then is archived. This is the only way
+  # to steer a running loop without killing it.
+  HUMAN_BLOCK=""
+  if [[ -f "$ROOT/HUMAN.md" ]]; then
+    HUMAN_BLOCK="
+
+--- HUMAN DIRECTIVE (round $n) ---
+The human running this loop left the following instructions. They outrank the critic: comply with them, and treat any point they settle as settled — do not re-raise it in critiques or revisit it in revisions.
+
+$(cat "$ROOT/HUMAN.md")
+--- END HUMAN DIRECTIVE ---"
+    mv "$ROOT/HUMAN.md" "$ROUNDS/$N.human.md"
+    log "$N: HUMAN.md directive applied this round (archived to rounds/$N.human.md)"
+  fi
+
   log "$N: critic reviewing SPEC.md"
-  "$CRIT_FN" "$(render "$PROMPTS/critic.md" ROUND="$n" MAX="$MAX_ROUNDS")" "$CRIT"
+  "$CRIT_FN" "$(render "$PROMPTS/critic.md" ROUND="$n" MAX="$MAX_ROUNDS" "HUMAN=$HUMAN_BLOCK")" "$CRIT"
   v="$(verdict_of "$CRIT")"
 
   if [[ -z "$v" ]]; then
     log "$N: no verdict line; re-asking critic once"
-    "$CRIT_FN" "$(render "$PROMPTS/critic.md" ROUND="$n" MAX="$MAX_ROUNDS")
+    "$CRIT_FN" "$(render "$PROMPTS/critic.md" ROUND="$n" MAX="$MAX_ROUNDS" "HUMAN=$HUMAN_BLOCK")
 
 REMINDER: your previous reply omitted the required final line. It must be exactly 'VERDICT: APPROVE' or 'VERDICT: REVISE'." "$CRIT"
     v="$(verdict_of "$CRIT")"
@@ -197,7 +213,7 @@ REMINDER: your previous reply omitted the required final line. It must be exactl
   fi
 
   log "$N: planner revising SPEC.md"
-  "$PLAN_FN" "$(render "$PROMPTS/planner-revise.md" ROUND="$N")"
+  "$PLAN_FN" "$(render "$PROMPTS/planner-revise.md" ROUND="$N" "HUMAN=$HUMAN_BLOCK")"
   cp "$SPEC" "$ROUNDS/$N.spec.md"
 done
 

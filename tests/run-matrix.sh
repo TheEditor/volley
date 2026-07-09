@@ -109,6 +109,8 @@ for planner in claude codex; do
     test "$(cat "$MOCK/planner-calls")" = 2
   assert "[$planner] second-opinion: closing prompt points at it" \
     grep -q 'rounds/second-opinion.md' "$MOCK/planner-$planner-02.prompt"
+  assert "[$planner] second-opinion: no placeholder residue in its prompt" \
+    sh -c "! grep -q '{{HUMAN}}' '$MOCK/critic-$planner-02.prompt'"
 
   # --- second opinion clean + clean approval: nothing to dispose ------------------
   new_ws
@@ -118,6 +120,25 @@ for planner in claude codex; do
     test "$(cat "$MOCK/critic-calls")" = 2
   assert "[$planner] second-opinion-clean: closing pass skipped" \
     test "$(cat "$MOCK/planner-calls")" = 1
+
+  # --- HUMAN.md steering: applies to both roles for exactly one round --------------
+  new_ws
+  echo "Settled: output must be TSV. Drop the CSV idea." >"$WS/HUMAN.md"
+  run_volley "$planner" 8 "REVISE APPROVE"
+  assert "[$planner] steering: exit 0" test $? -eq 0
+  assert "[$planner] steering: HUMAN.md consumed" test ! -e "$WS/HUMAN.md"
+  assert "[$planner] steering: archived to rounds/r01.human.md" \
+    test -f "$WS/rounds/r01.human.md"
+  assert "[$planner] steering: critic r1 got the directive" \
+    grep -q 'HUMAN DIRECTIVE' "$MOCK/critic-$critic-01.prompt"
+  assert "[$planner] steering: critic r1 got the directive body" \
+    grep -q 'Drop the CSV idea' "$MOCK/critic-$critic-01.prompt"
+  assert "[$planner] steering: planner revise got the directive" \
+    grep -q 'Drop the CSV idea' "$MOCK/planner-$planner-02.prompt"
+  assert "[$planner] steering: round 2 prompt clean" \
+    sh -c "! grep -q 'HUMAN DIRECTIVE' '$MOCK/critic-$critic-02.prompt'"
+  assert "[$planner] steering: no placeholder residue" \
+    sh -c "! grep -q '{{HUMAN}}' '$MOCK/critic-$critic-02.prompt'"
 
   # --- second opinion: impasse path unaffected -------------------------------------
   new_ws
