@@ -1,0 +1,5 @@
+# Brief
+
+Build "datestamp", a tiny CLI tool (single POSIX shell script) that prints the
+current date/time as ISO 8601 UTC (e.g. 2026-07-09T15:04:05Z). No flags, no
+config, no dependencies beyond coreutils. Must exit 0 on success.
