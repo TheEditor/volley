@@ -1,0 +1,3 @@
+#!/bin/sh
+# cc-volley — Claude Code drafts and revises the spec; Codex critiques.
+VOLLEY_PLANNER=claude exec "$(dirname "$0")/volley.sh" "$@"

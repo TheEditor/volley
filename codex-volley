@@ -1,0 +1,3 @@
+#!/bin/sh
+# codex-volley — Codex drafts and revises the spec; Claude Code critiques.
+VOLLEY_PLANNER=codex exec "$(dirname "$0")/volley.sh" "$@"

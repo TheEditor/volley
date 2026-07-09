@@ -1,9 +1,10 @@
 # volley
 
 Automated plan/critique loop between two coding agents on the same machine:
-**Claude Code** is the planner, **Codex** is the critic. The planner drafts a
-spec from your brief; the critic reviews it; the planner revises or rebuts;
-repeat until the critic approves. No human input after the brief.
+one of **Claude Code** and **Codex** is the planner, the other the critic.
+The planner drafts a spec from your brief; the critic reviews it; the planner
+revises or rebuts; repeat until the critic approves. No human input after the
+brief.
 
 ## Usage
 
@@ -12,11 +13,16 @@ repeat until the critic approves. No human input after the brief.
 2. Run:
 
    ```sh
-   ./volley.sh              # workspace = this directory
-   ./volley.sh path/to/dir  # or any directory containing a BRIEF.md
+   ./cc-volley              # Claude Code plans, Codex critiques
+   ./codex-volley           # Codex plans, Claude Code critiques
+   ./volley.sh path/to/dir  # underlying engine; workspace defaults to this
+                            # directory, role to VOLLEY_PLANNER (claude)
    ```
 
 3. Read `SPEC.md` when it exits.
+
+A workspace remembers its role assignment (`state/roles`): an interrupted
+run must resume with the same planner, and volley refuses if it wouldn't.
 
 Exit codes: `0` converged (critic approved), `2` impasse (round cap reached),
 `1` setup or invocation failure.
@@ -35,6 +41,7 @@ Exit codes: `0` converged (critic approved), `2` impasse (round cap reached),
 
 | Var | Default | Meaning |
 | --- | --- | --- |
+| `VOLLEY_PLANNER` | `claude` | Which agent plans (`claude` or `codex`); the other critiques |
 | `MAX_ROUNDS` | `8` | Hard cap on critique/revise rounds |
 | `CALL_TIMEOUT` | `900` | Seconds per agent invocation (needs `timeout`/`gtimeout`; skipped if absent) |
 | `CLAUDE_BIN` / `CODEX_BIN` | `claude` / `codex` | Binary overrides |
@@ -56,7 +63,9 @@ Set `VOLLEY_ALLOW_API_KEY=1` to override if metered billing is intended.
   or `VERDICT: REVISE`; the orchestrator greps for it and re-asks once if
   missing. Its rubric permits only material objections and forbids
   re-litigating Decision Log entries, so approval is reachable.
-- **The critic is sandboxed read-only** (`codex exec --sandbox read-only`);
-  its critique is captured from its final message, not written by it. The
-  planner may only use file tools (`Read,Write,Edit,Glob,Grep`).
+- **The critic is sandboxed read-only** whichever agent plays it (`codex
+  exec --sandbox read-only`, or claude restricted to `Read,Glob,Grep`); its
+  critique is captured from its final reply, not written by it. The planner
+  gets write access to the workspace only (claude: file tools with
+  `acceptEdits`; codex: `--sandbox workspace-write`).
 - Prompts live in `prompts/` and are meant to be edited to taste.

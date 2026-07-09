@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# volley — automated plan/critique loop between Claude Code (planner) and Codex (critic).
+# volley — automated plan/critique loop between Claude Code and Codex.
 #
 # Usage:  ./volley.sh [workspace-dir]
 #
@@ -7,8 +7,12 @@
 # The loop drafts SPEC.md, then alternates critic review and planner revision
 # until the critic emits VERDICT: APPROVE or MAX_ROUNDS is reached.
 #
-# Env overrides: MAX_ROUNDS (default 8), CALL_TIMEOUT seconds (default 900),
-#                CLAUDE_BIN, CODEX_BIN.
+# Roles: VOLLEY_PLANNER=claude (default) or codex chooses which agent drafts
+# and revises the spec; the other agent critiques. The cc-volley and
+# codex-volley wrappers preset this.
+#
+# Env overrides: VOLLEY_PLANNER (claude|codex), MAX_ROUNDS (default 8),
+#                CALL_TIMEOUT seconds (default 900), CLAUDE_BIN, CODEX_BIN.
 set -euo pipefail
 
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
@@ -24,10 +28,17 @@ MAX_ROUNDS="${MAX_ROUNDS:-8}"
 CALL_TIMEOUT="${CALL_TIMEOUT:-900}"
 CLAUDE_BIN="${CLAUDE_BIN:-claude}"
 CODEX_BIN="${CODEX_BIN:-codex}"
+VOLLEY_PLANNER="${VOLLEY_PLANNER:-claude}"
 
 die() { echo "volley: $*" >&2; exit 1; }
 
 [[ -f "$BRIEF" ]] || die "no BRIEF.md in $ROOT — write the brief first"
+
+case "$VOLLEY_PLANNER" in
+  claude) PLAN_FN=claude_plan; CRIT_FN=codex_critique;  CRITIC=codex ;;
+  codex)  PLAN_FN=codex_plan;  CRIT_FN=claude_critique; CRITIC=claude ;;
+  *) die "VOLLEY_PLANNER must be 'claude' or 'codex' (got '$VOLLEY_PLANNER')" ;;
+esac
 
 # --- Billing guard: refuse to run if a pay-per-token API credential could be
 # picked up by either CLI instead of the subscription login. Override with
@@ -44,6 +55,16 @@ if [[ -z "${VOLLEY_ALLOW_API_KEY:-}" ]]; then
 fi
 
 mkdir -p "$ROUNDS" "$STATE"
+
+# Role pinning: an interrupted run must resume with the same role assignment.
+ROLES_FILE="$STATE/roles"
+if [[ -f "$ROLES_FILE" ]]; then
+  prev="$(cat "$ROLES_FILE")"
+  [[ "$prev" == "planner=$VOLLEY_PLANNER" ]] \
+    || die "this workspace was started with $prev — rerun with that, or remove rounds/ and state/ to start over"
+else
+  echo "planner=$VOLLEY_PLANNER" >"$ROLES_FILE"
+fi
 
 log() { echo "[volley $(date +%H:%M:%S)] $*" | tee -a "$STATE/volley.log"; }
 
@@ -64,14 +85,29 @@ render() { # render <prompt-file> [KEY=value ...] — substitute {{KEY}} placeho
 NESTED_ENV=()
 [[ -n "${CLAUDECODE:-}" ]] && NESTED_ENV=(env -u ANTHROPIC_BASE_URL -u CLAUDECODE -u CLAUDE_CODE_ENTRYPOINT)
 
-run_planner() { # run_planner <prompt>
+# --- Agent invocations: one function per agent per role. The loop below
+# calls roles ($PLAN_FN/$CRIT_FN), never agents. ------------------------------
+
+claude_plan() { # <prompt>
   (cd "$ROOT" && ${TIMEOUT[@]+"${TIMEOUT[@]}"} ${NESTED_ENV[@]+"${NESTED_ENV[@]}"} "$CLAUDE_BIN" -p "$1" \
     --permission-mode acceptEdits \
     --allowedTools "Read,Write,Edit,Glob,Grep" \
     </dev/null >>"$STATE/planner.log" 2>&1)
 }
 
-run_critic() { # run_critic <prompt> <critique-file>
+claude_critique() { # <prompt> <critique-file> — claude -p prints its final reply on stdout
+  (cd "$ROOT" && ${TIMEOUT[@]+"${TIMEOUT[@]}"} ${NESTED_ENV[@]+"${NESTED_ENV[@]}"} "$CLAUDE_BIN" -p "$1" \
+    --allowedTools "Read,Glob,Grep" \
+    </dev/null >"$2" 2>>"$STATE/critic.log")
+}
+
+codex_plan() { # <prompt> — write access limited to the workspace
+  (cd "$ROOT" && ${TIMEOUT[@]+"${TIMEOUT[@]}"} "$CODEX_BIN" exec \
+    --sandbox workspace-write --skip-git-repo-check --cd "$ROOT" \
+    "$1" </dev/null >>"$STATE/planner.log" 2>&1)
+}
+
+codex_critique() { # <prompt> <critique-file>
   (cd "$ROOT" && ${TIMEOUT[@]+"${TIMEOUT[@]}"} "$CODEX_BIN" exec \
     --sandbox read-only --skip-git-repo-check --cd "$ROOT" \
     --output-last-message "$2" \
@@ -83,10 +119,12 @@ verdict_of() { # print APPROVE or REVISE from the file's last verdict line, if a
     | tail -1 | grep -Eo 'APPROVE|REVISE' || true
 }
 
+log "roles: planner=$VOLLEY_PLANNER critic=$CRITIC"
+
 # --- Round 0: initial spec (skipped on rerun so an interrupted loop resumes) ---
 if [[ ! -f "$SPEC" ]]; then
   log "planner: drafting initial SPEC.md"
-  run_planner "$(render "$PROMPTS/planner-init.md")"
+  "$PLAN_FN" "$(render "$PROMPTS/planner-init.md")"
   [[ -f "$SPEC" ]] || die "planner produced no SPEC.md (see state/planner.log)"
 fi
 
@@ -98,12 +136,12 @@ for (( n=start; n<=MAX_ROUNDS; n++ )); do
   CRIT="$ROUNDS/$N.critique.md"
 
   log "$N: critic reviewing SPEC.md"
-  run_critic "$(render "$PROMPTS/critic.md" ROUND="$n" MAX="$MAX_ROUNDS")" "$CRIT"
+  "$CRIT_FN" "$(render "$PROMPTS/critic.md" ROUND="$n" MAX="$MAX_ROUNDS")" "$CRIT"
   v="$(verdict_of "$CRIT")"
 
   if [[ -z "$v" ]]; then
     log "$N: no verdict line; re-asking critic once"
-    run_critic "$(render "$PROMPTS/critic.md" ROUND="$n" MAX="$MAX_ROUNDS")
+    "$CRIT_FN" "$(render "$PROMPTS/critic.md" ROUND="$n" MAX="$MAX_ROUNDS")
 
 REMINDER: your previous reply omitted the required final line. It must be exactly 'VERDICT: APPROVE' or 'VERDICT: REVISE'." "$CRIT"
     v="$(verdict_of "$CRIT")"
@@ -117,7 +155,7 @@ REMINDER: your previous reply omitted the required final line. It must be exactl
   fi
 
   log "$N: planner revising SPEC.md"
-  run_planner "$(render "$PROMPTS/planner-revise.md" ROUND="$N")"
+  "$PLAN_FN" "$(render "$PROMPTS/planner-revise.md" ROUND="$N")"
   cp "$SPEC" "$ROUNDS/$N.spec.md"
 done
 
