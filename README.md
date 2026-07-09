@@ -67,6 +67,7 @@ Exit codes: `0` converged (critic approved), `2` impasse (round cap reached),
 | `VOLLEY_CLOSING_PASS` | `1` | After APPROVE, one extra planner pass addresses or declines the critic's non-blocking remarks (Decision Log entries); `0` disables |
 | `VOLLEY_SECOND_OPINION` | `0` | After APPROVE, the *other* agent reviews the final spec once (`rounds/second-opinion.md`); advisory only — its remarks feed the closing pass, it cannot flip the verdict |
 | `VOLLEY_CONTEXT_DIR` | unset | Absolute path to an existing codebase both agents read (claude via `--add-dir`; codex's sandboxes read outside cwd natively). Read-only by contract: writes stay in the workspace. Name entry points in `BRIEF.md` to avoid context dilution |
+| `VOLLEY_PROFILE` | unset | Append `prompts/profiles/<name>.md` to every critic prompt: extra material-defect classes, active probes (silence can be the objection), and severity calibration for a domain. Shipped: `security`, `data`, `decision-memo` |
 
 ## Billing guard
 
@@ -90,4 +91,8 @@ Set `VOLLEY_ALLOW_API_KEY=1` to override if metered billing is intended.
   critique is captured from its final reply, not written by it. The planner
   gets write access to the workspace only (claude: file tools with
   `acceptEdits`; codex: `--sandbox workspace-write`).
-- Prompts live in `prompts/` and are meant to be edited to taste.
+- Prompts live in `prompts/` and are meant to be edited to taste. Critic
+  rubric profiles live in `prompts/profiles/`; each ends by restating the
+  materiality bar so a profile sharpens the critic without turning it into
+  a checklist zealot. `decision-memo` is the one that makes volley useful
+  on non-software briefs.

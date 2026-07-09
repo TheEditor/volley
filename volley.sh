@@ -17,7 +17,9 @@
 #                VOLLEY_SECOND_OPINION (default 0; 1 has the other agent
 #                review the approved spec once, feeding the closing pass),
 #                VOLLEY_CONTEXT_DIR (absolute path to an existing codebase
-#                both agents may read; must lie outside the workspace).
+#                both agents may read; must lie outside the workspace),
+#                VOLLEY_PROFILE (append prompts/profiles/<name>.md to every
+#                critic prompt; shipped: security, data, decision-memo).
 set -euo pipefail
 
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
@@ -83,6 +85,19 @@ if [[ -n "${VOLLEY_CONTEXT_DIR:-}" ]]; then
 
 A read-only reference codebase is available at $CTX. Ground your work in its actual code — start from the entry points and paths BRIEF.md names. Do not modify anything under it; all writes stay in the workspace."
   CLAUDE_CTX=(--add-dir "$CTX")
+fi
+
+# --- Critic rubric profile: an optional prompt fragment appended to every
+# critic prompt. No profile means the critic prompt is byte-identical to the
+# unprofiled render.
+PROFILE_BLOCK=""
+if [[ -n "${VOLLEY_PROFILE:-}" ]]; then
+  PROFILE_FILE="$PROMPTS/profiles/$VOLLEY_PROFILE.md"
+  [[ -f "$PROFILE_FILE" ]] \
+    || die "unknown VOLLEY_PROFILE '$VOLLEY_PROFILE' — expected $PROFILE_FILE"
+  PROFILE_BLOCK="
+
+$(cat "$PROFILE_FILE")"
 fi
 
 mkdir -p "$ROUNDS" "$STATE"
@@ -160,7 +175,7 @@ second_opinion() { # <round> — after APPROVE, the other agent reviews SPEC.md
   [[ "$VOLLEY_SECOND_OPINION" == "1" ]] || return 0
   local out="$ROUNDS/second-opinion.md" n_remarks
   log "second opinion: $SECOND_AGENT reviewing approved SPEC.md"
-  "$SECOND_FN" "$(render "$PROMPTS/critic.md" ROUND="$1" MAX="$MAX_ROUNDS" "HUMAN=" "CONTEXT=$CONTEXT_BLOCK")" "$out"
+  "$SECOND_FN" "$(render "$PROMPTS/critic.md" ROUND="$1" MAX="$MAX_ROUNDS" "HUMAN=" "CONTEXT=$CONTEXT_BLOCK")$PROFILE_BLOCK" "$out"
   n_remarks="$(grep -cE '^[0-9]+\.' "$out" 2>/dev/null || true)"
   log "second opinion from $SECOND_AGENT: ${n_remarks:-0} remark(s)"
 }
@@ -218,12 +233,12 @@ $(cat "$ROOT/HUMAN.md")
   fi
 
   log "$N: critic reviewing SPEC.md"
-  "$CRIT_FN" "$(render "$PROMPTS/critic.md" ROUND="$n" MAX="$MAX_ROUNDS" "HUMAN=$HUMAN_BLOCK" "CONTEXT=$CONTEXT_BLOCK")" "$CRIT"
+  "$CRIT_FN" "$(render "$PROMPTS/critic.md" ROUND="$n" MAX="$MAX_ROUNDS" "HUMAN=$HUMAN_BLOCK" "CONTEXT=$CONTEXT_BLOCK")$PROFILE_BLOCK" "$CRIT"
   v="$(verdict_of "$CRIT")"
 
   if [[ -z "$v" ]]; then
     log "$N: no verdict line; re-asking critic once"
-    "$CRIT_FN" "$(render "$PROMPTS/critic.md" ROUND="$n" MAX="$MAX_ROUNDS" "HUMAN=$HUMAN_BLOCK" "CONTEXT=$CONTEXT_BLOCK")
+    "$CRIT_FN" "$(render "$PROMPTS/critic.md" ROUND="$n" MAX="$MAX_ROUNDS" "HUMAN=$HUMAN_BLOCK" "CONTEXT=$CONTEXT_BLOCK")$PROFILE_BLOCK
 
 REMINDER: your previous reply omitted the required final line. It must be exactly 'VERDICT: APPROVE' or 'VERDICT: REVISE'." "$CRIT"
     v="$(verdict_of "$CRIT")"

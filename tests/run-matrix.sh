@@ -199,6 +199,24 @@ for planner in claude codex; do
   run_volley "$planner" 8 "APPROVE" VOLLEY_CONTEXT_DIR="$WS"
   assert "[$planner] context-guard: workspace itself refused" test $? -eq 1
 
+  # --- critic rubric profile ---------------------------------------------------
+  new_ws
+  run_volley "$planner" 8 "APPROVE" VOLLEY_PROFILE=security
+  assert "[$planner] profile: exit 0" test $? -eq 0
+  assert "[$planner] profile: critic prompt carries the rubric" \
+    grep -q 'Domain rubric: security' "$MOCK/critic-$critic-01.prompt"
+  assert "[$planner] profile: planner prompt does not" \
+    sh -c "! grep -q 'Domain rubric' '$MOCK/planner-$planner-01.prompt'"
+
+  new_ws
+  run_volley "$planner" 8 "APPROVE" VOLLEY_PROFILE=no-such-profile
+  assert "[$planner] profile-guard: unknown profile refused" test $? -eq 1
+
+  new_ws
+  run_volley "$planner" 8 "APPROVE"
+  assert "[$planner] profile-off: unprofiled critic prompt clean" \
+    sh -c "! grep -q 'Domain rubric' '$MOCK/critic-$critic-01.prompt'"
+
   # --- role pinning ------------------------------------------------------------
   new_ws
   run_volley "$planner" 8 "APPROVE"
@@ -235,6 +253,14 @@ mkdir -p "$FAKEHOME/.codex"
 echo '{"OPENAI_API_KEY": null}' >"$FAKEHOME/.codex/auth.json"
 run_volley claude 8 "APPROVE"
 assert "guard: auth.json null key allowed" test $? -eq 0
+
+# --- shipped profile fragments exist and restate the materiality bar -----------
+for prof in security data decision-memo; do
+  assert "profiles: $prof fragment shipped" \
+    test -s "$REPO/prompts/profiles/$prof.md"
+  assert "profiles: $prof restates materiality bar" \
+    grep -qi 'materiality bar' "$REPO/prompts/profiles/$prof.md"
+done
 
 # --- setup failure -------------------------------------------------------------
 new_ws
