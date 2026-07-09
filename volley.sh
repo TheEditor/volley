@@ -15,7 +15,9 @@
 #                CALL_TIMEOUT seconds (default 900), CLAUDE_BIN, CODEX_BIN,
 #                VOLLEY_CLOSING_PASS (default 1; 0 skips the closing pass),
 #                VOLLEY_SECOND_OPINION (default 0; 1 has the other agent
-#                review the approved spec once, feeding the closing pass).
+#                review the approved spec once, feeding the closing pass),
+#                VOLLEY_CONTEXT_DIR (absolute path to an existing codebase
+#                both agents may read; must lie outside the workspace).
 set -euo pipefail
 
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
@@ -61,6 +63,28 @@ if [[ -z "${VOLLEY_ALLOW_API_KEY:-}" ]]; then
     && die "API key found in ~/.codex/auth.json — codex would bill the API. Re-run 'codex login' with ChatGPT or set VOLLEY_ALLOW_API_KEY=1."
 fi
 
+# --- Repo context: VOLLEY_CONTEXT_DIR mounts an existing codebase read-only
+# for both agents, so BRIEF.md can request plans about real systems. Writes
+# stay confined to the workspace; volley stays strictly on the planning side.
+# codex reads outside cwd in both sandbox modes (verified empirically);
+# claude needs --add-dir.
+CONTEXT_BLOCK=""
+CLAUDE_CTX=()
+if [[ -n "${VOLLEY_CONTEXT_DIR:-}" ]]; then
+  [[ "$VOLLEY_CONTEXT_DIR" == /* ]] \
+    || die "VOLLEY_CONTEXT_DIR must be an absolute path (got '$VOLLEY_CONTEXT_DIR')"
+  [[ -d "$VOLLEY_CONTEXT_DIR" && -r "$VOLLEY_CONTEXT_DIR" ]] \
+    || die "VOLLEY_CONTEXT_DIR is not a readable directory: $VOLLEY_CONTEXT_DIR"
+  CTX="$(cd "$VOLLEY_CONTEXT_DIR" && pwd)"
+  case "$CTX/" in
+    "$ROOT/"*) die "VOLLEY_CONTEXT_DIR must be outside the workspace ($ROOT)" ;;
+  esac
+  CONTEXT_BLOCK="
+
+A read-only reference codebase is available at $CTX. Ground your work in its actual code — start from the entry points and paths BRIEF.md names. Do not modify anything under it; all writes stay in the workspace."
+  CLAUDE_CTX=(--add-dir "$CTX")
+fi
+
 mkdir -p "$ROUNDS" "$STATE"
 
 # Role pinning: an interrupted run must resume with the same role assignment.
@@ -99,12 +123,14 @@ claude_plan() { # <prompt>
   (cd "$ROOT" && ${TIMEOUT[@]+"${TIMEOUT[@]}"} ${NESTED_ENV[@]+"${NESTED_ENV[@]}"} "$CLAUDE_BIN" -p "$1" \
     --permission-mode acceptEdits \
     --allowedTools "Read,Write,Edit,Glob,Grep" \
+    ${CLAUDE_CTX[@]+"${CLAUDE_CTX[@]}"} \
     </dev/null >>"$STATE/planner.log" 2>&1)
 }
 
 claude_critique() { # <prompt> <critique-file> — claude -p prints its final reply on stdout
   (cd "$ROOT" && ${TIMEOUT[@]+"${TIMEOUT[@]}"} ${NESTED_ENV[@]+"${NESTED_ENV[@]}"} "$CLAUDE_BIN" -p "$1" \
     --allowedTools "Read,Glob,Grep" \
+    ${CLAUDE_CTX[@]+"${CLAUDE_CTX[@]}"} \
     </dev/null >"$2" 2>>"$STATE/critic.log")
 }
 
@@ -134,7 +160,7 @@ second_opinion() { # <round> — after APPROVE, the other agent reviews SPEC.md
   [[ "$VOLLEY_SECOND_OPINION" == "1" ]] || return 0
   local out="$ROUNDS/second-opinion.md" n_remarks
   log "second opinion: $SECOND_AGENT reviewing approved SPEC.md"
-  "$SECOND_FN" "$(render "$PROMPTS/critic.md" ROUND="$1" MAX="$MAX_ROUNDS" "HUMAN=")" "$out"
+  "$SECOND_FN" "$(render "$PROMPTS/critic.md" ROUND="$1" MAX="$MAX_ROUNDS" "HUMAN=" "CONTEXT=$CONTEXT_BLOCK")" "$out"
   n_remarks="$(grep -cE '^[0-9]+\.' "$out" 2>/dev/null || true)"
   log "second opinion from $SECOND_AGENT: ${n_remarks:-0} remark(s)"
 }
@@ -156,7 +182,7 @@ closing_pass() { # <rNN> <critique-file> — after APPROVE, the planner addresse
     return 0
   fi
   log "$1: closing pass — planner disposing of non-blocking remarks"
-  "$PLAN_FN" "$(render "$PROMPTS/closing-pass.md" ROUND="$1" "SECOND_OPINION=$extra")"
+  "$PLAN_FN" "$(render "$PROMPTS/closing-pass.md" ROUND="$1" "SECOND_OPINION=$extra" "CONTEXT=$CONTEXT_BLOCK")"
 }
 
 log "roles: planner=$VOLLEY_PLANNER critic=$CRITIC"
@@ -164,7 +190,7 @@ log "roles: planner=$VOLLEY_PLANNER critic=$CRITIC"
 # --- Round 0: initial spec (skipped on rerun so an interrupted loop resumes) ---
 if [[ ! -f "$SPEC" ]]; then
   log "planner: drafting initial SPEC.md"
-  "$PLAN_FN" "$(render "$PROMPTS/planner-init.md")"
+  "$PLAN_FN" "$(render "$PROMPTS/planner-init.md" "CONTEXT=$CONTEXT_BLOCK")"
   [[ -f "$SPEC" ]] || die "planner produced no SPEC.md (see state/planner.log)"
 fi
 
@@ -192,12 +218,12 @@ $(cat "$ROOT/HUMAN.md")
   fi
 
   log "$N: critic reviewing SPEC.md"
-  "$CRIT_FN" "$(render "$PROMPTS/critic.md" ROUND="$n" MAX="$MAX_ROUNDS" "HUMAN=$HUMAN_BLOCK")" "$CRIT"
+  "$CRIT_FN" "$(render "$PROMPTS/critic.md" ROUND="$n" MAX="$MAX_ROUNDS" "HUMAN=$HUMAN_BLOCK" "CONTEXT=$CONTEXT_BLOCK")" "$CRIT"
   v="$(verdict_of "$CRIT")"
 
   if [[ -z "$v" ]]; then
     log "$N: no verdict line; re-asking critic once"
-    "$CRIT_FN" "$(render "$PROMPTS/critic.md" ROUND="$n" MAX="$MAX_ROUNDS" "HUMAN=$HUMAN_BLOCK")
+    "$CRIT_FN" "$(render "$PROMPTS/critic.md" ROUND="$n" MAX="$MAX_ROUNDS" "HUMAN=$HUMAN_BLOCK" "CONTEXT=$CONTEXT_BLOCK")
 
 REMINDER: your previous reply omitted the required final line. It must be exactly 'VERDICT: APPROVE' or 'VERDICT: REVISE'." "$CRIT"
     v="$(verdict_of "$CRIT")"
@@ -213,7 +239,7 @@ REMINDER: your previous reply omitted the required final line. It must be exactl
   fi
 
   log "$N: planner revising SPEC.md"
-  "$PLAN_FN" "$(render "$PROMPTS/planner-revise.md" ROUND="$N" "HUMAN=$HUMAN_BLOCK")"
+  "$PLAN_FN" "$(render "$PROMPTS/planner-revise.md" ROUND="$N" "HUMAN=$HUMAN_BLOCK" "CONTEXT=$CONTEXT_BLOCK")"
   cp "$SPEC" "$ROUNDS/$N.spec.md"
 done
 

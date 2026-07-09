@@ -162,6 +162,43 @@ for planner in claude codex; do
   assert "[$planner] verdict-retry: still round 1" \
     test ! -e "$WS/rounds/r02.critique.md"
 
+  # --- repo context: both agents pointed at a read-only codebase -------------------
+  new_ws
+  mkdir -p "$WS-ctx"
+  CTXDIR="$(cd "$WS-ctx" && pwd -P)"
+  echo "package main" >"$CTXDIR/main.go"
+  run_volley "$planner" 8 "APPROVE" VOLLEY_CONTEXT_DIR="$CTXDIR"
+  assert "[$planner] context: exit 0" test $? -eq 0
+  assert "[$planner] context: planner prompt names the dir" \
+    grep -q "$CTXDIR" "$MOCK/planner-$planner-01.prompt"
+  assert "[$planner] context: critic prompt names the dir" \
+    grep -q "$CTXDIR" "$MOCK/critic-$critic-01.prompt"
+  if [[ "$planner" == claude ]]; then claude_argv="$MOCK/planner-claude-01.argv"
+  else claude_argv="$MOCK/critic-claude-01.argv"; fi
+  assert "[$planner] context: claude invoked with --add-dir" \
+    grep -qx -- '--add-dir' "$claude_argv"
+  assert "[$planner] context: --add-dir points at the dir" \
+    grep -qx -- "$CTXDIR" "$claude_argv"
+  rm -rf "$CTXDIR"
+
+  # --- repo context: guards ---------------------------------------------------------
+  new_ws
+  run_volley "$planner" 8 "APPROVE" VOLLEY_CONTEXT_DIR="relative/path"
+  assert "[$planner] context-guard: relative path refused" test $? -eq 1
+
+  new_ws
+  run_volley "$planner" 8 "APPROVE" VOLLEY_CONTEXT_DIR="$WS/does-not-exist"
+  assert "[$planner] context-guard: unreadable path refused" test $? -eq 1
+
+  new_ws
+  mkdir -p "$WS/inner"
+  run_volley "$planner" 8 "APPROVE" VOLLEY_CONTEXT_DIR="$WS/inner"
+  assert "[$planner] context-guard: dir inside workspace refused" test $? -eq 1
+
+  new_ws
+  run_volley "$planner" 8 "APPROVE" VOLLEY_CONTEXT_DIR="$WS"
+  assert "[$planner] context-guard: workspace itself refused" test $? -eq 1
+
   # --- role pinning ------------------------------------------------------------
   new_ws
   run_volley "$planner" 8 "APPROVE"

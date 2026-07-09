@@ -12,6 +12,7 @@ set -euo pipefail
 : "${MOCK_STATE:?MOCK_STATE dir must be set}"
 mkdir -p "$MOCK_STATE"
 
+orig_args=("$@")
 prompt=""
 sandbox=""
 cd_dir=""
@@ -38,6 +39,7 @@ bump() { # bump <counter-name> -> new count on stdout
 if [[ "$sandbox" == "workspace-write" ]]; then
   n="$(bump planner-calls)"
   printf '%s' "$prompt" >"$MOCK_STATE/planner-codex-$(printf '%02d' "$n").prompt"
+  printf '%s\n' "${orig_args[@]}" >"$MOCK_STATE/planner-codex-$(printf '%02d' "$n").argv"
   if [[ ! -f SPEC.md ]]; then
     cat >SPEC.md <<'EOF'
 # Mock spec
@@ -56,6 +58,7 @@ fi
 
 n="$(bump critic-calls)"
 printf '%s' "$prompt" >"$MOCK_STATE/critic-codex-$(printf '%02d' "$n").prompt"
+printf '%s\n' "${orig_args[@]}" >"$MOCK_STATE/critic-codex-$(printf '%02d' "$n").argv"
 verdicts=(${MOCK_VERDICTS:-APPROVE})
 idx=$(( n - 1 ))
 (( idx >= ${#verdicts[@]} )) && idx=$(( ${#verdicts[@]} - 1 ))

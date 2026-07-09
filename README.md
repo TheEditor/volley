@@ -24,6 +24,14 @@ brief.
 A workspace remembers its role assignment (`state/roles`): an interrupted
 run must resume with the same planner, and volley refuses if it wouldn't.
 
+### Planning against an existing repo
+
+Set `VOLLEY_CONTEXT_DIR=/abs/path/to/repo` and the brief can request plans
+about real systems ("plan the migration of X in this repo"): both planner
+and critic ground their work in the actual code. The path must be absolute,
+readable, and outside the workspace. Have `BRIEF.md` name the entry points
+and paths of interest so the agents don't drown in an unfamiliar tree.
+
 ### Steering a running loop
 
 Drop a `HUMAN.md` into the workspace at any time. At the next round it is
@@ -58,6 +66,7 @@ Exit codes: `0` converged (critic approved), `2` impasse (round cap reached),
 | `CLAUDE_BIN` / `CODEX_BIN` | `claude` / `codex` | Binary overrides |
 | `VOLLEY_CLOSING_PASS` | `1` | After APPROVE, one extra planner pass addresses or declines the critic's non-blocking remarks (Decision Log entries); `0` disables |
 | `VOLLEY_SECOND_OPINION` | `0` | After APPROVE, the *other* agent reviews the final spec once (`rounds/second-opinion.md`); advisory only — its remarks feed the closing pass, it cannot flip the verdict |
+| `VOLLEY_CONTEXT_DIR` | unset | Absolute path to an existing codebase both agents read (claude via `--add-dir`; codex's sandboxes read outside cwd natively). Read-only by contract: writes stay in the workspace. Name entry points in `BRIEF.md` to avoid context dilution |
 
 ## Billing guard
 

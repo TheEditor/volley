@@ -33,6 +33,7 @@ bump() { # bump <counter-name> -> new count on stdout
 if (( planner )); then
   n="$(bump planner-calls)"
   printf '%s' "$prompt" >"$MOCK_STATE/planner-claude-$(printf '%02d' "$n").prompt"
+  printf '%s\n' "$@" >"$MOCK_STATE/planner-claude-$(printf '%02d' "$n").argv"
   if [[ ! -f SPEC.md ]]; then
     cat >SPEC.md <<'EOF'
 # Mock spec
@@ -51,6 +52,7 @@ fi
 
 n="$(bump critic-calls)"
 printf '%s' "$prompt" >"$MOCK_STATE/critic-claude-$(printf '%02d' "$n").prompt"
+printf '%s\n' "$@" >"$MOCK_STATE/critic-claude-$(printf '%02d' "$n").argv"
 verdicts=(${MOCK_VERDICTS:-APPROVE})
 idx=$(( n - 1 ))
 (( idx >= ${#verdicts[@]} )) && idx=$(( ${#verdicts[@]} - 1 ))
