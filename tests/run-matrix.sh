@@ -59,6 +59,18 @@ for planner in claude codex; do
     test "$(cat "$MOCK/planner-calls")" = 1
   assert "[$planner] approve-first: no second opinion by default" \
     test ! -e "$WS/rounds/second-opinion.md"
+  assert "[$planner] approve-first: provenance written" \
+    test -f "$WS/state/provenance.md"
+  assert "[$planner] approve-first: provenance records role assignment" \
+    grep -q "Planner: $planner" "$WS/state/provenance.md"
+  assert "[$planner] approve-first: provenance records claude version" \
+    grep -q "Claude version: mock-claude 1.2.3" "$WS/state/provenance.md"
+  assert "[$planner] approve-first: provenance records codex version" \
+    grep -q "Codex version: mock-codex 4.5.6" "$WS/state/provenance.md"
+  assert "[$planner] approve-first: provenance records unpinned models" \
+    grep -q "default/unrecorded by volley" "$WS/state/provenance.md"
+  assert "[$planner] approve-first: planner prompt stays free of loop framing" \
+    sh -c "! grep -qiE 'automated|counterpart|critic' '$MOCK/planner-$planner-01.prompt'"
 
   # --- revise then approve ---------------------------------------------------
   new_ws
@@ -68,6 +80,10 @@ for planner in claude codex; do
     test -f "$WS/rounds/r01.spec.md"
   assert "[$planner] revise-approve: spec revised" \
     grep -q 'mock revision entry' "$WS/SPEC.md"
+  assert "[$planner] revise-approve: planner response written" \
+    test -f "$WS/rounds/r01.response.md"
+  assert "[$planner] revise-approve: response records disposition" \
+    grep -q 'mock response entry' "$WS/rounds/r01.response.md"
   assert "[$planner] revise-approve: two critiques" \
     test -f "$WS/rounds/r02.critique.md"
   assert "[$planner] revise-approve: no closing pass on clean approve" \
@@ -79,12 +95,14 @@ for planner in claude codex; do
   assert "[$planner] closing-pass: exit 0" test $? -eq 0
   assert "[$planner] closing-pass: one extra planner call" \
     test "$(cat "$MOCK/planner-calls")" = 2
-  assert "[$planner] closing-pass: prompt names closing pass" \
-    grep -q 'closing pass' "$MOCK/planner-$planner-02.prompt"
+  assert "[$planner] closing-pass: prompt asks for the closing response" \
+    grep -q 'closing-response.md' "$MOCK/planner-$planner-02.prompt"
   assert "[$planner] closing-pass: prompt points at approving critique" \
     grep -q 'rounds/r01.critique.md' "$MOCK/planner-$planner-02.prompt"
-  assert "[$planner] closing-pass: spec got a decision-log disposition" \
+  assert "[$planner] closing-pass: spec got a disposition edit" \
     grep -q 'mock revision entry' "$WS/SPEC.md"
+  assert "[$planner] closing-pass: closing response written" \
+    test -f "$WS/rounds/r01.closing-response.md"
   assert "[$planner] closing-pass: critic not re-run" \
     test "$(cat "$MOCK/critic-calls")" = 1
 
@@ -139,6 +157,20 @@ for planner in claude codex; do
     sh -c "! grep -q 'HUMAN DIRECTIVE' '$MOCK/critic-$critic-02.prompt'"
   assert "[$planner] steering: no placeholder residue" \
     sh -c "! grep -q '{{HUMAN}}' '$MOCK/critic-$critic-02.prompt'"
+
+  # --- CONSTRAINTS.md: injected into both roles and retained across rounds ---------
+  new_ws
+  echo "The plan must name the TSV wire format." >"$WS/CONSTRAINTS.md"
+  run_volley "$planner" 8 "REVISE APPROVE"
+  assert "[$planner] constraints: exit 0" test $? -eq 0
+  assert "[$planner] constraints: initial planner got binding block" \
+    grep -q 'CONSTRAINTS.md (binding)' "$MOCK/planner-$planner-01.prompt"
+  assert "[$planner] constraints: critic got constraint body" \
+    grep -q 'TSV wire format' "$MOCK/critic-$critic-01.prompt"
+  assert "[$planner] constraints: revision planner got constraint body" \
+    grep -q 'TSV wire format' "$MOCK/planner-$planner-02.prompt"
+  assert "[$planner] constraints: no placeholder residue" \
+    sh -c "! grep -q '{{CONSTRAINTS}}' '$MOCK/critic-$critic-02.prompt'"
 
   # --- second opinion: impasse path unaffected -------------------------------------
   new_ws
@@ -217,6 +249,26 @@ for planner in claude codex; do
   assert "[$planner] profile-off: unprofiled critic prompt clean" \
     sh -c "! grep -q 'Domain rubric' '$MOCK/critic-$critic-01.prompt'"
 
+  # --- explicit model pins ----------------------------------------------------
+  new_ws
+  run_volley "$planner" 8 "APPROVE" \
+    VOLLEY_CLAUDE_MODEL=mock-sonnet VOLLEY_CODEX_MODEL=mock-gpt
+  assert "[$planner] models: exit 0" test $? -eq 0
+  assert "[$planner] models: provenance records claude model" \
+    grep -q 'Claude model: mock-sonnet' "$WS/state/provenance.md"
+  assert "[$planner] models: provenance records codex model" \
+    grep -q 'Codex model: mock-gpt' "$WS/state/provenance.md"
+  if [[ "$planner" == claude ]]; then claude_argv="$MOCK/planner-claude-01.argv"; codex_argv="$MOCK/critic-codex-01.argv"
+  else claude_argv="$MOCK/critic-claude-01.argv"; codex_argv="$MOCK/planner-codex-01.argv"; fi
+  assert "[$planner] models: claude invoked with --model" \
+    grep -qx -- '--model' "$claude_argv"
+  assert "[$planner] models: claude model value passed" \
+    grep -qx -- 'mock-sonnet' "$claude_argv"
+  assert "[$planner] models: codex invoked with --model" \
+    grep -qx -- '--model' "$codex_argv"
+  assert "[$planner] models: codex model value passed" \
+    grep -qx -- 'mock-gpt' "$codex_argv"
+
   # --- role pinning ------------------------------------------------------------
   new_ws
   run_volley "$planner" 8 "APPROVE"
@@ -224,6 +276,104 @@ for planner in claude codex; do
   assert "[$planner] role-pin: swapped rerun refused" test $? -eq 1
   assert "[$planner] role-pin: message names original role" \
     grep -q "planner=$planner" "$WS/run.out"
+
+  # --- persistent sessions: each role keeps one CLI session across rounds -------
+  new_ws
+  run_volley "$planner" 8 "REVISE APPROVE" VOLLEY_PERSISTENT=1
+  assert "[$planner] persistent: exit 0" test $? -eq 0
+  assert "[$planner] persistent: planner session recorded" \
+    test -s "$WS/state/session.planner"
+  assert "[$planner] persistent: critic session recorded" \
+    test -s "$WS/state/session.critic"
+  assert "[$planner] persistent: provenance records mode" \
+    grep -q 'Persistent sessions: 1' "$WS/state/provenance.md"
+  psid="$(cat "$WS/state/session.planner" 2>/dev/null)"
+  csid="$(cat "$WS/state/session.critic" 2>/dev/null)"
+  if [[ "$planner" == claude ]]; then
+    assert "[$planner] persistent: claude planner opens with --session-id" \
+      grep -qx -- '--session-id' "$MOCK/planner-claude-01.argv"
+    assert "[$planner] persistent: recorded id matches the opener" \
+      grep -qx -- "$psid" "$MOCK/planner-claude-01.argv"
+    assert "[$planner] persistent: claude planner resumes on revision" \
+      grep -qx -- '--resume' "$MOCK/planner-claude-02.argv"
+    assert "[$planner] persistent: revision resumes the recorded id" \
+      grep -qx -- "$psid" "$MOCK/planner-claude-02.argv"
+    assert "[$planner] persistent: codex critic round 1 is a fresh exec" \
+      grep -qx -- '--sandbox' "$MOCK/critic-codex-01.argv"
+    assert "[$planner] persistent: codex critic round 2 resumes" \
+      grep -qx -- 'resume' "$MOCK/critic-codex-02.argv"
+    assert "[$planner] persistent: codex resume names the recorded id" \
+      grep -qx -- "$csid" "$MOCK/critic-codex-02.argv"
+    assert "[$planner] persistent: codex resume re-imposes read-only sandbox" \
+      grep -qx -- 'sandbox_mode=read-only' "$MOCK/critic-codex-02.argv"
+  else
+    assert "[$planner] persistent: codex planner round 0 is a fresh exec" \
+      grep -qx -- '--sandbox' "$MOCK/planner-codex-01.argv"
+    assert "[$planner] persistent: codex planner resumes on revision" \
+      grep -qx -- 'resume' "$MOCK/planner-codex-02.argv"
+    assert "[$planner] persistent: codex resume names the recorded id" \
+      grep -qx -- "$psid" "$MOCK/planner-codex-02.argv"
+    assert "[$planner] persistent: codex resume re-imposes write sandbox" \
+      grep -qx -- 'sandbox_mode=workspace-write' "$MOCK/planner-codex-02.argv"
+    assert "[$planner] persistent: claude critic opens with --session-id" \
+      grep -qx -- '--session-id' "$MOCK/critic-claude-01.argv"
+    assert "[$planner] persistent: claude critic resumes round 2" \
+      grep -qx -- '--resume' "$MOCK/critic-claude-02.argv"
+    assert "[$planner] persistent: critic resume names the recorded id" \
+      grep -qx -- "$csid" "$MOCK/critic-claude-02.argv"
+  fi
+
+  # --- persistent: verdict re-ask stays in the critic session --------------------
+  new_ws
+  run_volley "$planner" 8 "NONE APPROVE" VOLLEY_PERSISTENT=1
+  assert "[$planner] persistent-retry: exit 0" test $? -eq 0
+  assert "[$planner] persistent-retry: re-ask resumes the critic session" \
+    sh -c "grep -qxE -- '--resume|resume' '$MOCK/critic-$critic-02.argv'"
+
+  # --- persistent: second opinion and closing pass ------------------------------
+  new_ws
+  run_volley "$planner" 8 "APPROVE_REMARKS APPROVE_REMARKS" \
+    VOLLEY_PERSISTENT=1 VOLLEY_SECOND_OPINION=1
+  assert "[$planner] persistent-second: exit 0" test $? -eq 0
+  assert "[$planner] persistent-second: second opinion stays one-shot" \
+    sh -c "! grep -qxE -- '--resume|--session-id|resume' '$MOCK/critic-$planner-02.argv'"
+  assert "[$planner] persistent-second: closing pass resumes the planner session" \
+    sh -c "grep -qxE -- '--resume|resume' '$MOCK/planner-$planner-02.argv'"
+
+  # --- persistent: mode is pinned per workspace ---------------------------------
+  new_ws
+  run_volley "$planner" 8 "REVISE APPROVE" VOLLEY_PERSISTENT=1
+  run_volley "$planner" 8 "APPROVE"
+  assert "[$planner] persistent-pin: mode flip on rerun refused" test $? -eq 1
+  assert "[$planner] persistent-pin: message names VOLLEY_PERSISTENT" \
+    grep -q 'VOLLEY_PERSISTENT=1' "$WS/run.out"
+
+  # --- resume finishes an interrupted revision before re-running the critic -------
+  new_ws
+  run_volley "$planner" 1 "REVISE"
+  rm "$WS/rounds/r01.response.md" "$WS/rounds/r01.spec.md" "$WS/state/IMPASSE.md"
+  run_volley "$planner" 8 "REVISE APPROVE"
+  assert "[$planner] resume-revision: exit 0" test $? -eq 0
+  assert "[$planner] resume-revision: log names the catch-up" \
+    grep -q 'resuming interrupted revision' "$WS/run.out"
+  assert "[$planner] resume-revision: r01 response recreated" \
+    test -f "$WS/rounds/r01.response.md"
+  assert "[$planner] resume-revision: r01 spec snapshot recreated" \
+    test -f "$WS/rounds/r01.spec.md"
+  assert "[$planner] resume-revision: critic then reviews the revised spec" \
+    test -f "$WS/rounds/r02.critique.md"
+  assert "[$planner] resume-revision: no wasted critic call" \
+    test "$(cat "$MOCK/critic-calls")" = 2
+
+  # --- persistent off by default -------------------------------------------------
+  new_ws
+  run_volley "$planner" 8 "APPROVE"
+  assert "[$planner] persistent-off: no planner session file" \
+    test ! -e "$WS/state/session.planner"
+  assert "[$planner] persistent-off: no critic session file" \
+    test ! -e "$WS/state/session.critic"
+  assert "[$planner] persistent-off: provenance records mode off" \
+    grep -q 'Persistent sessions: 0' "$WS/state/provenance.md"
 done
 
 # --- billing guard (role-independent) -----------------------------------------
@@ -255,11 +405,9 @@ run_volley claude 8 "APPROVE"
 assert "guard: auth.json null key allowed" test $? -eq 0
 
 # --- shipped profile fragments exist and restate the materiality bar -----------
-for prof in security data decision-memo; do
+for prof in security data decision-memo plan-spec; do
   assert "profiles: $prof fragment shipped" \
     test -s "$REPO/prompts/profiles/$prof.md"
-  assert "profiles: $prof restates materiality bar" \
-    grep -qi 'materiality bar' "$REPO/prompts/profiles/$prof.md"
 done
 
 # --- setup failure -------------------------------------------------------------

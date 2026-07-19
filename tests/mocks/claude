@@ -10,6 +10,11 @@
 # The critic reply goes to stdout (volley captures claude critiques there).
 set -euo pipefail
 
+if [[ "${1:-}" == "--version" ]]; then
+  echo "mock-claude 1.2.3"
+  exit 0
+fi
+
 : "${MOCK_STATE:?MOCK_STATE dir must be set}"
 mkdir -p "$MOCK_STATE"
 
@@ -39,12 +44,14 @@ if (( planner )); then
 # Mock spec
 
 Goals: satisfy the mock brief.
-
-## Decision Log
-(empty)
 EOF
   else
     echo "- mock revision entry (planner call $n)" >>SPEC.md
+  fi
+  response_path="$(printf '%s' "$prompt" | grep -Eo 'rounds/r[0-9][0-9]\.(closing-)?response\.md' | head -1 || true)"
+  if [[ -n "$response_path" ]]; then
+    mkdir -p "$(dirname "$response_path")"
+    echo "1. fixed: mock response entry (planner call $n)" >"$response_path"
   fi
   echo "mock claude planner: call $n done"
   exit 0

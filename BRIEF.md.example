@@ -1,5 +1,22 @@
 # Brief
 
-Build "datestamp", a tiny CLI tool (single POSIX shell script) that prints the
-current date/time as ISO 8601 UTC (e.g. 2026-07-09T15:04:05Z). No flags, no
-config, no dependencies beyond coreutils. Must exit 0 on success.
+Read these source files:
+
+- /absolute/path/to/source-1.md
+- /absolute/path/to/source-2.md
+
+Produce:
+
+- A v0.1 plan spec in `SPEC.md`.
+
+Additional guidance:
+
+- This is a CLI tool, so consider the requirements, standards, and goals in
+  the make-cli skill.
+- Treat the source files as context unless this brief or `CONSTRAINTS.md`
+  says a point is mandatory.
+
+Hard constraints:
+
+- Add only constraints that are truly binding. If the list gets long, put them
+  in `CONSTRAINTS.md` instead.
