@@ -269,6 +269,49 @@ for planner in claude codex; do
   assert "[$planner] models: codex model value passed" \
     grep -qx -- 'mock-gpt' "$codex_argv"
 
+  # --- explicit effort pins ---------------------------------------------------
+  new_ws
+  run_volley "$planner" 8 "APPROVE" \
+    VOLLEY_CLAUDE_EFFORT=xhigh VOLLEY_CODEX_EFFORT=high
+  assert "[$planner] effort: exit 0" test $? -eq 0
+  assert "[$planner] effort: provenance records claude effort" \
+    grep -q 'Claude effort: xhigh' "$WS/state/provenance.md"
+  assert "[$planner] effort: provenance records codex effort" \
+    grep -q 'Codex effort: high' "$WS/state/provenance.md"
+  if [[ "$planner" == claude ]]; then claude_argv="$MOCK/planner-claude-01.argv"; codex_argv="$MOCK/critic-codex-01.argv"
+  else claude_argv="$MOCK/critic-claude-01.argv"; codex_argv="$MOCK/planner-codex-01.argv"; fi
+  assert "[$planner] effort: claude invoked with --effort" \
+    grep -qx -- '--effort' "$claude_argv"
+  assert "[$planner] effort: claude effort value passed" \
+    grep -qx -- 'xhigh' "$claude_argv"
+  assert "[$planner] effort: codex gets model_reasoning_effort override" \
+    grep -qx -- 'model_reasoning_effort=high' "$codex_argv"
+
+  # --- effort pins survive persistent resume ------------------------------------
+  new_ws
+  run_volley "$planner" 8 "REVISE APPROVE" VOLLEY_PERSISTENT=1 \
+    VOLLEY_CLAUDE_EFFORT=xhigh VOLLEY_CODEX_EFFORT=high
+  assert "[$planner] effort-persistent: exit 0" test $? -eq 0
+  if [[ "$planner" == claude ]]; then claude_resume="$MOCK/planner-claude-02.argv"; codex_resume="$MOCK/critic-codex-02.argv"
+  else claude_resume="$MOCK/critic-claude-02.argv"; codex_resume="$MOCK/planner-codex-02.argv"; fi
+  assert "[$planner] effort-persistent: claude resume keeps --effort" \
+    grep -qx -- '--effort' "$claude_resume"
+  assert "[$planner] effort-persistent: codex resume re-receives the override" \
+    grep -qx -- 'model_reasoning_effort=high' "$codex_resume"
+
+  new_ws
+  run_volley "$planner" 8 "APPROVE" VOLLEY_CLAUDE_EFFORT=extreme
+  assert "[$planner] effort-guard: bad claude effort refused" test $? -eq 1
+  assert "[$planner] effort-guard: message names the variable" \
+    grep -q 'VOLLEY_CLAUDE_EFFORT' "$WS/run.out"
+
+  new_ws
+  run_volley "$planner" 8 "APPROVE"
+  assert "[$planner] effort-off: claude argv carries no --effort" \
+    sh -c "! grep -qx -- '--effort' \"$MOCK\"/*.argv"
+  assert "[$planner] effort-off: codex argv carries no effort override" \
+    sh -c "! grep -q 'model_reasoning_effort' \"$MOCK\"/*.argv"
+
   # --- role pinning ------------------------------------------------------------
   new_ws
   run_volley "$planner" 8 "APPROVE"

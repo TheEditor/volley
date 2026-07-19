@@ -70,6 +70,7 @@ Exit codes: `0` converged (critic approved), `2` impasse (round cap reached),
 | `CALL_TIMEOUT` | `900` | Seconds per agent invocation (needs `timeout`/`gtimeout`; skipped if absent) |
 | `CLAUDE_BIN` / `CODEX_BIN` | `claude` / `codex` | Binary overrides |
 | `VOLLEY_CLAUDE_MODEL` / `VOLLEY_CODEX_MODEL` | unset | Optional explicit model pins passed as `--model`; when unset, `state/provenance.md` records that the CLI default was used and not known to Volley |
+| `VOLLEY_CLAUDE_EFFORT` / `VOLLEY_CODEX_EFFORT` | unset | Optional reasoning-effort pins. Claude takes `low`\|`medium`\|`high`\|`xhigh`\|`max` via `--effort` (validated up front); codex gets the value as `-c model_reasoning_effort=…` and validates it itself (valid set depends on the model). Recorded in `state/provenance.md`; unset means CLI default |
 | `VOLLEY_CLOSING_PASS` | `1` | After APPROVE, one extra planner pass addresses or declines the critic's non-blocking remarks; `0` disables |
 | `VOLLEY_SECOND_OPINION` | `0` | After APPROVE, the *other* agent reviews the final spec once (`rounds/second-opinion.md`); advisory only — its remarks feed the closing pass, it cannot flip the verdict |
 | `VOLLEY_CONTEXT_DIR` | unset | Absolute path to an existing codebase both agents read (claude via `--add-dir`; codex's sandboxes read outside cwd natively). Read-only by contract: writes stay in the workspace. Name entry points in `BRIEF.md` to avoid context dilution |

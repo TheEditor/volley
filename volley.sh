@@ -14,6 +14,8 @@
 # Env overrides: VOLLEY_PLANNER (claude|codex), MAX_ROUNDS (default 8),
 #                CALL_TIMEOUT seconds (default 900), CLAUDE_BIN, CODEX_BIN,
 #                VOLLEY_CLAUDE_MODEL, VOLLEY_CODEX_MODEL,
+#                VOLLEY_CLAUDE_EFFORT (low|medium|high|xhigh|max),
+#                VOLLEY_CODEX_EFFORT (passed as model_reasoning_effort),
 #                VOLLEY_PERSISTENT (default 0; 1 keeps one CLI session per
 #                role across rounds instead of cold one-shot invocations),
 #                VOLLEY_CLOSING_PASS (default 1; 0 skips the closing pass),
@@ -46,6 +48,8 @@ CODEX_BIN="${CODEX_BIN:-codex}"
 VOLLEY_PLANNER="${VOLLEY_PLANNER:-claude}"
 VOLLEY_CLAUDE_MODEL="${VOLLEY_CLAUDE_MODEL:-}"
 VOLLEY_CODEX_MODEL="${VOLLEY_CODEX_MODEL:-}"
+VOLLEY_CLAUDE_EFFORT="${VOLLEY_CLAUDE_EFFORT:-}"
+VOLLEY_CODEX_EFFORT="${VOLLEY_CODEX_EFFORT:-}"
 
 die() { echo "volley: $*" >&2; exit 1; }
 
@@ -170,15 +174,17 @@ write_provenance() {
 - Claude binary: $(cmd_path "$CLAUDE_BIN")
 - Claude version: $(cmd_version "$CLAUDE_BIN")
 - Claude model: ${VOLLEY_CLAUDE_MODEL:-default/unrecorded by volley}
+- Claude effort: ${VOLLEY_CLAUDE_EFFORT:-default/unrecorded by volley}
 - Codex binary: $(cmd_path "$CODEX_BIN")
 - Codex version: $(cmd_version "$CODEX_BIN")
 - Codex model: ${VOLLEY_CODEX_MODEL:-default/unrecorded by volley}
+- Codex effort: ${VOLLEY_CODEX_EFFORT:-default/unrecorded by volley}
 - Context dir: ${VOLLEY_CONTEXT_DIR:-none}
 - Critic profile: ${VOLLEY_PROFILE:-none}
 - Persistent sessions: $VOLLEY_PERSISTENT
 
-If a model is listed as default/unrecorded, Volley did not pass an explicit
-model flag; the underlying CLI chose its configured default. Agent transcripts
+If a model or effort is listed as default/unrecorded, Volley did not pass an
+explicit flag for it; the underlying CLI chose its configured default. Agent transcripts
 under state/*.log may contain more detail when the CLI prints it.
 EOF
 }
@@ -192,6 +198,20 @@ CLAUDE_MODEL_ARGS=()
 [[ -n "$VOLLEY_CLAUDE_MODEL" ]] && CLAUDE_MODEL_ARGS=(--model "$VOLLEY_CLAUDE_MODEL")
 CODEX_MODEL_ARGS=()
 [[ -n "$VOLLEY_CODEX_MODEL" ]] && CODEX_MODEL_ARGS=(--model "$VOLLEY_CODEX_MODEL")
+
+# claude's effort levels are a closed set; catch typos before a call burns
+# tokens. codex's valid set varies by model, so its value passes through and
+# a bad one fails the first call (exit 1, surfacing as a missing-artifact
+# die). Both survive session resume: claude keeps the session's effort,
+# codex re-receives the -c override.
+case "$VOLLEY_CLAUDE_EFFORT" in
+  ""|low|medium|high|xhigh|max) ;;
+  *) die "VOLLEY_CLAUDE_EFFORT must be low|medium|high|xhigh|max (got '$VOLLEY_CLAUDE_EFFORT')" ;;
+esac
+CLAUDE_EFFORT_ARGS=()
+[[ -n "$VOLLEY_CLAUDE_EFFORT" ]] && CLAUDE_EFFORT_ARGS=(--effort "$VOLLEY_CLAUDE_EFFORT")
+CODEX_EFFORT_ARGS=()
+[[ -n "$VOLLEY_CODEX_EFFORT" ]] && CODEX_EFFORT_ARGS=(-c "model_reasoning_effort=$VOLLEY_CODEX_EFFORT")
 
 render() { # render <prompt-file> [KEY=value ...] — substitute {{KEY}} placeholders
   local out; out="$(cat "$1")"; shift
@@ -247,6 +267,7 @@ claude_plan() { # <prompt> [session-key]
   claude_session_begin "${2:-}"
   (cd "$ROOT" && ${TIMEOUT[@]+"${TIMEOUT[@]}"} ${NESTED_ENV[@]+"${NESTED_ENV[@]}"} "$CLAUDE_BIN" -p "$1" \
     ${CLAUDE_MODEL_ARGS[@]+"${CLAUDE_MODEL_ARGS[@]}"} \
+    ${CLAUDE_EFFORT_ARGS[@]+"${CLAUDE_EFFORT_ARGS[@]}"} \
     ${CLAUDE_SESSION_ARGS[@]+"${CLAUDE_SESSION_ARGS[@]}"} \
     --permission-mode acceptEdits \
     --allowedTools "Read,Write,Edit,Glob,Grep" \
@@ -259,6 +280,7 @@ claude_critique() { # <prompt> <critique-file> [session-key] — claude -p print
   claude_session_begin "${3:-}"
   (cd "$ROOT" && ${TIMEOUT[@]+"${TIMEOUT[@]}"} ${NESTED_ENV[@]+"${NESTED_ENV[@]}"} "$CLAUDE_BIN" -p "$1" \
     ${CLAUDE_MODEL_ARGS[@]+"${CLAUDE_MODEL_ARGS[@]}"} \
+    ${CLAUDE_EFFORT_ARGS[@]+"${CLAUDE_EFFORT_ARGS[@]}"} \
     ${CLAUDE_SESSION_ARGS[@]+"${CLAUDE_SESSION_ARGS[@]}"} \
     --allowedTools "Read,Glob,Grep" \
     ${CLAUDE_CTX[@]+"${CLAUDE_CTX[@]}"} \
@@ -277,11 +299,13 @@ codex_plan() { # <prompt> [session-key] — write access limited to the workspac
     (cd "$ROOT" && ${TIMEOUT[@]+"${TIMEOUT[@]}"} "$CODEX_BIN" exec resume "$(cat "$f")" \
       -c sandbox_mode=workspace-write --skip-git-repo-check \
       ${CODEX_MODEL_ARGS[@]+"${CODEX_MODEL_ARGS[@]}"} \
+      ${CODEX_EFFORT_ARGS[@]+"${CODEX_EFFORT_ARGS[@]}"} \
       "$1" </dev/null >>"$STATE/planner.log" 2>&1)
   else
     (cd "$ROOT" && ${TIMEOUT[@]+"${TIMEOUT[@]}"} "$CODEX_BIN" exec \
       --sandbox workspace-write --skip-git-repo-check --cd "$ROOT" \
       ${CODEX_MODEL_ARGS[@]+"${CODEX_MODEL_ARGS[@]}"} \
+      ${CODEX_EFFORT_ARGS[@]+"${CODEX_EFFORT_ARGS[@]}"} \
       "$1" </dev/null >>"$STATE/planner.log" 2>&1)
     codex_session_commit "$key" "$STATE/planner.log"
   fi
@@ -294,12 +318,14 @@ codex_critique() { # <prompt> <critique-file> [session-key]
     (cd "$ROOT" && ${TIMEOUT[@]+"${TIMEOUT[@]}"} "$CODEX_BIN" exec resume "$(cat "$f")" \
       -c sandbox_mode=read-only --skip-git-repo-check \
       ${CODEX_MODEL_ARGS[@]+"${CODEX_MODEL_ARGS[@]}"} \
+      ${CODEX_EFFORT_ARGS[@]+"${CODEX_EFFORT_ARGS[@]}"} \
       --output-last-message "$2" \
       "$1" </dev/null >>"$STATE/critic.log" 2>&1)
   else
     (cd "$ROOT" && ${TIMEOUT[@]+"${TIMEOUT[@]}"} "$CODEX_BIN" exec \
       --sandbox read-only --skip-git-repo-check --cd "$ROOT" \
       ${CODEX_MODEL_ARGS[@]+"${CODEX_MODEL_ARGS[@]}"} \
+      ${CODEX_EFFORT_ARGS[@]+"${CODEX_EFFORT_ARGS[@]}"} \
       --output-last-message "$2" \
       "$1" </dev/null >>"$STATE/critic.log" 2>&1)
     codex_session_commit "$key" "$STATE/critic.log"
