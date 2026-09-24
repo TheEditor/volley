@@ -529,16 +529,25 @@ run_volley claude 8 "APPROVE" "${GK[@]}" GK_FAULTS="init:send8"
 assert "[gashki] send exit 8: exit 1" test $? -eq 1
 assert "[gashki] send exit 8: names the code" grep -q 'SEND_INPUT_MIXED' "$WS/run.out"
 
+assert "[gashki] send exit 8: panes killed" test "$(gk_count '^kill volley-.*/planner --yes')" = 1
+assert "[gashki] send exit 8: state/run removed" test ! -e "$WS/state/run"
+run_volley claude 8 "APPROVE" "${GK[@]}"
+assert "[gashki] send exit 8: rerun exit 0" test $? -eq 0
+assert "[gashki] send exit 8: rerun gets new panes" test "$(gk_spawns)" = 3
+
 new_ws
 run_volley claude 8 "APPROVE" "${GK[@]}" GK_FAULTS="r01-critique:editspec"
 assert "[gashki] critic edits SPEC.md: exit 1" test $? -eq 1
 assert "[gashki] critic edits SPEC.md: says so" grep -q 'changed SPEC.md' "$WS/run.out"
+assert "[gashki] critic edits SPEC.md: panes killed" test "$(gk_count '^kill volley-.*/critic --yes')" = 1
 
 new_ws
 run_volley claude 8 "REVISE APPROVE" "${GK[@]}" GK_FAULTS="r01-revise:timeout-idle"
 assert "[gashki] resume: first run fails mid-revision" test $? -eq 1
 run1="$(cat "$WS/state/run" 2>/dev/null)"
 assert "[gashki] resume: run id kept after a failure" test -n "$run1"
+assert "[gashki] resume: panes not killed after a failed wait" test "$(gk_count '^kill ')" = 0
+assert "[gashki] resume: says how to discard the panes" grep -q "kept for a rerun" "$WS/run.out"
 run_volley claude 8 "REVISE APPROVE" "${GK[@]}"
 assert "[gashki] resume: rerun exit 0" test $? -eq 0
 assert "[gashki] resume: no new panes" test "$(gk_spawns)" = 2

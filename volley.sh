@@ -55,7 +55,7 @@ VOLLEY_CODEX_EFFORT="${VOLLEY_CODEX_EFFORT:-}"
 VOLLEY_BACKEND="${VOLLEY_BACKEND:-cli}"
 GASHKI_BIN="${GASHKI_BIN:-gashki}"
 
-die() { echo "volley: $*" >&2; exit 1; }
+die() { echo "volley: $*" >&2; ! declare -F gk_abort >/dev/null || gk_abort; exit 1; }
 
 [[ -f "$BRIEF" ]] || die "no BRIEF.md in $ROOT — write the brief first"
 
@@ -367,6 +367,8 @@ codex_critique() { # <prompt> <critique-file> [session-key]
 # gashki finds claude and codex on PATH; CLAUDE_BIN and CODEX_BIN are unused.
 
 CALL_KEY=""
+GK_PANES=0 # 1 once a pane may exist
+GK_KEEP=0  # 1 when a failed wait may leave a turn running, so a rerun can resume
 
 gk_run() {
   local f="$STATE/run"
@@ -401,6 +403,7 @@ gk_agent_args() { # <agent> <role> — the --agent-args JSON array, or nothing
 gk_spawn() { # <pane> <agent> <role> — returns the live pane on a rerun
   local out rc=0 aa
   aa="$(gk_agent_args "$2" "$3")"
+  GK_PANES=1
   out="$("$GASHKI_BIN" spawn "$1" --agent="$2" --cwd="$ROOT" ${aa:+"$aa"} --json 2>>"$STATE/gashki.log")" || rc=$?
   (( rc == 0 )) || gk_fail "spawn $1" "$out"
 }
@@ -419,6 +422,7 @@ gk_wait() { # <pane> <cursor> — one extra wait if the budget ends mid-turn
         continue
       fi
     fi
+    GK_KEEP=1
     gk_fail "wait on $1" "$out"
   done
 }
@@ -469,6 +473,18 @@ gk_kill() { # <pane> — a pane already gone is fine
   out="$("$GASHKI_BIN" kill "$1" --yes --json 2>>"$STATE/gashki.log")" || rc=$?
   (( rc == 0 )) || [[ "$(gk_code "$out")" == NOT_FOUND ]] \
     || log "gashki: kill $1 failed: $(gk_code "$out")"
+}
+
+gk_abort() { # on die: keep the panes only if a rerun can resume them
+  [[ "${VOLLEY_BACKEND:-}" == gashki ]] && (( ${GK_PANES:-0} )) || return 0
+  local r="$(gk_run)"
+  if (( GK_KEEP )); then
+    echo "volley: panes volley-$r/* kept for a rerun; to discard, run 'gashki kill volley-$r/<role> --yes' and remove state/run" >&2
+    return 0
+  fi
+  local role
+  for role in planner critic second; do gk_kill "volley-$r/$role"; done
+  rm -f "$STATE/run"
 }
 
 finish() { # <exit-code>

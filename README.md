@@ -103,9 +103,11 @@ loop, the prompts and the verdict rule stay the same.
   wait that uses up `CALL_TIMEOUT` waits once more if the pane is still
   working. Any other gashki error stops the run with its code.
 - On converge or impasse volley kills its panes and removes `state/run`.
-  After a failed run the panes stay up; rerun to resume, or kill them with
+  If a wait fails (timeout, approval prompt, dead pane), the turn may still
+  be running, so the panes stay up: rerun to resume, or kill them with
   `gashki kill volley-<run>/<role> --yes` and remove `state/run` to start
-  fresh.
+  fresh. Any other failure kills the panes and removes `state/run`, so a
+  rerun starts with new panes and new keys.
 
 ## Billing guard
 
