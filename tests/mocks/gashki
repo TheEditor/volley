@@ -1,0 +1,134 @@
+#!/usr/bin/env bash
+# Fake gashki CLI for volley's gashki-backend tests.
+#
+# It keeps panes, idempotency keys and turns under $MOCK_STATE/gk and plays
+# the agent by calling the claude and codex mocks next to it, so the verdict
+# script (MOCK_VERDICTS) and the call counters work as in cli mode. A turn
+# runs when volley waits on it, not when it is sent, so a wait that fails
+# leaves the turn pending for a rerun.
+#
+# Every call is logged to $MOCK_STATE/gk/calls. GK_FAULTS is a space-separated
+# list of <key-suffix>:<fault>; the fault applies to the key that ends in
+# -<key-suffix>. Faults:
+#   send7          send exits 7; the turn still reaches the agent
+#   send7-lost     send exits 7; the turn never reaches the agent
+#   send2, send8   send fails with COMPOSER_NOT_EMPTY / SEND_INPUT_MIXED
+#   timeout-working  first wait times out while observe says working
+#   timeout-idle   every wait times out while observe says idle
+#   approval       wait ends with APPROVAL_REQUIRED
+#   editspec       the critic also appends a line to SPEC.md
+set -euo pipefail
+
+: "${MOCK_STATE:?MOCK_STATE dir must be set}"
+MOCKS="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+G="$MOCK_STATE/gk"
+mkdir -p "$G/panes" "$G/keys" "$G/turns"
+echo "$*" >>"$G/calls"
+
+verb="${1:-}"; shift || true
+pos="" agent="" cwd="" aargs="" key="" since=""
+for a in "$@"; do
+  case "$a" in
+    --agent=*) agent="${a#*=}" ;;
+    --cwd=*) cwd="${a#*=}" ;;
+    --agent-args=*) aargs="${a#*=}" ;;
+    --idempotency-key=*) key="${a#*=}" ;;
+    --since=*) since="${a#*=}" ;;
+    --*) ;;
+    *) pos="$a" ;;
+  esac
+done
+safe="$(printf '%s' "$pos" | tr '/' '_')"
+P="$G/panes/$safe"
+
+ok() { printf '{"ok":true,"data":%s,"errors":[]}\n' "$1"; exit 0; }
+err() { # <code> <exit> [evidence-json]
+  local ev="${3:-}"
+  [[ -n "$ev" ]] || ev="{}"
+  printf '{"ok":false,"data":null,"errors":[{"code":"%s","exit_code":%s,"message":"fake %s","evidence":%s}]}\n' \
+    "$1" "$2" "$1" "$ev"
+  exit "$2"
+}
+fault_for() { # <key>
+  local t
+  for t in ${GK_FAULTS:-}; do
+    [[ "$1" == *"-${t%%:*}" ]] && { echo "${t#*:}"; return; }
+  done
+  echo ""
+}
+live() { [[ -f "$P" && ! -f "$P.killed" ]]; }
+
+run_turn() { # <turn-number>
+  local t="$G/turns/$1" pane k pf a c role prompt out
+  read -r pane k pf <"$t"
+  read -r a c <"$G/panes/$(printf '%s' "$pane" | tr '/' '_')"
+  role="${pane#*/}"
+  prompt="$(cat "$pf")"
+  cd "$c"
+  if [[ "$role" == planner ]]; then
+    if [[ "$a" == claude ]]; then "$MOCKS/claude" -p "$prompt" --permission-mode acceptEdits
+    else "$MOCKS/codex" exec --sandbox workspace-write --cd "$c" "$prompt"; fi
+  else
+    out="$(printf '%s' "$prompt" | grep -Eo 'to the file [^ ]+\.md' | tail -1 | sed 's/^to the file //')"
+    if [[ "$a" == claude ]]; then "$MOCKS/claude" -p "$prompt" >"$out"
+    else "$MOCKS/codex" exec --sandbox read-only --cd "$c" --output-last-message "$out" "$prompt"; fi
+    [[ "$(fault_for "$k")" == editspec ]] && echo "- critic edit" >>SPEC.md
+  fi
+  touch "$t.done"
+}
+
+case "$verb" in
+  spawn)
+    if live; then ok '{"existing":true}'; fi
+    printf '%s %s\n' "$agent" "$cwd" >"$P"
+    rm -f "$P.killed"
+    printf '%s\n' "$aargs" >"$P.args"
+    echo "$pos" >>"$G/spawns"
+    ok '{"existing":false}' ;;
+  send)
+    live || err NOT_FOUND 1
+    if [[ -f "$G/keys/$key.out" ]]; then
+      cat "$G/keys/$key.out"; exit "$(cat "$G/keys/$key.rc")"
+    fi
+    pf="$(grep -Eo '/[^ ]+\.md' | head -1)"
+    f="$(fault_for "$key")"
+    case "$f" in
+      send2) err COMPOSER_NOT_EMPTY 2 ;;
+      send8) err SEND_INPUT_MIXED 8 ;;
+    esac
+    n=$(( $(cat "$G/seq" 2>/dev/null || echo 0) + 1 )); echo "$n" >"$G/seq"
+    if [[ "$f" != send7-lost ]]; then
+      printf '%s %s %s\n' "$pos" "$key" "$pf" >"$G/turns/$n"
+    fi
+    if [[ "$f" == send7 || "$f" == send7-lost ]]; then
+      o="$(printf '{"ok":false,"data":null,"errors":[{"code":"SEND_UNCONFIRMED","exit_code":7,"message":"fake","evidence":{"barrier_cursor":"e1.%s"}}]}' "$n")"; rc=7
+    else
+      o="$(printf '{"ok":true,"data":{"turn_cursor":"e1.%s","barrier_cursor":"e1.%s"},"errors":[]}' "$n" "$n")"; rc=0
+    fi
+    echo "$o" >"$G/keys/$key.out"; echo "$rc" >"$G/keys/$key.rc"
+    echo "$o"; exit "$rc" ;;
+  wait)
+    live || err PANE_DEAD 2
+    n="${since#e1.}"
+    t="$G/turns/$n"
+    if [[ -f "$t" && ! -f "$t.done" ]]; then
+      w=$(( $(cat "$t.waits" 2>/dev/null || echo 0) + 1 )); echo "$w" >"$t.waits"
+      read -r _ k _ <"$t"
+      case "$(fault_for "$k")" in
+        timeout-working) if (( w == 1 )); then echo working >"$P.state"; err WAIT_TIMEOUT 4; fi ;;
+        timeout-idle) echo idle >"$P.state"; err WAIT_TIMEOUT 4 ;;
+        approval) err APPROVAL_REQUIRED 4 ;;
+      esac
+      (run_turn "$n") >>"$G/agent.log" 2>&1
+      echo idle >"$P.state"
+    fi
+    ok "{\"state\":\"idle\",\"cursor\":\"$since\"}" ;;
+  observe)
+    live || err NOT_FOUND 1
+    ok "{\"state\":\"$(cat "$P.state" 2>/dev/null || echo idle)\"}" ;;
+  kill)
+    live || err NOT_FOUND 1
+    touch "$P.killed"
+    ok '{"already_killed":false}' ;;
+  *) err INVALID_INPUT 1 ;;
+esac

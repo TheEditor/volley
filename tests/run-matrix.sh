@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 # Mock test matrix for volley.sh.
 #
-# Runs the loop against tests/mocks/{claude,codex} in throwaway workspaces,
+# Runs the loop against tests/mocks/{claude,codex,gashki} in throwaway workspaces,
 # under both VOLLEY_PLANNER assignments, plus the billing-guard refusal paths.
 # No real agent is invoked and no network is touched. Prints PASS/FAIL per
 # assertion; exits nonzero if anything failed.
@@ -418,6 +418,164 @@ for planner in claude codex; do
   assert "[$planner] persistent-off: provenance records mode off" \
     grep -q 'Persistent sessions: 0' "$WS/state/provenance.md"
 done
+
+# --- gashki backend: the same loop through a fake gashki (tests/mocks/gashki) --
+GK=(VOLLEY_BACKEND=gashki GASHKI_BIN="$MOCKS/gashki")
+gk_count() { grep -c -- "$1" "$MOCK/gk/calls" 2>/dev/null || true; }
+gk_spawns() { wc -l <"$MOCK/gk/spawns" | tr -d ' '; }
+
+for planner in claude codex; do
+  critic="$(other "$planner")"
+
+  new_ws
+  run_volley "$planner" 8 "APPROVE" "${GK[@]}"
+  assert "[gashki $planner] converge: exit 0" test $? -eq 0
+  assert "[gashki $planner] converge: SPEC.md written" test -f "$WS/SPEC.md"
+  assert "[gashki $planner] converge: critic wrote the critique file" \
+    grep -q 'VERDICT: APPROVE' "$WS/rounds/r01.critique.md"
+  assert "[gashki $planner] converge: critic was $critic" \
+    test -f "$MOCK/critic-$critic-01.prompt"
+  assert "[gashki $planner] converge: critic told where to write" \
+    grep -q 'to the file rounds/r01.critique.md' "$MOCK/critic-$critic-01.prompt"
+  assert "[gashki $planner] converge: prompt kept in state/prompts" \
+    sh -c "ls '$WS/state/prompts/' | grep -q -- '-init.md\$'"
+  assert "[gashki $planner] converge: planner pane spawned in the workspace" \
+    test "$(gk_count "^spawn volley-.*/planner --agent=$planner --cwd=$(cd "$WS" && pwd)")" -ge 1
+  assert "[gashki $planner] converge: sends carry an idempotency key" \
+    test "$(gk_count '^send .*--idempotency-key=.*-r01-critique')" = 1
+  assert "[gashki $planner] converge: planner pane killed" \
+    test "$(gk_count '^kill volley-.*/planner --yes')" = 1
+  assert "[gashki $planner] converge: critic pane killed" \
+    test "$(gk_count '^kill volley-.*/critic --yes')" = 1
+  assert "[gashki $planner] converge: state/run removed" test ! -e "$WS/state/run"
+  assert "[gashki $planner] converge: provenance records backend" \
+    grep -q 'Backend: gashki' "$WS/state/provenance.md"
+
+  new_ws
+  run_volley "$planner" 8 "REVISE APPROVE" "${GK[@]}"
+  assert "[gashki $planner] revise-approve: exit 0" test $? -eq 0
+  assert "[gashki $planner] revise-approve: response written" \
+    test -f "$WS/rounds/r01.response.md"
+  assert "[gashki $planner] revise-approve: second critique" \
+    test -f "$WS/rounds/r02.critique.md"
+  assert "[gashki $planner] revise-approve: panes reused across rounds" \
+    test "$(gk_spawns)" = 2
+done
+
+new_ws
+run_volley claude 8 "APPROVE" "${GK[@]}" VOLLEY_CLAUDE_MODEL=mock-sonnet
+assert "[gashki] agent-args: claude planner gets model" \
+  grep -q '"--model","mock-sonnet"' "$MOCK"/gk/panes/*_planner.args
+assert "[gashki] agent-args: claude planner tools limited" \
+  grep -q '"--tools=Read,Write,Edit,Glob,Grep"' "$MOCK"/gk/panes/*_planner.args
+
+new_ws
+run_volley codex 8 "APPROVE" "${GK[@]}"
+assert "[gashki] agent-args: claude critic tools limited" \
+  grep -q '"--tools=Read,Glob,Grep,Write"' "$MOCK"/gk/panes/*_critic.args
+
+new_ws
+mkdir -p "$WS-ctx"
+CTXDIR="$(cd "$WS-ctx" && pwd -P)"
+run_volley claude 8 "APPROVE" "${GK[@]}" VOLLEY_CONTEXT_DIR="$CTXDIR"
+assert "[gashki] context: claude gets --add-dir" \
+  grep -q "\"--add-dir=$CTXDIR\"" "$MOCK"/gk/panes/*_planner.args
+rm -rf "$CTXDIR"
+
+new_ws
+run_volley claude 8 "NONE APPROVE" "${GK[@]}"
+assert "[gashki] re-ask: exit 0" test $? -eq 0
+assert "[gashki] re-ask: critic asked twice" test "$(cat "$MOCK/critic-calls")" = 2
+assert "[gashki] re-ask: own key" test "$(gk_count '^send .*-r01-critique-2')" = 1
+
+new_ws
+run_volley claude 8 "APPROVE" "${GK[@]}" GK_FAULTS="r01-critique:send7"
+assert "[gashki] send exit 7, file present: exit 0" test $? -eq 0
+assert "[gashki] send exit 7: logged" grep -q 'unconfirmed' "$WS/run.out"
+assert "[gashki] send exit 7: no resend" \
+  test "$(gk_count '^send .*-r01-critique')" = 1
+
+new_ws
+run_volley claude 8 "APPROVE" "${GK[@]}" GK_FAULTS="r01-critique:send7-lost"
+assert "[gashki] send exit 7, file missing: exit 1" test $? -eq 1
+assert "[gashki] send exit 7, file missing: names the file" \
+  grep -q 'wrote no rounds/r01.critique.md' "$WS/run.out"
+
+new_ws
+run_volley claude 8 "APPROVE" "${GK[@]}" GK_FAULTS="r01-critique:timeout-working"
+assert "[gashki] timeout while working: exit 0" test $? -eq 0
+assert "[gashki] timeout while working: waited again" \
+  grep -q 'waiting once more' "$WS/run.out"
+assert "[gashki] timeout while working: observed the pane" \
+  test "$(gk_count '^observe ')" = 1
+
+new_ws
+run_volley claude 8 "APPROVE" "${GK[@]}" GK_FAULTS="r01-critique:timeout-idle"
+assert "[gashki] timeout while idle: exit 1" test $? -eq 1
+assert "[gashki] timeout while idle: names WAIT_TIMEOUT" grep -q 'WAIT_TIMEOUT' "$WS/run.out"
+
+new_ws
+run_volley claude 8 "APPROVE" "${GK[@]}" GK_FAULTS="init:approval"
+assert "[gashki] approval: exit 1" test $? -eq 1
+assert "[gashki] approval: names APPROVAL_REQUIRED" grep -q 'APPROVAL_REQUIRED' "$WS/run.out"
+
+new_ws
+run_volley claude 8 "APPROVE" "${GK[@]}" GK_FAULTS="init:send2"
+assert "[gashki] send exit 2: exit 1" test $? -eq 1
+assert "[gashki] send exit 2: names the code" grep -q 'COMPOSER_NOT_EMPTY' "$WS/run.out"
+
+new_ws
+run_volley claude 8 "APPROVE" "${GK[@]}" GK_FAULTS="init:send8"
+assert "[gashki] send exit 8: exit 1" test $? -eq 1
+assert "[gashki] send exit 8: names the code" grep -q 'SEND_INPUT_MIXED' "$WS/run.out"
+
+new_ws
+run_volley claude 8 "APPROVE" "${GK[@]}" GK_FAULTS="r01-critique:editspec"
+assert "[gashki] critic edits SPEC.md: exit 1" test $? -eq 1
+assert "[gashki] critic edits SPEC.md: says so" grep -q 'changed SPEC.md' "$WS/run.out"
+
+new_ws
+run_volley claude 8 "REVISE APPROVE" "${GK[@]}" GK_FAULTS="r01-revise:timeout-idle"
+assert "[gashki] resume: first run fails mid-revision" test $? -eq 1
+run1="$(cat "$WS/state/run" 2>/dev/null)"
+assert "[gashki] resume: run id kept after a failure" test -n "$run1"
+run_volley claude 8 "REVISE APPROVE" "${GK[@]}"
+assert "[gashki] resume: rerun exit 0" test $? -eq 0
+assert "[gashki] resume: no new panes" test "$(gk_spawns)" = 2
+assert "[gashki] resume: revise key sent twice to the same pane" \
+  test "$(gk_count "^send volley-$run1/planner .*--idempotency-key=$run1-r01-revise")" = 2
+assert "[gashki] resume: revision turn ran once" \
+  test "$(cat "$MOCK/planner-calls")" = 2
+assert "[gashki] resume: panes killed at the end" \
+  test "$(gk_count "^kill volley-$run1/")" = 2
+assert "[gashki] resume: state/run removed" test ! -e "$WS/state/run"
+
+new_ws
+run_volley claude 8 "APPROVE_REMARKS APPROVE_REMARKS" "${GK[@]}" VOLLEY_SECOND_OPINION=1
+assert "[gashki] second opinion: exit 0" test $? -eq 0
+assert "[gashki] second opinion: review written" test -s "$WS/rounds/second-opinion.md"
+assert "[gashki] second opinion: own pane, killed after" \
+  test "$(gk_count '^kill volley-.*/second --yes')" = 1
+assert "[gashki] second opinion: closing pass ran" \
+  test "$(cat "$MOCK/planner-calls")" = 2
+
+new_ws
+run_volley claude 8 "APPROVE" "${GK[@]}" VOLLEY_PERSISTENT=1
+assert "[gashki] guard: VOLLEY_PERSISTENT=1 refused" test $? -eq 1
+
+new_ws
+run_volley claude 8 "APPROVE" VOLLEY_BACKEND=tmux
+assert "[gashki] guard: unknown backend refused" test $? -eq 1
+
+new_ws
+run_volley claude 8 "APPROVE" "${GK[@]}" GASHKI_BIN="$WS/no-such-gashki"
+assert "[gashki] guard: missing gashki refused" test $? -eq 1
+
+new_ws
+run_volley claude 1 "REVISE"
+run_volley claude 8 "APPROVE" "${GK[@]}"
+assert "[gashki] backend-pin: switch on rerun refused" test $? -eq 1
+assert "[gashki] backend-pin: names VOLLEY_BACKEND" grep -q 'VOLLEY_BACKEND=cli' "$WS/run.out"
 
 # --- billing guard (role-independent) -----------------------------------------
 new_ws

@@ -25,7 +25,9 @@
 #                both agents may read; must lie outside the workspace),
 #                VOLLEY_PROFILE (append prompts/profiles/<name>.md to every
 #                critic prompt; shipped: security, data, decision-memo,
-#                plan-spec).
+#                plan-spec),
+#                VOLLEY_BACKEND (cli default; gashki runs each role in a
+#                live tmux pane through the gashki CLI), GASHKI_BIN.
 set -euo pipefail
 
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
@@ -50,6 +52,8 @@ VOLLEY_CLAUDE_MODEL="${VOLLEY_CLAUDE_MODEL:-}"
 VOLLEY_CODEX_MODEL="${VOLLEY_CODEX_MODEL:-}"
 VOLLEY_CLAUDE_EFFORT="${VOLLEY_CLAUDE_EFFORT:-}"
 VOLLEY_CODEX_EFFORT="${VOLLEY_CODEX_EFFORT:-}"
+VOLLEY_BACKEND="${VOLLEY_BACKEND:-cli}"
+GASHKI_BIN="${GASHKI_BIN:-gashki}"
 
 die() { echo "volley: $*" >&2; exit 1; }
 
@@ -129,6 +133,19 @@ if [[ "$VOLLEY_PERSISTENT" == "1" ]]; then
     || die "VOLLEY_PERSISTENT=1 requires uuidgen for claude session ids"
 fi
 
+case "$VOLLEY_BACKEND" in
+  cli) ;;
+  gashki)
+    command -v "$GASHKI_BIN" >/dev/null 2>&1 \
+      || die "VOLLEY_BACKEND=gashki requires gashki on PATH (or GASHKI_BIN)"
+    command -v jq >/dev/null 2>&1 \
+      || die "VOLLEY_BACKEND=gashki requires jq"
+    [[ "$VOLLEY_PERSISTENT" == "1" ]] \
+      && die "VOLLEY_BACKEND=gashki keeps each role in one live pane already; unset VOLLEY_PERSISTENT"
+    PLAN_FN=gk_plan; CRIT_FN=gk_critique; SECOND_FN=gk_second ;;
+  *) die "VOLLEY_BACKEND must be 'cli' or 'gashki' (got '$VOLLEY_BACKEND')" ;;
+esac
+
 mkdir -p "$ROUNDS" "$STATE"
 
 # Role pinning: an interrupted run must resume with the same role assignment.
@@ -150,6 +167,15 @@ if [[ -f "$PERSIST_FILE" ]]; then
     || die "this workspace was started with VOLLEY_PERSISTENT=$prev_p — rerun with that, or remove rounds/ and state/ to start over"
 else
   echo "$VOLLEY_PERSISTENT" >"$PERSIST_FILE"
+fi
+
+BACKEND_FILE="$STATE/backend"
+if [[ -f "$BACKEND_FILE" ]]; then
+  prev_b="$(cat "$BACKEND_FILE")"
+  [[ "$prev_b" == "$VOLLEY_BACKEND" ]] \
+    || die "this workspace was started with VOLLEY_BACKEND=$prev_b — rerun with that, or remove rounds/ and state/ to start over"
+else
+  echo "$VOLLEY_BACKEND" >"$BACKEND_FILE"
 fi
 
 log() { echo "[volley $(date +%H:%M:%S)] $*" | tee -a "$STATE/volley.log"; }
@@ -182,6 +208,7 @@ write_provenance() {
 - Context dir: ${VOLLEY_CONTEXT_DIR:-none}
 - Critic profile: ${VOLLEY_PROFILE:-none}
 - Persistent sessions: $VOLLEY_PERSISTENT
+- Backend: $VOLLEY_BACKEND
 
 If a model or effort is listed as default/unrecorded, Volley did not pass an
 explicit flag for it; the underlying CLI chose its configured default. Agent transcripts
@@ -332,6 +359,127 @@ codex_critique() { # <prompt> <critique-file> [session-key]
   fi
 }
 
+# --- gashki backend (VOLLEY_BACKEND=gashki): each role runs in a live tmux
+# pane that gashki spawns, sends to and waits on. A run id in state/run names
+# the panes (volley-<run>/<role>) and prefixes every idempotency key, so a
+# rerun after a crash reuses the panes and replays sends instead of pasting
+# a prompt twice. A normal finish kills the panes and removes state/run.
+# gashki finds claude and codex on PATH; CLAUDE_BIN and CODEX_BIN are unused.
+
+CALL_KEY=""
+
+gk_run() {
+  local f="$STATE/run"
+  [[ -s "$f" ]] || od -An -N4 -tx1 /dev/urandom | tr -d ' \n' >"$f"
+  cat "$f"
+}
+
+gk_pane() { echo "volley-$(gk_run)/$1"; }
+
+gk_code() { jq -r '.errors[0].code // "UNKNOWN"' <<<"$1" 2>/dev/null || echo UNKNOWN; }
+
+gk_fail() { # <what> <envelope>
+  die "gashki $1 failed: $(jq -r '.errors[0] | "\(.code): \(.message)"' <<<"$2" 2>/dev/null || echo "no envelope (see state/gashki.log)")"
+}
+
+gk_agent_args() { # <agent> <role> — the --agent-args JSON array, or nothing
+  local a=()
+  if [[ "$1" == claude ]]; then
+    a=(${CLAUDE_MODEL_ARGS[@]+"${CLAUDE_MODEL_ARGS[@]}"} ${CLAUDE_EFFORT_ARGS[@]+"${CLAUDE_EFFORT_ARGS[@]}"})
+    [[ -n "${CTX:-}" ]] && a+=("--add-dir=$CTX")
+    # --tools limits the tool set. A tool outside it would stop the turn on
+    # a permission prompt, which gashki reports as APPROVAL_REQUIRED.
+    if [[ "$2" == planner ]]; then a+=(--tools=Read,Write,Edit,Glob,Grep)
+    else a+=(--tools=Read,Glob,Grep,Write); fi
+  else
+    a=(${CODEX_MODEL_ARGS[@]+"${CODEX_MODEL_ARGS[@]}"} ${CODEX_EFFORT_ARGS[@]+"${CODEX_EFFORT_ARGS[@]}"})
+  fi
+  (( ${#a[@]} )) || return 0
+  printf -- '--agent-args=%s' "$(jq -cn '$ARGS.positional' --args -- "${a[@]}")"
+}
+
+gk_spawn() { # <pane> <agent> <role> — returns the live pane on a rerun
+  local out rc=0 aa
+  aa="$(gk_agent_args "$2" "$3")"
+  out="$("$GASHKI_BIN" spawn "$1" --agent="$2" --cwd="$ROOT" ${aa:+"$aa"} --json 2>>"$STATE/gashki.log")" || rc=$?
+  (( rc == 0 )) || gk_fail "spawn $1" "$out"
+}
+
+gk_wait() { # <pane> <cursor> — one extra wait if the budget ends mid-turn
+  local out rc extra=1 st
+  while :; do
+    rc=0
+    out="$("$GASHKI_BIN" wait "$1" --until=idle --since="$2" --wait-timeout="${CALL_TIMEOUT}s" --json 2>>"$STATE/gashki.log")" || rc=$?
+    (( rc == 0 )) && return 0
+    if [[ "$(gk_code "$out")" == WAIT_TIMEOUT ]] && (( extra )); then
+      extra=0
+      st="$("$GASHKI_BIN" observe "$1" --json 2>>"$STATE/gashki.log" | jq -r '.data.state // empty' 2>/dev/null || true)"
+      if [[ "$st" == working ]]; then
+        log "gashki: $1 still working after ${CALL_TIMEOUT}s; waiting once more"
+        continue
+      fi
+    fi
+    gk_fail "wait on $1" "$out"
+  done
+}
+
+gk_call() { # <pane> <agent> <role> <prompt> — one turn under key $CALL_KEY
+  local key="$(gk_run)-$CALL_KEY" pf out rc=0 cur
+  gk_spawn "$1" "$2" "$3"
+  mkdir -p "$STATE/prompts"
+  pf="$STATE/prompts/$key.md"
+  printf '%s\n' "$4" >"$pf"
+  log "gashki: $1 <- $key"
+  out="$(printf 'Read the file %s and do what it asks.\n' "$pf" \
+    | "$GASHKI_BIN" send "$1" --from-stdin --idempotency-key="$key" --json 2>>"$STATE/gashki.log")" || rc=$?
+  case "$rc" in
+    0) cur="$(jq -r '.data.turn_cursor' <<<"$out")" ;;
+    7) # The agent may or may not have the prompt. Never resend; wait from
+       # the barrier and let the caller's file check decide.
+       cur="$(jq -r '.errors[0].evidence.barrier_cursor' <<<"$out")"
+       log "gashki: send $key unconfirmed ($(gk_code "$out")); waiting from the barrier" ;;
+    *) gk_fail "send $key to $1" "$out" ;;
+  esac
+  gk_wait "$1" "$cur"
+}
+
+gk_critic_turn() { # <pane> <agent> <prompt> <critique-file>
+  local rel="${4#"$ROOT"/}" before
+  before="$(cksum <"$SPEC")"
+  gk_call "$1" "$2" critic "$3
+
+Write your complete reply, ending with the verdict line, to the file $rel. Do not change SPEC.md or any other file."
+  [[ "$(cksum <"$SPEC")" == "$before" ]] \
+    || die "critic in $1 changed SPEC.md; the critic must only review"
+  [[ -f "$4" ]] || die "critic in $1 wrote no $rel (see state/gashki.log)"
+}
+
+gk_plan() { gk_call "$(gk_pane planner)" "$VOLLEY_PLANNER" planner "$1"; }
+
+gk_critique() { gk_critic_turn "$(gk_pane critic)" "$CRITIC" "$1" "$2"; }
+
+gk_second() {
+  CALL_KEY=second
+  gk_critic_turn "$(gk_pane second)" "$SECOND_AGENT" "$1" "$2"
+  gk_kill "$(gk_pane second)"
+}
+
+gk_kill() { # <pane> — a pane already gone is fine
+  local out rc=0
+  out="$("$GASHKI_BIN" kill "$1" --yes --json 2>>"$STATE/gashki.log")" || rc=$?
+  (( rc == 0 )) || [[ "$(gk_code "$out")" == NOT_FOUND ]] \
+    || log "gashki: kill $1 failed: $(gk_code "$out")"
+}
+
+finish() { # <exit-code>
+  if [[ "$VOLLEY_BACKEND" == gashki ]]; then
+    gk_kill "$(gk_pane planner)"
+    gk_kill "$(gk_pane critic)"
+    rm -f "$STATE/run"
+  fi
+  exit "$1"
+}
+
 verdict_of() { # print APPROVE or REVISE from the file's last verdict line, if any
   grep -Eo 'VERDICT:[[:space:]]*(APPROVE|REVISE)' "$1" 2>/dev/null \
     | tail -1 | grep -Eo 'APPROVE|REVISE' || true
@@ -375,6 +523,7 @@ closing_pass() { # <rNN> <critique-file> — after APPROVE, the planner addresse
     return 0
   fi
   log "$1: closing pass — planner disposing of non-blocking remarks"
+  CALL_KEY="$1-closing"
   "$PLAN_FN" "$(render "$PROMPTS/closing-pass.md" ROUND="$1" "SECOND_OPINION=$extra" "CONSTRAINTS=$CONSTRAINTS_BLOCK" "CONTEXT=$CONTEXT_BLOCK")" planner
 }
 
@@ -384,6 +533,7 @@ write_provenance
 # --- Round 0: initial spec (skipped on rerun so an interrupted loop resumes) ---
 if [[ ! -f "$SPEC" ]]; then
   log "planner: drafting initial SPEC.md"
+  CALL_KEY=init
   "$PLAN_FN" "$(render "$PROMPTS/planner-init.md" "CONSTRAINTS=$CONSTRAINTS_BLOCK" "CONTEXT=$CONTEXT_BLOCK")" planner
   [[ -f "$SPEC" ]] || die "planner produced no SPEC.md (see state/planner.log)"
 fi
@@ -401,6 +551,7 @@ if (( last >= 1 )); then
     HUMAN_BLOCK=""
     [[ -f "$ROUNDS/$P.human.md" ]] && HUMAN_BLOCK="$(human_block_of "$ROUNDS/$P.human.md" "$last")"
     log "$P: resuming interrupted revision"
+    CALL_KEY="$P-revise"
     "$PLAN_FN" "$(render "$PROMPTS/planner-revise.md" ROUND="$P" "HUMAN=$HUMAN_BLOCK" "CONSTRAINTS=$CONSTRAINTS_BLOCK" "CONTEXT=$CONTEXT_BLOCK")" planner
     [[ -f "$ROUNDS/$P.response.md" ]] \
       || die "planner produced no rounds/$P.response.md (see state/planner.log)"
@@ -423,11 +574,13 @@ for (( n=start; n<=MAX_ROUNDS; n++ )); do
   fi
 
   log "$N: critic reviewing SPEC.md"
+  CALL_KEY="$N-critique"
   "$CRIT_FN" "$(render "$PROMPTS/critic.md" ROUND="$n" MAX="$MAX_ROUNDS" "HUMAN=$HUMAN_BLOCK" "CONSTRAINTS=$CONSTRAINTS_BLOCK" "CONTEXT=$CONTEXT_BLOCK")$PROFILE_BLOCK" "$CRIT" critic
   v="$(verdict_of "$CRIT")"
 
   if [[ -z "$v" ]]; then
     log "$N: no verdict line; re-asking critic once"
+    CALL_KEY="$N-critique-2"
     "$CRIT_FN" "$(render "$PROMPTS/critic.md" ROUND="$n" MAX="$MAX_ROUNDS" "HUMAN=$HUMAN_BLOCK" "CONSTRAINTS=$CONSTRAINTS_BLOCK" "CONTEXT=$CONTEXT_BLOCK")$PROFILE_BLOCK
 
 REMINDER: your previous reply omitted the required final line. It must be exactly 'VERDICT: APPROVE' or 'VERDICT: REVISE'." "$CRIT" critic
@@ -440,10 +593,11 @@ REMINDER: your previous reply omitted the required final line. It must be exactl
     second_opinion "$n"
     closing_pass "$N" "$CRIT"
     log "converged after $n round(s) — SPEC.md is final"
-    exit 0
+    finish 0
   fi
 
   log "$N: planner revising SPEC.md"
+  CALL_KEY="$N-revise"
   "$PLAN_FN" "$(render "$PROMPTS/planner-revise.md" ROUND="$N" "HUMAN=$HUMAN_BLOCK" "CONSTRAINTS=$CONSTRAINTS_BLOCK" "CONTEXT=$CONTEXT_BLOCK")" planner
   [[ -f "$ROUNDS/$N.response.md" ]] \
     || die "planner produced no rounds/$N.response.md (see state/planner.log)"
@@ -458,4 +612,4 @@ done
   cat "$CRIT"
 } >"$STATE/IMPASSE.md"
 log "impasse: $MAX_ROUNDS rounds without approval — see state/IMPASSE.md"
-exit 2
+finish 2

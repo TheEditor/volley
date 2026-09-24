@@ -76,6 +76,36 @@ Exit codes: `0` converged (critic approved), `2` impasse (round cap reached),
 | `VOLLEY_CONTEXT_DIR` | unset | Absolute path to an existing codebase both agents read (claude via `--add-dir`; codex's sandboxes read outside cwd natively). Read-only by contract: writes stay in the workspace. Name entry points in `BRIEF.md` to avoid context dilution |
 | `VOLLEY_PROFILE` | unset | Append `prompts/profiles/<name>.md` to every critic prompt. Shipped: `security`, `data`, `decision-memo`, `plan-spec` |
 | `VOLLEY_PERSISTENT` | `0` | `1` keeps one CLI session per role across rounds (claude `--session-id`/`--resume`, codex `exec resume`), so later rounds carry working memory instead of cold-starting from the files. Session ids live in `state/session.<role>`; the mode is pinned per workspace like the role assignment. The second opinion stays one-shot: fresh eyes are its point |
+| `VOLLEY_BACKEND` | `cli` | `gashki` runs each role in a live tmux pane through the gashki CLI instead of one-shot `claude -p` / `codex exec` calls. See "gashki backend" below. Pinned per workspace |
+| `GASHKI_BIN` | `gashki` | gashki binary for `VOLLEY_BACKEND=gashki` |
+
+## gashki backend
+
+With `VOLLEY_BACKEND=gashki`, volley starts one pane per role
+(`volley-<run>/planner`, `volley-<run>/critic`) with `gashki spawn`, sends
+each prompt with `gashki send` and waits for the turn with `gashki wait`. The
+loop, the prompts and the verdict rule stay the same.
+
+- Needs `gashki` and `jq`, and a running tmux server on gashki's socket.
+  gashki finds `claude` and `codex` on PATH; `CLAUDE_BIN` and `CODEX_BIN` are
+  unused. `VOLLEY_PERSISTENT=1` is refused: the panes already persist.
+- Each prompt is written to `state/prompts/<key>.md`; the pane gets a one-line
+  pointer to it. The key (`<run>-init`, `<run>-rNN-critique`,
+  `<run>-rNN-critique-2`, `<run>-rNN-revise`, `<run>-rNN-closing`,
+  `<run>-second`) is the send's idempotency key, so a rerun after a crash
+  reuses the same panes and never pastes a prompt twice.
+- The critic writes its reply to the critique file itself. volley fails the
+  run if the file is missing after the turn, or if SPEC.md changed during a
+  critic turn. Claude runs with `--tools` limited to file tools; codex runs
+  in gashki's `workspace-write` sandbox.
+- A send that exits 7 (the agent may not have the prompt) is not resent:
+  volley waits from the barrier cursor and lets the file check decide. A
+  wait that uses up `CALL_TIMEOUT` waits once more if the pane is still
+  working. Any other gashki error stops the run with its code.
+- On converge or impasse volley kills its panes and removes `state/run`.
+  After a failed run the panes stay up; rerun to resume, or kill them with
+  `gashki kill volley-<run>/<role> --yes` and remove `state/run` to start
+  fresh.
 
 ## Billing guard
 
