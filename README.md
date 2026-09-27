@@ -78,6 +78,7 @@ Exit codes: `0` converged (critic approved), `2` impasse (round cap reached),
 | `VOLLEY_PERSISTENT` | `0` | `1` keeps one CLI session per role across rounds (claude `--session-id`/`--resume`, codex `exec resume`), so later rounds carry working memory instead of cold-starting from the files. Session ids live in `state/session.<role>`; the mode is pinned per workspace like the role assignment. The second opinion stays one-shot: fresh eyes are its point |
 | `VOLLEY_BACKEND` | `cli` | `gashki` runs each role in a live tmux pane through the gashki CLI instead of one-shot `claude -p` / `codex exec` calls. See "gashki backend" below. Pinned per workspace |
 | `GASHKI_BIN` | `gashki` | gashki binary for `VOLLEY_BACKEND=gashki` |
+| `VOLLEY_TRUST_FOLDER` | unset | Set to `1` to pass `--trust-folder` when gashki starts an agent. Other values do not pass the flag. This gives gashki permission to answer a folder trust screen for the full workspace path. |
 
 ## gashki backend
 

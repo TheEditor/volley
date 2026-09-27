@@ -32,7 +32,7 @@ new_ws() { # fresh workspace with a brief, mock state dir, and isolated HOME
 
 run_volley() { # run_volley <planner> <max-rounds> <verdicts> [VAR=VAL ...]
   local planner="$1" max="$2" verdicts="$3"; shift 3
-  env -u ANTHROPIC_API_KEY -u OPENAI_API_KEY -u VOLLEY_ALLOW_API_KEY \
+  env -u ANTHROPIC_API_KEY -u OPENAI_API_KEY -u VOLLEY_ALLOW_API_KEY -u VOLLEY_TRUST_FOLDER \
     HOME="$FAKEHOME" MOCK_STATE="$MOCK" MOCK_VERDICTS="$verdicts" \
     CLAUDE_BIN="$MOCKS/claude" CODEX_BIN="$MOCKS/codex" \
     VOLLEY_PLANNER="$planner" MAX_ROUNDS="$max" \
@@ -473,6 +473,23 @@ run_volley claude 8 "APPROVE" "${GK[@]}" TMUX_PANE=%human1
 assert "[gashki] inside tmux: exit 0" test $? -eq 0
 assert "[gashki] inside tmux: both spawns use --here" \
   test "$(gk_count '^spawn .* --here')" = 2
+
+new_ws
+run_volley claude 8 "APPROVE" "${GK[@]}"
+assert "[gashki] trust unset: no --trust-folder" \
+  test "$(gk_count '^spawn .* --trust-folder')" = 0
+
+new_ws
+run_volley claude 8 "APPROVE" "${GK[@]}" VOLLEY_TRUST_FOLDER=1
+assert "[gashki] trust 1: both spawns use --trust-folder" \
+  test "$(gk_count '^spawn .* --trust-folder')" = 2
+
+for value in '' 0 true 01; do
+  new_ws
+  run_volley claude 8 "APPROVE" "${GK[@]}" "VOLLEY_TRUST_FOLDER=$value"
+  assert "[gashki] trust $value: no --trust-folder" \
+    test "$(gk_count '^spawn .* --trust-folder')" = 0
+done
 
 new_ws
 run_volley claude 8 "APPROVE" "${GK[@]}" VOLLEY_CLAUDE_MODEL=mock-sonnet
