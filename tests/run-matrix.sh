@@ -463,6 +463,18 @@ for planner in claude codex; do
 done
 
 new_ws
+run_volley claude 8 "APPROVE" "${GK[@]}" TMUX_PANE=
+assert "[gashki] outside tmux: exit 0" test $? -eq 0
+assert "[gashki] outside tmux: no --here" \
+  test "$(gk_count '^spawn .* --here')" = 0
+
+new_ws
+run_volley claude 8 "APPROVE" "${GK[@]}" TMUX_PANE=%human1
+assert "[gashki] inside tmux: exit 0" test $? -eq 0
+assert "[gashki] inside tmux: both spawns use --here" \
+  test "$(gk_count '^spawn .* --here')" = 2
+
+new_ws
 run_volley claude 8 "APPROVE" "${GK[@]}" VOLLEY_CLAUDE_MODEL=mock-sonnet
 assert "[gashki] agent-args: claude planner gets model" \
   grep -q '"--model","mock-sonnet"' "$MOCK"/gk/panes/*_planner.args
@@ -558,6 +570,19 @@ assert "[gashki] resume: revision turn ran once" \
 assert "[gashki] resume: panes killed at the end" \
   test "$(gk_count "^kill volley-$run1/")" = 2
 assert "[gashki] resume: state/run removed" test ! -e "$WS/state/run"
+
+new_ws
+run_volley claude 8 "REVISE APPROVE" "${GK[@]}" GK_FAULTS="r01-revise:timeout-idle" TMUX_PANE=%human1
+assert "[gashki] other window: first run keeps panes" test $? -eq 1
+run1="$(cat "$WS/state/run" 2>/dev/null)"
+run_volley claude 8 "REVISE APPROVE" "${GK[@]}" TMUX_PANE=%human2
+assert "[gashki] other window: resumed spawn refused" test $? -eq 1
+assert "[gashki] other window: conflict reported" grep -q CONFLICT "$WS/run.out"
+assert "[gashki] other window: existing panes kept" test "$(gk_count '^kill ')" = 0
+assert "[gashki] other window: run id kept" test "$(cat "$WS/state/run" 2>/dev/null)" = "$run1"
+run_volley claude 8 "REVISE APPROVE" "${GK[@]}" TMUX_PANE=%human1
+assert "[gashki] original window: resumed run exits 0" test $? -eq 0
+assert "[gashki] original window: no new panes" test "$(gk_spawns)" = 2
 
 new_ws
 run_volley claude 8 "APPROVE_REMARKS APPROVE_REMARKS" "${GK[@]}" VOLLEY_SECOND_OPINION=1

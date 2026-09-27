@@ -86,6 +86,10 @@ With `VOLLEY_BACKEND=gashki`, volley starts one pane per role
 each prompt with `gashki send` and waits for the turn with `gashki wait`. The
 loop, the prompts and the verdict rule stay the same.
 
+When `$TMUX_PANE` is set, volley asks gashki to place these panes beside the
+caller with `--here`. A rerun from the same tmux window reuses its live panes.
+A rerun from another window stops with `CONFLICT` and keeps the earlier panes.
+
 - Needs `gashki` and `jq`, and a running tmux server on gashki's socket.
   gashki finds `claude` and `codex` on PATH; `CLAUDE_BIN` and `CODEX_BIN` are
   unused. `VOLLEY_PERSISTENT=1` is refused: the panes already persist.

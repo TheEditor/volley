@@ -22,11 +22,11 @@ set -euo pipefail
 : "${MOCK_STATE:?MOCK_STATE dir must be set}"
 MOCKS="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 G="$MOCK_STATE/gk"
-mkdir -p "$G/panes" "$G/keys" "$G/turns"
+mkdir -p "$G/panes" "$G/keys" "$G/turns" "$G/groups"
 echo "$*" >>"$G/calls"
 
 verb="${1:-}"; shift || true
-pos="" agent="" cwd="" aargs="" key="" since=""
+pos="" agent="" cwd="" aargs="" key="" since="" here=0
 for a in "$@"; do
   case "$a" in
     --agent=*) agent="${a#*=}" ;;
@@ -34,6 +34,7 @@ for a in "$@"; do
     --agent-args=*) aargs="${a#*=}" ;;
     --idempotency-key=*) key="${a#*=}" ;;
     --since=*) since="${a#*=}" ;;
+    --here) here=1 ;;
     --*) ;;
     *) pos="$a" ;;
   esac
@@ -79,6 +80,13 @@ run_turn() { # <turn-number>
 
 case "$verb" in
   spawn)
+    if (( here )); then
+      group_file="$G/groups/${pos%%/*}"
+      if [[ -f "$group_file" && "$(cat "$group_file")" != "${TMUX_PANE:-}" ]]; then
+        err CONFLICT 5
+      fi
+      printf '%s\n' "${TMUX_PANE:-}" >"$group_file"
+    fi
     if live; then ok '{"existing":true}'; fi
     printf '%s %s\n' "$agent" "$cwd" >"$P"
     rm -f "$P.killed"

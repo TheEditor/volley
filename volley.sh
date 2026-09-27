@@ -401,11 +401,15 @@ gk_agent_args() { # <agent> <role> — the --agent-args JSON array, or nothing
 }
 
 gk_spawn() { # <pane> <agent> <role> — returns the live pane on a rerun
-  local out rc=0 aa
+  local out rc=0 aa here=()
   aa="$(gk_agent_args "$2" "$3")"
+  [[ -n "${TMUX_PANE:-}" ]] && here=(--here)
   GK_PANES=1
-  out="$("$GASHKI_BIN" spawn "$1" --agent="$2" --cwd="$ROOT" ${aa:+"$aa"} --json 2>>"$STATE/gashki.log")" || rc=$?
-  (( rc == 0 )) || gk_fail "spawn $1" "$out"
+  out="$("$GASHKI_BIN" spawn "$1" --agent="$2" --cwd="$ROOT" ${aa:+"$aa"} ${here[@]+"${here[@]}"} --json 2>>"$STATE/gashki.log")" || rc=$?
+  if (( rc != 0 )); then
+    GK_KEEP=1 # A failed spawn may have found an earlier pane in another window.
+    gk_fail "spawn $1" "$out"
+  fi
 }
 
 gk_wait() { # <pane> <cursor> — one extra wait if the budget ends mid-turn
