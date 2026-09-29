@@ -515,6 +515,22 @@ assert "[gashki] agent-args: claude planner gets model" \
   grep -q '"--model","mock-sonnet"' "$MOCK"/gk/panes/*_planner.args
 assert "[gashki] agent-args: claude planner tools limited" \
   grep -q '"--tools=Read,Write,Edit,Glob,Grep"' "$MOCK"/gk/panes/*_planner.args
+assert "[gashki] agent-args: no 1M override without [1m]" \
+  sh -c "! grep -q 'DISABLE_1M' '$MOCK'/gk/panes/*_planner.args"
+
+new_ws
+run_volley claude 8 "APPROVE" "${GK[@]}" 'VOLLEY_CLAUDE_MODEL=mock-sonnet[1m]'
+assert "[gashki] 1M model: exit 0" test $? -eq 0
+assert "[gashki] 1M model: planner gets the model" \
+  grep -q '"--model","mock-sonnet\[1m\]"' "$MOCK"/gk/panes/*_planner.args
+assert "[gashki] 1M model: planner gets the cap override" \
+  grep -qF '"--settings","{\"env\":{\"CLAUDE_CODE_DISABLE_1M_CONTEXT\":\"0\"}}"' "$MOCK"/gk/panes/*_planner.args
+
+new_ws
+run_volley claude 8 "APPROVE" 'VOLLEY_CLAUDE_MODEL=mock-sonnet[1m]'
+assert "[cli] 1M model: exit 0" test $? -eq 0
+assert "[cli] 1M model: claude gets the cap override" \
+  grep -qxF '{"env":{"CLAUDE_CODE_DISABLE_1M_CONTEXT":"0"}}' "$MOCK/planner-claude-01.argv"
 
 new_ws
 run_volley codex 8 "APPROVE" "${GK[@]}"

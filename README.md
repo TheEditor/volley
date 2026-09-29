@@ -71,6 +71,7 @@ Exit codes: `0` converged (critic approved), `2` impasse (round cap reached),
 | `CALL_TIMEOUT` | unset | No time limit by default. Set it to limit each agent invocation to that many seconds (CLI backend needs `timeout`/`gtimeout`; skipped if absent) |
 | `CLAUDE_BIN` / `CODEX_BIN` | `claude` / `codex` | Binary overrides |
 | `VOLLEY_CLAUDE_MODEL` / `VOLLEY_CODEX_MODEL` | unset | Optional explicit model pins passed as `--model`; when unset, `state/provenance.md` records that the CLI default was used and not known to Volley |
+| (1M context) | | A Claude model that ends in `[1m]` (for example `claude-sonnet-5-5[1m]`) gets the 1M window. volley then also passes `--settings` with `CLAUDE_CODE_DISABLE_1M_CONTEXT=0`, so a global cap in your settings or env does not apply to volley's Claude calls |
 | `VOLLEY_CLAUDE_EFFORT` / `VOLLEY_CODEX_EFFORT` | unset | Optional reasoning-effort pins. Claude takes `low`\|`medium`\|`high`\|`xhigh`\|`max` via `--effort` (validated up front); codex gets the value as `-c model_reasoning_effort=…` and validates it itself (valid set depends on the model). Recorded in `state/provenance.md`; unset means CLI default |
 | `VOLLEY_CLOSING_PASS` | `1` | After APPROVE, one extra planner pass addresses or declines the critic's non-blocking remarks; `0` disables |
 | `VOLLEY_SECOND_OPINION` | `0` | After APPROVE, the *other* agent reviews the final spec once (`rounds/second-opinion.md`); advisory only — its remarks feed the closing pass, it cannot flip the verdict |

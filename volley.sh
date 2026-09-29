@@ -229,6 +229,11 @@ fi
 
 CLAUDE_MODEL_ARGS=()
 [[ -n "$VOLLEY_CLAUDE_MODEL" ]] && CLAUDE_MODEL_ARGS=(--model "$VOLLEY_CLAUDE_MODEL")
+# A [1m] model asks for the 1M window. CLAUDE_CODE_DISABLE_1M_CONTEXT=1 in
+# the user's settings or env would still cap it at 200k; a --settings env
+# value outranks both, so it lifts the cap for volley's calls only.
+[[ "$VOLLEY_CLAUDE_MODEL" == *"[1m]" ]] &&
+  CLAUDE_MODEL_ARGS+=(--settings '{"env":{"CLAUDE_CODE_DISABLE_1M_CONTEXT":"0"}}')
 CODEX_MODEL_ARGS=()
 [[ -n "$VOLLEY_CODEX_MODEL" ]] && CODEX_MODEL_ARGS=(--model "$VOLLEY_CODEX_MODEL")
 
