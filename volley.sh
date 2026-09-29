@@ -292,7 +292,18 @@ codex_session_commit() { # <role-key> <log> — codex prints "session id: <uuid>
 # calls roles ($PLAN_FN/$CRIT_FN), never agents. An optional session key
 # makes the call persistent; omitting it keeps the call one-shot. -------------
 
-claude_plan() { # <prompt> [session-key]
+# The planner's final reply to each call is saved as a round file. volley
+# saves it; the prompts never ask the planner to write it.
+reply_file() {
+  case "$CALL_KEY" in
+    init) echo "$ROUNDS/r00.response.md" ;;
+    *-closing) echo "$ROUNDS/${CALL_KEY%-closing}.closing-response.md" ;;
+    *) echo "$ROUNDS/${CALL_KEY%-revise}.response.md" ;;
+  esac
+}
+
+claude_plan() { # <prompt> [session-key] — claude -p prints its final reply on stdout
+  local r; r="$(reply_file)"
   claude_session_begin "${2:-}"
   (cd "$ROOT" && ${TIMEOUT[@]+"${TIMEOUT[@]}"} ${NESTED_ENV[@]+"${NESTED_ENV[@]}"} "$CLAUDE_BIN" -p "$1" \
     ${CLAUDE_MODEL_ARGS[@]+"${CLAUDE_MODEL_ARGS[@]}"} \
@@ -301,7 +312,8 @@ claude_plan() { # <prompt> [session-key]
     --permission-mode acceptEdits \
     --allowedTools "Read,Write,Edit,Glob,Grep" \
     ${CLAUDE_CTX[@]+"${CLAUDE_CTX[@]}"} \
-    </dev/null >>"$STATE/planner.log" 2>&1)
+    </dev/null >"$r" 2>>"$STATE/planner.log")
+  cat "$r" >>"$STATE/planner.log"
   claude_session_commit "${2:-}"
 }
 
@@ -322,19 +334,21 @@ claude_critique() { # <prompt> <critique-file> [session-key] — claude -p print
 # --cd "$ROOT") plus the subshell cd.
 
 codex_plan() { # <prompt> [session-key] — write access limited to the workspace
-  local key="${2:-}" f=""
+  local key="${2:-}" f="" r; r="$(reply_file)"
   [[ "$VOLLEY_PERSISTENT" == "1" && -n "$key" ]] && f="$(session_file "$key")"
   if [[ -n "$f" && -f "$f" ]]; then
     (cd "$ROOT" && ${TIMEOUT[@]+"${TIMEOUT[@]}"} "$CODEX_BIN" exec resume "$(cat "$f")" \
       -c sandbox_mode=workspace-write --skip-git-repo-check \
       ${CODEX_MODEL_ARGS[@]+"${CODEX_MODEL_ARGS[@]}"} \
       ${CODEX_EFFORT_ARGS[@]+"${CODEX_EFFORT_ARGS[@]}"} \
+      --output-last-message "$r" \
       "$1" </dev/null >>"$STATE/planner.log" 2>&1)
   else
     (cd "$ROOT" && ${TIMEOUT[@]+"${TIMEOUT[@]}"} "$CODEX_BIN" exec \
       --sandbox workspace-write --skip-git-repo-check --cd "$ROOT" \
       ${CODEX_MODEL_ARGS[@]+"${CODEX_MODEL_ARGS[@]}"} \
       ${CODEX_EFFORT_ARGS[@]+"${CODEX_EFFORT_ARGS[@]}"} \
+      --output-last-message "$r" \
       "$1" </dev/null >>"$STATE/planner.log" 2>&1)
     codex_session_commit "$key" "$STATE/planner.log"
   fi
@@ -465,7 +479,61 @@ Write your complete reply, ending with the verdict line, to the file $rel. Do no
   [[ -f "$4" ]] || die "critic in $1 wrote no $rel (see state/gashki.log)"
 }
 
-gk_plan() { gk_call "$(gk_pane planner)" "$VOLLEY_PLANNER" planner "$1"; }
+gk_reply() { # <agent> <prompt-file> — the reply that ended the turn, from the agent's transcript
+  local dir f t=""
+  if [[ "$1" == claude ]]; then
+    # Claude names the folder after the cwd; a symlinked path may use either form.
+    dir="${CLAUDE_CONFIG_DIR:-$HOME/.claude}/projects/"
+    f="$dir$(printf '%s' "$ROOT" | sed 's/[^A-Za-z0-9]/-/g')"
+    [[ -d "$f" ]] || f="$dir$(cd "$ROOT" && pwd -P | sed 's/[^A-Za-z0-9]/-/g')"
+    dir="$f"; f=""
+  else
+    dir="${CODEX_HOME:-$HOME/.codex}/sessions"
+  fi
+  [[ -d "$dir" ]] || return 0
+  # Transcripts this run touched, newest first; the prompt path marks the turn.
+  while IFS= read -r f; do
+    [[ -z "$t" || "$f" -nt "$t" ]] && t="$f"
+  done < <(find "$dir" -name '*.jsonl' -newer "$STATE/run" -exec grep -lF "$2" {} + 2>/dev/null)
+  [[ -n "$t" ]] || return 0
+  if [[ "$1" == claude ]]; then
+    # A turn runs from its prompt to the next typed prompt.
+    jq -rs --arg pf "$2" '
+      map(select(.type == "user" or .type == "assistant"))
+      | (map(.type == "user" and (.message.content | type) == "string")) as $typed
+      | (map(.type == "user" and (.message.content | type) == "string"
+             and (.message.content | contains($pf))) | rindex(true)) as $i
+      | if $i == null then empty else
+          (([$typed | to_entries[] | select(.key > $i and .value) | .key] | first) // length) as $j
+          | [.[$i+1:$j][] | select(.type == "assistant") | .message.content[]?
+             | select(.type == "text") | .text] | last // empty end' "$t" 2>/dev/null
+  else
+    jq -rs --arg pf "$2" '
+      # The first task_complete after the prompt ends that turn.
+      (map(.type == "response_item" and .payload.role == "user"
+           and (.payload.content | tostring | contains($pf))) | rindex(true)) as $i
+      | if $i == null then empty else
+          [.[$i+1:][] | select(.type == "event_msg" and .payload.type == "task_complete")
+           | .payload.last_agent_message // empty] | first // empty end' "$t" 2>/dev/null
+  fi
+}
+
+gk_plan() {
+  local pf="$STATE/prompts/$(gk_run)-$CALL_KEY.md" r out try
+  r="$(reply_file)"
+  gk_call "$(gk_pane planner)" "$VOLLEY_PLANNER" planner "$1"
+  # The transcript may trail the Stop hook by a moment.
+  for try in 1 2 3; do
+    out="$(gk_reply "$VOLLEY_PLANNER" "$pf" || true)"
+    [[ -n "$out" ]] && break
+    sleep 1
+  done
+  if [[ -n "$out" ]]; then
+    printf '%s\n' "$out" >"$r"
+  else
+    log "gashki: no planner reply found in the $VOLLEY_PLANNER transcript for $CALL_KEY; ${r#"$ROOT"/} not written"
+  fi
+}
 
 gk_critique() { gk_critic_turn "$(gk_pane critic)" "$CRITIC" "$1" "$2"; }
 

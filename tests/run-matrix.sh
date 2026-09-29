@@ -33,6 +33,7 @@ new_ws() { # fresh workspace with a brief, mock state dir, and isolated HOME
 run_volley() { # run_volley <planner> <max-rounds> <verdicts> [VAR=VAL ...]
   local planner="$1" max="$2" verdicts="$3"; shift 3
   env -u ANTHROPIC_API_KEY -u OPENAI_API_KEY -u VOLLEY_ALLOW_API_KEY -u VOLLEY_TRUST_FOLDER \
+    -u CLAUDE_CONFIG_DIR -u CODEX_HOME \
     HOME="$FAKEHOME" MOCK_STATE="$MOCK" MOCK_VERDICTS="$verdicts" \
     CLAUDE_BIN="$MOCKS/claude" CODEX_BIN="$MOCKS/codex" \
     VOLLEY_PLANNER="$planner" MAX_ROUNDS="$max" \
@@ -82,6 +83,12 @@ for planner in claude codex; do
     grep -q 'mock revision entry' "$WS/SPEC.md"
   assert "[$planner] revise-approve: revise prompt asks for no response file" \
     bash -c 'grep -q "critique of SPEC.md" "$1" && ! grep -q response "$1"' _ "$MOCK/planner-$planner-02.prompt"
+  assert "[$planner] revise-approve: volley saved the init reply" \
+    grep -q "mock $planner planner: call 1 done" "$WS/rounds/r00.response.md"
+  assert "[$planner] revise-approve: volley saved the revise reply" \
+    grep -q "mock $planner planner: call 2 done" "$WS/rounds/r01.response.md"
+  assert "[$planner] revise-approve: planner log keeps the replies" \
+    grep -q "mock $planner planner: call 2 done" "$WS/state/planner.log"
   assert "[$planner] revise-approve: two critiques" \
     test -f "$WS/rounds/r02.critique.md"
   assert "[$planner] revise-approve: no closing pass on clean approve" \
@@ -95,6 +102,8 @@ for planner in claude codex; do
     test "$(cat "$MOCK/planner-calls")" = 2
   assert "[$planner] closing-pass: prompt asks for no response file" \
     bash -c 'grep -q "non-blocking remarks" "$1" && ! grep -q response "$1"' _ "$MOCK/planner-$planner-02.prompt"
+  assert "[$planner] closing-pass: volley saved the closing reply" \
+    grep -q "mock $planner planner: call 2 done" "$WS/rounds/r01.closing-response.md"
   assert "[$planner] closing-pass: prompt points at approving critique" \
     grep -q 'rounds/r01.critique.md' "$MOCK/planner-$planner-02.prompt"
   assert "[$planner] closing-pass: spec got a disposition edit" \
@@ -452,6 +461,23 @@ for planner in claude codex; do
     test -f "$WS/rounds/r02.critique.md"
   assert "[gashki $planner] revise-approve: panes reused across rounds" \
     test "$(gk_spawns)" = 2
+  assert "[gashki $planner] revise-approve: init reply saved from the transcript" \
+    grep -qx "mock $planner planner: call 1 done" "$WS/rounds/r00.response.md"
+  assert "[gashki $planner] revise-approve: revise reply saved from the transcript" \
+    grep -qx "mock $planner planner: call 2 done" "$WS/rounds/r01.response.md"
+
+  new_ws
+  run_volley "$planner" 8 "APPROVE_REMARKS" "${GK[@]}"
+  assert "[gashki $planner] closing-pass: exit 0" test $? -eq 0
+  assert "[gashki $planner] closing-pass: closing reply saved from the transcript" \
+    grep -qx "mock $planner planner: call 2 done" "$WS/rounds/r01.closing-response.md"
+
+  new_ws
+  run_volley "$planner" 8 "REVISE APPROVE" "${GK[@]}" GK_FAULTS="r01-revise:notranscript"
+  assert "[gashki $planner] no transcript: run still converges" test $? -eq 0
+  assert "[gashki $planner] no transcript: no reply file" test ! -e "$WS/rounds/r01.response.md"
+  assert "[gashki $planner] no transcript: logged" \
+    grep -q "no planner reply found in the $planner transcript for r01-revise" "$WS/run.out"
 done
 
 new_ws

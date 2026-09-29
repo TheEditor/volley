@@ -17,6 +17,7 @@
 #   timeout-idle   every wait times out while observe says idle
 #   approval       wait ends with APPROVAL_REQUIRED
 #   editspec       the critic also appends a line to SPEC.md
+#   notranscript   the planner turn leaves no transcript entry
 set -euo pipefail
 
 : "${MOCK_STATE:?MOCK_STATE dir must be set}"
@@ -59,6 +60,23 @@ fault_for() { # <key>
 }
 live() { [[ -f "$P" && ! -f "$P.killed" ]]; }
 
+transcript() { # <agent> <cwd> <prompt-file> <reply> — append the turn as the real agent logs it
+  local d f sent="Read the file $3 and do what it asks."
+  if [[ "$1" == claude ]]; then
+    d="$HOME/.claude/projects/$(printf '%s' "$2" | sed 's/[^A-Za-z0-9]/-/g')"; f="$d/mock.jsonl"
+    mkdir -p "$d"
+    jq -cn --arg s "$sent" '{type:"user",message:{role:"user",content:$s}}' >>"$f"
+    jq -cn '{type:"assistant",message:{content:[{type:"text",text:"Working on it."},{type:"tool_use"}]}}' >>"$f"
+    jq -cn '{type:"user",message:{content:[{type:"tool_result"}]}}' >>"$f"
+    jq -cn --arg r "$4" '{type:"assistant",message:{content:[{type:"text",text:$r}]}}' >>"$f"
+  else
+    d="$HOME/.codex/sessions/2026/01/01"; f="$d/rollout-mock.jsonl"
+    mkdir -p "$d"
+    jq -cn --arg s "$sent" '{type:"response_item",payload:{type:"message",role:"user",content:[{type:"input_text",text:$s}]}}' >>"$f"
+    jq -cn --arg r "$4" '{type:"event_msg",payload:{type:"task_complete",last_agent_message:$r}}' >>"$f"
+  fi
+}
+
 run_turn() { # <turn-number>
   local t="$G/turns/$1" pane k pf a c role prompt out
   read -r pane k pf <"$t"
@@ -67,8 +85,9 @@ run_turn() { # <turn-number>
   prompt="$(cat "$pf")"
   cd "$c"
   if [[ "$role" == planner ]]; then
-    if [[ "$a" == claude ]]; then "$MOCKS/claude" -p "$prompt" --permission-mode acceptEdits
-    else "$MOCKS/codex" exec --sandbox workspace-write --cd "$c" "$prompt"; fi
+    if [[ "$a" == claude ]]; then out="$("$MOCKS/claude" -p "$prompt" --permission-mode acceptEdits)"
+    else out="$("$MOCKS/codex" exec --sandbox workspace-write --cd "$c" "$prompt" | grep -v '^session id:')"; fi
+    [[ "$(fault_for "$k")" == notranscript ]] || transcript "$a" "$c" "$pf" "$out"
   else
     out="$(printf '%s' "$prompt" | grep -Eo 'to the file [^ ]+\.md' | tail -1 | sed 's/^to the file //')"
     if [[ "$a" == claude ]]; then "$MOCKS/claude" -p "$prompt" >"$out"

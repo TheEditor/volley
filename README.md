@@ -52,8 +52,11 @@ Exit codes: `0` converged (critic approved), `2` impasse (round cap reached),
 | --- | --- |
 | `SPEC.md` | The living plan/artifact requested by `BRIEF.md` |
 | `rounds/rNN.critique.md` | The critic's objections each round |
+| `rounds/r00.response.md` | The planner's final reply after the first draft |
+| `rounds/rNN.response.md` | The planner's final reply after it revised for that critique |
 | `rounds/rNN.spec.md` | Spec snapshot after each revision |
 | `rounds/second-opinion.md` | The swapped critic's advisory review (only with `VOLLEY_SECOND_OPINION=1`) |
+| `rounds/rNN.closing-response.md` | The planner's final reply after a closing pass, if one ran |
 | `rounds/rNN.human.md` | Archived one-shot `HUMAN.md` directive, if you steered round NN |
 | `state/provenance.md` | Run provenance: role assignment, CLI versions, explicit model pins if any, context/profile settings |
 | `state/*.log` | Full planner/critic transcripts and the loop log |
@@ -131,6 +134,11 @@ Set `VOLLEY_ALLOW_API_KEY=1` to override if metered billing is intended.
   or `VERDICT: REVISE`; the orchestrator greps for it and re-asks once if
   missing. Prior critiques and spec snapshots give later rounds enough
   context to avoid re-litigating settled points.
+- **Planner replies are kept, never requested.** No prompt asks the planner
+  to write notes. volley saves its final reply itself: from stdout (claude)
+  or `--output-last-message` (codex) on the CLI backend, and from the
+  agent's own transcript on the gashki backend (`~/.claude/projects/...` or
+  `$CODEX_HOME/sessions/...`). A reply it cannot find is logged, not fatal.
 - **The critic is sandboxed read-only** whichever agent plays it (`codex
   exec --sandbox read-only`, or claude restricted to `Read,Glob,Grep`); its
   critique is captured from its final reply, not written by it. The planner

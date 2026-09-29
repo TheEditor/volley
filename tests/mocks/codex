@@ -67,6 +67,7 @@ EOF
     echo "- mock revision entry (planner call $n)" >>SPEC.md
   fi
   echo "mock codex planner: call $n done"
+  [[ -n "$outfile" ]] && echo "mock codex planner: call $n done" >"$outfile"
   exit 0
 fi
 
