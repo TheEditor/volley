@@ -12,7 +12,8 @@
 # codex-volley wrappers preset this.
 #
 # Env overrides: VOLLEY_PLANNER (claude|codex), MAX_ROUNDS (default 8),
-#                CALL_TIMEOUT seconds (default 900), CLAUDE_BIN, CODEX_BIN,
+#                CALL_TIMEOUT seconds (default unset: no limit), CLAUDE_BIN,
+#                CODEX_BIN,
 #                VOLLEY_CLAUDE_MODEL, VOLLEY_CODEX_MODEL,
 #                VOLLEY_CLAUDE_EFFORT (low|medium|high|xhigh|max),
 #                VOLLEY_CODEX_EFFORT (passed as model_reasoning_effort),
@@ -46,7 +47,7 @@ MAX_ROUNDS="${MAX_ROUNDS:-8}"
 VOLLEY_PERSISTENT="${VOLLEY_PERSISTENT:-0}"
 VOLLEY_CLOSING_PASS="${VOLLEY_CLOSING_PASS:-1}"
 VOLLEY_SECOND_OPINION="${VOLLEY_SECOND_OPINION:-0}"
-CALL_TIMEOUT="${CALL_TIMEOUT:-900}"
+CALL_TIMEOUT="${CALL_TIMEOUT:-}"
 CLAUDE_BIN="${CLAUDE_BIN:-claude}"
 CODEX_BIN="${CODEX_BIN:-codex}"
 VOLLEY_PLANNER="${VOLLEY_PLANNER:-claude}"
@@ -218,10 +219,13 @@ under state/*.log may contain more detail when the CLI prints it.
 EOF
 }
 
-# macOS ships no GNU timeout; use it (or gtimeout) when available.
-if command -v timeout >/dev/null 2>&1; then TIMEOUT=(timeout "$CALL_TIMEOUT")
-elif command -v gtimeout >/dev/null 2>&1; then TIMEOUT=(gtimeout "$CALL_TIMEOUT")
-else TIMEOUT=(); fi
+# No time limit unless CALL_TIMEOUT is set. macOS ships no GNU timeout; use
+# it (or gtimeout) when available.
+TIMEOUT=()
+if [[ -n "$CALL_TIMEOUT" ]]; then
+  if command -v timeout >/dev/null 2>&1; then TIMEOUT=(timeout "$CALL_TIMEOUT")
+  elif command -v gtimeout >/dev/null 2>&1; then TIMEOUT=(gtimeout "$CALL_TIMEOUT"); fi
+fi
 
 CLAUDE_MODEL_ARGS=()
 [[ -n "$VOLLEY_CLAUDE_MODEL" ]] && CLAUDE_MODEL_ARGS=(--model "$VOLLEY_CLAUDE_MODEL")
@@ -429,17 +433,18 @@ gk_spawn() { # <pane> <agent> <role> — returns the live pane on a rerun
   fi
 }
 
-gk_wait() { # <pane> <cursor> — one extra wait if the budget ends mid-turn
-  local out rc extra=1 st
+gk_wait() { # <pane> <cursor> — with CALL_TIMEOUT set, one wait of that
+  # budget. Without it there is no limit: gashki caps one wait at 24h, so
+  # wait again while the pane still works.
+  local out rc st budget="${CALL_TIMEOUT:+${CALL_TIMEOUT}s}"
   while :; do
     rc=0
-    out="$("$GASHKI_BIN" wait "$1" --until=idle --since="$2" --wait-timeout="${CALL_TIMEOUT}s" --json 2>>"$STATE/gashki.log")" || rc=$?
+    out="$("$GASHKI_BIN" wait "$1" --until=idle --since="$2" --wait-timeout="${budget:-24h}" --json 2>>"$STATE/gashki.log")" || rc=$?
     (( rc == 0 )) && return 0
-    if [[ "$(gk_code "$out")" == WAIT_TIMEOUT ]] && (( extra )); then
-      extra=0
+    if [[ -z "$CALL_TIMEOUT" && "$(gk_code "$out")" == WAIT_TIMEOUT ]]; then
       st="$("$GASHKI_BIN" observe "$1" --json 2>>"$STATE/gashki.log" | jq -r '.data.state // empty' 2>/dev/null || true)"
       if [[ "$st" == working ]]; then
-        log "gashki: $1 still working after ${CALL_TIMEOUT}s; waiting once more"
+        log "gashki: $1 still working; waiting again"
         continue
       fi
     fi

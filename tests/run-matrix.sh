@@ -33,7 +33,7 @@ new_ws() { # fresh workspace with a brief, mock state dir, and isolated HOME
 run_volley() { # run_volley <planner> <max-rounds> <verdicts> [VAR=VAL ...]
   local planner="$1" max="$2" verdicts="$3"; shift 3
   env -u ANTHROPIC_API_KEY -u OPENAI_API_KEY -u VOLLEY_ALLOW_API_KEY -u VOLLEY_TRUST_FOLDER \
-    -u CLAUDE_CONFIG_DIR -u CODEX_HOME \
+    -u CLAUDE_CONFIG_DIR -u CODEX_HOME -u CALL_TIMEOUT \
     HOME="$FAKEHOME" MOCK_STATE="$MOCK" MOCK_VERDICTS="$verdicts" \
     CLAUDE_BIN="$MOCKS/claude" CODEX_BIN="$MOCKS/codex" \
     VOLLEY_PLANNER="$planner" MAX_ROUNDS="$max" \
@@ -549,12 +549,23 @@ assert "[gashki] send exit 7, file missing: names the file" \
   grep -q 'wrote no rounds/r01.critique.md' "$WS/run.out"
 
 new_ws
-run_volley claude 8 "APPROVE" "${GK[@]}" GK_FAULTS="r01-critique:timeout-working"
-assert "[gashki] timeout while working: exit 0" test $? -eq 0
-assert "[gashki] timeout while working: waited again" \
-  grep -q 'waiting once more' "$WS/run.out"
-assert "[gashki] timeout while working: observed the pane" \
-  test "$(gk_count '^observe ')" = 1
+run_volley claude 8 "APPROVE" "${GK[@]}" GK_FAULTS="r01-critique:timeout-working3"
+assert "[gashki] no limit, timeouts while working: exit 0" test $? -eq 0
+assert "[gashki] no limit: waited again 3 times" \
+  test "$(grep -c 'waiting again' "$WS/run.out")" = 3
+assert "[gashki] no limit: observed the pane each time" \
+  test "$(gk_count '^observe ')" = 3
+assert "[gashki] no limit: 24h per wait" \
+  test "$(gk_count '^wait .*--wait-timeout=24h')" = "$(gk_count '^wait ')"
+
+new_ws
+run_volley claude 8 "APPROVE" "${GK[@]}" GK_FAULTS="r01-critique:timeout-working" CALL_TIMEOUT=5
+assert "[gashki] CALL_TIMEOUT set, timeout while working: exit 1" test $? -eq 1
+assert "[gashki] CALL_TIMEOUT set: names WAIT_TIMEOUT" grep -q 'WAIT_TIMEOUT' "$WS/run.out"
+assert "[gashki] CALL_TIMEOUT set: passes the budget" \
+  test "$(gk_count '^wait .*--wait-timeout=5s')" -ge 1
+assert "[gashki] CALL_TIMEOUT set: no wait again" \
+  test "$(grep -c 'waiting again' "$WS/run.out")" = 0
 
 new_ws
 run_volley claude 8 "APPROVE" "${GK[@]}" GK_FAULTS="r01-critique:timeout-idle"

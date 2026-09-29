@@ -14,6 +14,7 @@
 #   send7-lost     send exits 7; the turn never reaches the agent
 #   send2, send8   send fails with COMPOSER_NOT_EMPTY / SEND_INPUT_MIXED
 #   timeout-working  first wait times out while observe says working
+#   timeout-working3  first 3 waits time out while observe says working
 #   timeout-idle   every wait times out while observe says idle
 #   approval       wait ends with APPROVAL_REQUIRED
 #   editspec       the critic also appends a line to SPEC.md
@@ -143,6 +144,7 @@ case "$verb" in
       read -r _ k _ <"$t"
       case "$(fault_for "$k")" in
         timeout-working) if (( w == 1 )); then echo working >"$P.state"; err WAIT_TIMEOUT 4; fi ;;
+        timeout-working3) if (( w <= 3 )); then echo working >"$P.state"; err WAIT_TIMEOUT 4; fi ;;
         timeout-idle) echo idle >"$P.state"; err WAIT_TIMEOUT 4 ;;
         approval) err APPROVAL_REQUIRED 4 ;;
       esac

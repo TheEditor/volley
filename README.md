@@ -68,7 +68,7 @@ Exit codes: `0` converged (critic approved), `2` impasse (round cap reached),
 | --- | --- | --- |
 | `VOLLEY_PLANNER` | `claude` | Which agent plans (`claude` or `codex`); the other critiques |
 | `MAX_ROUNDS` | `8` | Hard cap on critique/revise rounds |
-| `CALL_TIMEOUT` | `900` | Seconds per agent invocation (needs `timeout`/`gtimeout`; skipped if absent) |
+| `CALL_TIMEOUT` | unset | No time limit by default. Set it to limit each agent invocation to that many seconds (CLI backend needs `timeout`/`gtimeout`; skipped if absent) |
 | `CLAUDE_BIN` / `CODEX_BIN` | `claude` / `codex` | Binary overrides |
 | `VOLLEY_CLAUDE_MODEL` / `VOLLEY_CODEX_MODEL` | unset | Optional explicit model pins passed as `--model`; when unset, `state/provenance.md` records that the CLI default was used and not known to Volley |
 | `VOLLEY_CLAUDE_EFFORT` / `VOLLEY_CODEX_EFFORT` | unset | Optional reasoning-effort pins. Claude takes `low`\|`medium`\|`high`\|`xhigh`\|`max` via `--effort` (validated up front); codex gets the value as `-c model_reasoning_effort=…` and validates it itself (valid set depends on the model). Recorded in `state/provenance.md`; unset means CLI default |
@@ -105,9 +105,9 @@ A rerun from another window stops with `CONFLICT` and keeps the earlier panes.
   critic turn. Claude runs with `--tools` limited to file tools; codex runs
   in gashki's `workspace-write` sandbox.
 - A send that exits 7 (the agent may not have the prompt) is not resent:
-  volley waits from the barrier cursor and lets the file check decide. A
-  wait that uses up `CALL_TIMEOUT` waits once more if the pane is still
-  working. Any other gashki error stops the run with its code.
+  volley waits from the barrier cursor and lets the file check decide. With
+  `CALL_TIMEOUT` unset, a wait has no limit: volley waits again while the
+  pane is still working. With it set, a wait that uses it up stops the run. Any other gashki error stops the run with its code.
 - On converge or impasse volley kills its panes and removes `state/run`.
   If a wait fails (timeout, approval prompt, dead pane), the turn may still
   be running, so the panes stay up: rerun to resume, or kill them with
