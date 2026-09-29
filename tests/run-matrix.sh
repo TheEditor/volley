@@ -80,10 +80,8 @@ for planner in claude codex; do
     test -f "$WS/rounds/r01.spec.md"
   assert "[$planner] revise-approve: spec revised" \
     grep -q 'mock revision entry' "$WS/SPEC.md"
-  assert "[$planner] revise-approve: planner response written" \
-    test -f "$WS/rounds/r01.response.md"
-  assert "[$planner] revise-approve: response records disposition" \
-    grep -q 'mock response entry' "$WS/rounds/r01.response.md"
+  assert "[$planner] revise-approve: revise prompt asks for no response file" \
+    bash -c 'grep -q "critique of SPEC.md" "$1" && ! grep -q response "$1"' _ "$MOCK/planner-$planner-02.prompt"
   assert "[$planner] revise-approve: two critiques" \
     test -f "$WS/rounds/r02.critique.md"
   assert "[$planner] revise-approve: no closing pass on clean approve" \
@@ -95,14 +93,12 @@ for planner in claude codex; do
   assert "[$planner] closing-pass: exit 0" test $? -eq 0
   assert "[$planner] closing-pass: one extra planner call" \
     test "$(cat "$MOCK/planner-calls")" = 2
-  assert "[$planner] closing-pass: prompt asks for the closing response" \
-    grep -q 'closing-response.md' "$MOCK/planner-$planner-02.prompt"
+  assert "[$planner] closing-pass: prompt asks for no response file" \
+    bash -c 'grep -q "non-blocking remarks" "$1" && ! grep -q response "$1"' _ "$MOCK/planner-$planner-02.prompt"
   assert "[$planner] closing-pass: prompt points at approving critique" \
     grep -q 'rounds/r01.critique.md' "$MOCK/planner-$planner-02.prompt"
   assert "[$planner] closing-pass: spec got a disposition edit" \
     grep -q 'mock revision entry' "$WS/SPEC.md"
-  assert "[$planner] closing-pass: closing response written" \
-    test -f "$WS/rounds/r01.closing-response.md"
   assert "[$planner] closing-pass: critic not re-run" \
     test "$(cat "$MOCK/critic-calls")" = 1
 
@@ -394,13 +390,11 @@ for planner in claude codex; do
   # --- resume finishes an interrupted revision before re-running the critic -------
   new_ws
   run_volley "$planner" 1 "REVISE"
-  rm "$WS/rounds/r01.response.md" "$WS/rounds/r01.spec.md" "$WS/state/IMPASSE.md"
+  rm "$WS/rounds/r01.spec.md" "$WS/state/IMPASSE.md"
   run_volley "$planner" 8 "REVISE APPROVE"
   assert "[$planner] resume-revision: exit 0" test $? -eq 0
   assert "[$planner] resume-revision: log names the catch-up" \
     grep -q 'resuming interrupted revision' "$WS/run.out"
-  assert "[$planner] resume-revision: r01 response recreated" \
-    test -f "$WS/rounds/r01.response.md"
   assert "[$planner] resume-revision: r01 spec snapshot recreated" \
     test -f "$WS/rounds/r01.spec.md"
   assert "[$planner] resume-revision: critic then reviews the revised spec" \
@@ -454,8 +448,6 @@ for planner in claude codex; do
   new_ws
   run_volley "$planner" 8 "REVISE APPROVE" "${GK[@]}"
   assert "[gashki $planner] revise-approve: exit 0" test $? -eq 0
-  assert "[gashki $planner] revise-approve: response written" \
-    test -f "$WS/rounds/r01.response.md"
   assert "[gashki $planner] revise-approve: second critique" \
     test -f "$WS/rounds/r02.critique.md"
   assert "[gashki $planner] revise-approve: panes reused across rounds" \

@@ -566,18 +566,16 @@ last=$(( $(find "$ROUNDS" -name 'r*.critique.md' 2>/dev/null | wc -l) ))
 start=$(( last + 1 ))
 
 # A run interrupted between critique and revision left a REVISE verdict with no
-# planner response. Finish that round first instead of re-running the critic
+# spec snapshot. Finish that round first instead of re-running the critic
 # against the unrevised spec.
 if (( last >= 1 )); then
   P="$(printf 'r%02d' "$last")"
-  if [[ "$(verdict_of "$ROUNDS/$P.critique.md")" == "REVISE" && ! -f "$ROUNDS/$P.response.md" ]]; then
+  if [[ "$(verdict_of "$ROUNDS/$P.critique.md")" == "REVISE" && ! -f "$ROUNDS/$P.spec.md" ]]; then
     HUMAN_BLOCK=""
     [[ -f "$ROUNDS/$P.human.md" ]] && HUMAN_BLOCK="$(human_block_of "$ROUNDS/$P.human.md" "$last")"
     log "$P: resuming interrupted revision"
     CALL_KEY="$P-revise"
     "$PLAN_FN" "$(render "$PROMPTS/planner-revise.md" ROUND="$P" "HUMAN=$HUMAN_BLOCK" "CONSTRAINTS=$CONSTRAINTS_BLOCK" "CONTEXT=$CONTEXT_BLOCK")" planner
-    [[ -f "$ROUNDS/$P.response.md" ]] \
-      || die "planner produced no rounds/$P.response.md (see state/planner.log)"
     cp "$SPEC" "$ROUNDS/$P.spec.md"
   fi
 fi
@@ -622,8 +620,6 @@ REMINDER: your previous reply omitted the required final line. It must be exactl
   log "$N: planner revising SPEC.md"
   CALL_KEY="$N-revise"
   "$PLAN_FN" "$(render "$PROMPTS/planner-revise.md" ROUND="$N" "HUMAN=$HUMAN_BLOCK" "CONSTRAINTS=$CONSTRAINTS_BLOCK" "CONTEXT=$CONTEXT_BLOCK")" planner
-  [[ -f "$ROUNDS/$N.response.md" ]] \
-    || die "planner produced no rounds/$N.response.md (see state/planner.log)"
   cp "$SPEC" "$ROUNDS/$N.spec.md"
 done
 
