@@ -1,1 +1,1 @@
-Read BRIEF.md in the current directory and do what it asks. Write the resulting document to SPEC.md in this directory.{{CONSTRAINTS}}{{CONTEXT}}
+Read BRIEF.md in the current directory. Draft a plan spec to implement BRIEF.md and write it to SPEC.md in this directory.{{CONSTRAINTS}}{{CONTEXT}}
