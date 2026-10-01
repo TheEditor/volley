@@ -7,6 +7,8 @@
 #   MOCK_STATE    (required) dir for call counters and captured prompts
 #   MOCK_VERDICTS space-separated critic script, one token per critic call,
 #                 last token repeats: APPROVE | APPROVE_REMARKS | REVISE | NONE
+#   MOCK_QUESTIONS space-separated planner call numbers that leave a
+#                 question in QUESTIONS.md
 # The critic reply goes to stdout (volley captures claude critiques there).
 set -euo pipefail
 
@@ -48,6 +50,9 @@ EOF
   else
     echo "- mock revision entry (planner call $n)" >>SPEC.md
   fi
+  for q in ${MOCK_QUESTIONS:-}; do
+    [[ "$q" == "$n" ]] && printf '1. Mock question from planner call %s?\n' "$n" >QUESTIONS.md
+  done
   echo "mock claude planner: call $n done"
   exit 0
 fi

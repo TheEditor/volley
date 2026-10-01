@@ -3,9 +3,14 @@
 #
 # Usage:  ./volley.sh [workspace-dir]
 #
-# The workspace (default: this script's directory) must contain BRIEF.md.
-# The loop drafts SPEC.md, then alternates critic review and planner revision
+# The workspace (default: this script's directory) must contain BRIEF.md or
+# SPEC.md. From a brief the loop drafts SPEC.md; a SPEC.md already present is
+# the first draft. It then alternates critic review and planner revision
 # until the critic emits VERDICT: APPROVE or MAX_ROUNDS is reached.
+#
+# A planner turn that leaves questions for the user in QUESTIONS.md stops the
+# loop (exit 3). The user answers in HUMAN.md and reruns; the next round gives
+# both agents the questions and the answers.
 #
 # Roles: VOLLEY_PLANNER=claude (default) or codex chooses which agent drafts
 # and revises the spec; the other agent critiques. The cc-volley and
@@ -40,6 +45,8 @@ PROMPTS="$SCRIPT_DIR/prompts"
 BRIEF="$ROOT/BRIEF.md"
 CONSTRAINTS="$ROOT/CONSTRAINTS.md"
 SPEC="$ROOT/SPEC.md"
+HUMAN="$ROOT/HUMAN.md"
+QUESTIONS="$ROOT/QUESTIONS.md"
 ROUNDS="$ROOT/rounds"
 STATE="$ROOT/state"
 
@@ -60,7 +67,8 @@ GASHKI_BIN="${GASHKI_BIN:-gashki}"
 
 die() { echo "volley: $*" >&2; ! declare -F gk_abort >/dev/null || gk_abort; exit 1; }
 
-[[ -f "$BRIEF" ]] || die "no BRIEF.md in $ROOT — write the brief first"
+[[ -f "$BRIEF" || -f "$SPEC" ]] \
+  || die "no BRIEF.md or SPEC.md in $ROOT — write the brief or the first spec first"
 
 case "$VOLLEY_PLANNER" in
   claude) PLAN_FN=claude_plan; CRIT_FN=codex_critique;  CRITIC=codex
@@ -102,7 +110,7 @@ if [[ -n "${VOLLEY_CONTEXT_DIR:-}" ]]; then
   esac
   CONTEXT_BLOCK="
 
-A read-only reference codebase is available at $CTX. Ground your work in its actual code — start from the entry points and paths BRIEF.md names. Do not modify anything under it; all writes stay in the workspace."
+A read-only reference codebase is available at $CTX. Ground your work in its actual code — start from the entry points and paths the workspace files name. Do not modify anything under it; all writes stay in the workspace."
   CLAUDE_CTX=(--add-dir "$CTX")
 fi
 
@@ -229,11 +237,47 @@ fi
 
 CLAUDE_MODEL_ARGS=()
 [[ -n "$VOLLEY_CLAUDE_MODEL" ]] && CLAUDE_MODEL_ARGS=(--model "$VOLLEY_CLAUDE_MODEL")
-# A [1m] model asks for the 1M window. CLAUDE_CODE_DISABLE_1M_CONTEXT=1 in
-# the user's settings or env would still cap it at 200k; a --settings env
-# value outranks both, so it lifts the cap for volley's calls only.
-[[ "$VOLLEY_CLAUDE_MODEL" == *"[1m]" ]] &&
-  CLAUDE_MODEL_ARGS+=(--settings '{"env":{"CLAUDE_CODE_DISABLE_1M_CONTEXT":"0"}}')
+
+json_str() { local s="${1//\\/\\\\}"; printf '"%s"' "${s//\"/\\\"}"; }
+
+# Skills: claude loads a skill (SKILL.md) with its Skill tool, but each read
+# of the skill's other files, such as make-cli's references/, is outside the
+# workspace and needs permission. Read-only allow rules for the skills dir,
+# and for the target of each linked skill, let claude read skills as it does
+# in an interactive session; writes there are still not allowed. Left alone,
+# claude searches a parent folder such as ~/.claude for a skill's files, which
+# the rules do not cover, so a system prompt line names the skills dir.
+# codex reads $CODEX_HOME/skills and the whole disk, so it needs neither.
+CLAUDE_ALLOW=()
+CLAUDE_SKILL_ARGS=()
+SKILLS_DIR="${CLAUDE_CONFIG_DIR:-$HOME/.claude}/skills"
+if [[ -d "$SKILLS_DIR" ]]; then
+  skill_roots=("$SKILLS_DIR")
+  for s in "$SKILLS_DIR" "$SKILLS_DIR"/*/; do
+    [[ "$s" == "$SKILLS_DIR" || -L "${s%/}" ]] || continue
+    t="$(cd "$s" 2>/dev/null && pwd -P)" || continue
+    [[ "$t" == "$SKILLS_DIR" ]] || skill_roots+=("$t")
+  done
+  for t in "${skill_roots[@]}"; do CLAUDE_ALLOW+=("$(json_str "Read(/$t/**)")"); done
+  CLAUDE_SKILL_ARGS=(--append-system-prompt "Skills are folders under $SKILLS_DIR, one per skill name. Load a skill with the Skill tool. To read or search a skill's other files, use the path $SKILLS_DIR/<name>/. Do not search a parent folder.")
+fi
+
+# claude keeps only the last --settings flag, so volley's settings are one
+# object. Extra allow rules (JSON strings) join the skill rules.
+claude_settings() { # [allow-rule ...] — the settings object, or nothing
+  local m=() a=(${CLAUDE_ALLOW[@]+"${CLAUDE_ALLOW[@]}"} "$@")
+  # A [1m] model asks for the 1M window. CLAUDE_CODE_DISABLE_1M_CONTEXT=1 in
+  # the user's settings or env would still cap it at 200k; a --settings env
+  # value outranks both, so it lifts the cap for volley's calls only.
+  [[ "$VOLLEY_CLAUDE_MODEL" == *"[1m]" ]] && m+=('"env":{"CLAUDE_CODE_DISABLE_1M_CONTEXT":"0"}')
+  (( ${#a[@]} )) && m+=("\"permissions\":{\"allow\":[$(IFS=,; echo "${a[*]}")]}")
+  (( ${#m[@]} )) || return 0
+  echo "{$(IFS=,; echo "${m[*]}")}"
+}
+CLAUDE_CLI_ARGS=()
+s="$(claude_settings)"
+[[ -n "$s" ]] && CLAUDE_CLI_ARGS=(--settings "$s")
+CLAUDE_CLI_ARGS+=(${CLAUDE_SKILL_ARGS[@]+"${CLAUDE_SKILL_ARGS[@]}"})
 CODEX_MODEL_ARGS=()
 [[ -n "$VOLLEY_CODEX_MODEL" ]] && CODEX_MODEL_ARGS=(--model "$VOLLEY_CODEX_MODEL")
 
@@ -250,6 +294,13 @@ CLAUDE_EFFORT_ARGS=()
 [[ -n "$VOLLEY_CLAUDE_EFFORT" ]] && CLAUDE_EFFORT_ARGS=(--effort "$VOLLEY_CLAUDE_EFFORT")
 CODEX_EFFORT_ARGS=()
 [[ -n "$VOLLEY_CODEX_EFFORT" ]] && CODEX_EFFORT_ARGS=(-c "model_reasoning_effort=$VOLLEY_CODEX_EFFORT")
+
+# Planner prompts only. The planner's reply goes to a round file that no one
+# reads while the loop runs, so a question there is lost; QUESTIONS.md stops
+# the loop until the user answers.
+ASK_BLOCK="
+
+If a point needs a decision that only the user can make, do not ask it in your reply. No one reads your reply while the loop runs. Write the questions to QUESTIONS.md in the workspace instead: number each one, and give its options and the one you recommend. In SPEC.md, use your recommended option for now. The loop stops after your turn so the user can answer. Do not use QUESTIONS.md for points that the workspace files, the reference code, or the critique can settle."
 
 render() { # render <prompt-file> [KEY=value ...] — substitute {{KEY}} placeholders
   local out; out="$(cat "$1")"; shift
@@ -318,6 +369,7 @@ claude_plan() { # <prompt> [session-key] — claude -p prints its final reply on
     ${CLAUDE_MODEL_ARGS[@]+"${CLAUDE_MODEL_ARGS[@]}"} \
     ${CLAUDE_EFFORT_ARGS[@]+"${CLAUDE_EFFORT_ARGS[@]}"} \
     ${CLAUDE_SESSION_ARGS[@]+"${CLAUDE_SESSION_ARGS[@]}"} \
+    ${CLAUDE_CLI_ARGS[@]+"${CLAUDE_CLI_ARGS[@]}"} \
     --permission-mode acceptEdits \
     --allowedTools "Read,Write,Edit,Glob,Grep" \
     ${CLAUDE_CTX[@]+"${CLAUDE_CTX[@]}"} \
@@ -332,6 +384,7 @@ claude_critique() { # <prompt> <critique-file> [session-key] — claude -p print
     ${CLAUDE_MODEL_ARGS[@]+"${CLAUDE_MODEL_ARGS[@]}"} \
     ${CLAUDE_EFFORT_ARGS[@]+"${CLAUDE_EFFORT_ARGS[@]}"} \
     ${CLAUDE_SESSION_ARGS[@]+"${CLAUDE_SESSION_ARGS[@]}"} \
+    ${CLAUDE_CLI_ARGS[@]+"${CLAUDE_CLI_ARGS[@]}"} \
     --allowedTools "Read,Glob,Grep" \
     ${CLAUDE_CTX[@]+"${CLAUDE_CTX[@]}"} \
     </dev/null >"$2" 2>>"$STATE/critic.log")
@@ -414,10 +467,16 @@ gk_agent_args() { # <agent> <role> — the --agent-args JSON array, or nothing
   if [[ "$1" == claude ]]; then
     a=(${CLAUDE_MODEL_ARGS[@]+"${CLAUDE_MODEL_ARGS[@]}"} ${CLAUDE_EFFORT_ARGS[@]+"${CLAUDE_EFFORT_ARGS[@]}"})
     [[ -n "${CTX:-}" ]] && a+=("--add-dir=$CTX")
-    # --tools limits the tool set. A tool outside it would stop the turn on
-    # a permission prompt, which gashki reports as APPROVAL_REQUIRED.
-    if [[ "$2" == planner ]]; then a+=(--tools=Read,Write,Edit,Glob,Grep)
-    else a+=(--tools=Read,Glob,Grep,Write); fi
+    # A permission prompt stops an unattended turn; gashki reports it as
+    # APPROVAL_REQUIRED and the run dies. dontAsk denies what the rules do
+    # not allow, and the agent goes on. It replaces gashki's acceptEdits (a
+    # later --permission-mode wins), so the workspace needs an Edit rule,
+    # which also covers Write. Reads in cwd and --add-dir need no rule.
+    a+=(--settings "$(claude_settings "$(json_str "Edit(/$ROOT/**)")")" --permission-mode dontAsk)
+    a+=(${CLAUDE_SKILL_ARGS[@]+"${CLAUDE_SKILL_ARGS[@]}"})
+    # --tools limits the tool set. Skill loads a skill such as make-cli.
+    if [[ "$2" == planner ]]; then a+=(--tools=Read,Write,Edit,Glob,Grep,Skill)
+    else a+=(--tools=Read,Glob,Grep,Write,Skill); fi
   else
     a=(${CODEX_MODEL_ARGS[@]+"${CODEX_MODEL_ARGS[@]}"} ${CODEX_EFFORT_ARGS[@]+"${CODEX_EFFORT_ARGS[@]}"})
   fi
@@ -586,11 +645,43 @@ verdict_of() { # print APPROVE or REVISE from the file's last verdict line, if a
     | tail -1 | grep -Eo 'APPROVE|REVISE' || true
 }
 
-human_block_of() { # <directive-file> <round> — render the injected directive block
-  printf '\n\n--- HUMAN DIRECTIVE (round %s) ---\n%s\n\n%s\n--- END HUMAN DIRECTIVE ---' \
+human_block_of() { # <rNN> <round> — render the injected directive block from
+  # rounds/rNN.human.md, with the planner's questions it answers, if any
+  local q="$ROUNDS/$1.questions.md" asked=""
+  grep -qs '[^[:space:]]' "$q" \
+    && asked="$(printf 'The planner asked the user these questions:\n%s\n\nThe user answered:\n' "$(cat "$q")")"
+  printf '\n\n--- HUMAN DIRECTIVE (round %s) ---\n%s\n\n%s%s\n--- END HUMAN DIRECTIVE ---' \
     "$2" \
     "The human running this loop left the following instructions. They outrank the critic: comply with them, and treat any point they settle as settled — do not re-raise it in critiques or revisit it in revisions." \
-    "$(cat "$1")"
+    "$asked" "$(cat "$ROUNDS/$1.human.md")"
+}
+
+# QUESTIONS.md is answered once a HUMAN.md newer than it exists. An empty
+# QUESTIONS.md asks nothing; the user may delete it to go on without answers.
+questions_open() {
+  grep -qs '[^[:space:]]' "$QUESTIONS" || return 1
+  ! [[ -f "$HUMAN" && "$HUMAN" -nt "$QUESTIONS" ]]
+}
+
+ask_user() { # <log-line> — stop until the user answers QUESTIONS.md
+  log "$1"
+  {
+    echo "volley: the planner needs a decision from you. QUESTIONS.md:"
+    echo
+    cat "$QUESTIONS"
+    echo
+    echo "volley: answer in HUMAN.md, then rerun volley. The next round gives your answers to both agents."
+    echo "volley: to go on without answers, delete QUESTIONS.md and rerun."
+    if [[ "$VOLLEY_BACKEND" == gashki && -s "$STATE/run" ]]; then
+      echo "volley: panes volley-$(cat "$STATE/run")/* stay up for the rerun"
+    fi
+  } >&2
+  exit 3
+}
+
+check_questions() { # <rNN> — after a planner turn
+  questions_open && ask_user "$1: planner left questions for the user in QUESTIONS.md; stopping (exit 3)"
+  return 0
 }
 
 REMARK_RE='non.?blocking|minor|remark|nitpick'
@@ -625,23 +716,31 @@ closing_pass() { # <rNN> <critique-file> — after APPROVE, the planner addresse
   fi
   log "$1: closing pass — planner disposing of non-blocking remarks"
   CALL_KEY="$1-closing"
-  "$PLAN_FN" "$(render "$PROMPTS/closing-pass.md" ROUND="$1" "SECOND_OPINION=$extra" "CONSTRAINTS=$CONSTRAINTS_BLOCK" "CONTEXT=$CONTEXT_BLOCK")" planner
+  "$PLAN_FN" "$(render "$PROMPTS/closing-pass.md" ROUND="$1" "SECOND_OPINION=$extra" "CONSTRAINTS=$CONSTRAINTS_BLOCK" "CONTEXT=$CONTEXT_BLOCK")$ASK_BLOCK" planner
+  check_questions "$1"
 }
 
 log "roles: planner=$VOLLEY_PLANNER critic=$CRITIC"
 write_provenance
 
+# A rerun after a stop for questions goes on only once they are answered.
+questions_open && ask_user "QUESTIONS.md has no answer yet (no HUMAN.md newer than it); stopping (exit 3)"
+
 # --- Round 0: initial spec (skipped on rerun so an interrupted loop resumes) ---
 if [[ ! -f "$SPEC" ]]; then
   log "planner: drafting initial SPEC.md"
   CALL_KEY=init
-  "$PLAN_FN" "$(render "$PROMPTS/planner-init.md" "CONSTRAINTS=$CONSTRAINTS_BLOCK" "CONTEXT=$CONTEXT_BLOCK")" planner
+  "$PLAN_FN" "$(render "$PROMPTS/planner-init.md" "CONSTRAINTS=$CONSTRAINTS_BLOCK" "CONTEXT=$CONTEXT_BLOCK")$ASK_BLOCK" planner
   [[ -f "$SPEC" ]] || die "planner produced no SPEC.md (see state/planner.log)"
+  check_questions r00
 fi
 
 # Resume after the last completed critique, if any.
 last=$(( $(find "$ROUNDS" -name 'r*.critique.md' 2>/dev/null | wc -l) ))
 start=$(( last + 1 ))
+# A rerun past MAX_ROUNDS (say, after questions in the last round) runs no
+# round; the impasse report then shows the last critique.
+CRIT="$ROUNDS/$(printf 'r%02d' "$last").critique.md"
 
 # A run interrupted between critique and revision left a REVISE verdict with no
 # spec snapshot. Finish that round first instead of re-running the critic
@@ -650,11 +749,12 @@ if (( last >= 1 )); then
   P="$(printf 'r%02d' "$last")"
   if [[ "$(verdict_of "$ROUNDS/$P.critique.md")" == "REVISE" && ! -f "$ROUNDS/$P.spec.md" ]]; then
     HUMAN_BLOCK=""
-    [[ -f "$ROUNDS/$P.human.md" ]] && HUMAN_BLOCK="$(human_block_of "$ROUNDS/$P.human.md" "$last")"
+    [[ -f "$ROUNDS/$P.human.md" ]] && HUMAN_BLOCK="$(human_block_of "$P" "$last")"
     log "$P: resuming interrupted revision"
     CALL_KEY="$P-revise"
-    "$PLAN_FN" "$(render "$PROMPTS/planner-revise.md" ROUND="$P" "HUMAN=$HUMAN_BLOCK" "CONSTRAINTS=$CONSTRAINTS_BLOCK" "CONTEXT=$CONTEXT_BLOCK")" planner
+    "$PLAN_FN" "$(render "$PROMPTS/planner-revise.md" ROUND="$P" "HUMAN=$HUMAN_BLOCK" "CONSTRAINTS=$CONSTRAINTS_BLOCK" "CONTEXT=$CONTEXT_BLOCK")$ASK_BLOCK" planner
     cp "$SPEC" "$ROUNDS/$P.spec.md"
+    check_questions "$P"
   fi
 fi
 
@@ -664,12 +764,15 @@ for (( n=start; n<=MAX_ROUNDS; n++ )); do
 
   # HUMAN.md steering: a directive dropped into the workspace applies to both
   # role prompts of exactly one round, then is archived. This is the only way
-  # to steer a running loop without killing it.
+  # to steer a running loop without killing it. It also answers QUESTIONS.md,
+  # which is archived with it.
   HUMAN_BLOCK=""
-  if [[ -f "$ROOT/HUMAN.md" ]]; then
-    HUMAN_BLOCK="$(human_block_of "$ROOT/HUMAN.md" "$n")"
-    mv "$ROOT/HUMAN.md" "$ROUNDS/$N.human.md"
+  if [[ -f "$HUMAN" ]]; then
+    mv "$HUMAN" "$ROUNDS/$N.human.md"
+    [[ -f "$QUESTIONS" ]] && mv "$QUESTIONS" "$ROUNDS/$N.questions.md"
+    HUMAN_BLOCK="$(human_block_of "$N" "$n")"
     log "$N: HUMAN.md directive applied this round (archived to rounds/$N.human.md)"
+    [[ -f "$ROUNDS/$N.questions.md" ]] && log "$N: it answers the planner's questions (archived to rounds/$N.questions.md)"
   fi
 
   log "$N: critic reviewing SPEC.md"
@@ -697,8 +800,9 @@ REMINDER: your previous reply omitted the required final line. It must be exactl
 
   log "$N: planner revising SPEC.md"
   CALL_KEY="$N-revise"
-  "$PLAN_FN" "$(render "$PROMPTS/planner-revise.md" ROUND="$N" "HUMAN=$HUMAN_BLOCK" "CONSTRAINTS=$CONSTRAINTS_BLOCK" "CONTEXT=$CONTEXT_BLOCK")" planner
+  "$PLAN_FN" "$(render "$PROMPTS/planner-revise.md" ROUND="$N" "HUMAN=$HUMAN_BLOCK" "CONSTRAINTS=$CONSTRAINTS_BLOCK" "CONTEXT=$CONTEXT_BLOCK")$ASK_BLOCK" planner
   cp "$SPEC" "$ROUNDS/$N.spec.md"
+  check_questions "$N"
 done
 
 {

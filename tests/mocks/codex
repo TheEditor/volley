@@ -4,9 +4,9 @@
 # Role detection mirrors how volley.sh invokes the real binary: the planner
 # runs with `--sandbox workspace-write`, the critic with `--sandbox read-only`
 # and `--output-last-message <file>` (the critique lands in that file, not on
-# stdout). Scripting knobs are identical to the claude mock: MOCK_STATE and
-# MOCK_VERDICTS, with a shared critic-calls counter so a verdict script spans
-# both agents in one run.
+# stdout). Scripting knobs are identical to the claude mock: MOCK_STATE,
+# MOCK_VERDICTS and MOCK_QUESTIONS, with shared call counters so a script
+# spans both agents in one run.
 set -euo pipefail
 
 if [[ "${1:-}" == "--version" ]]; then
@@ -66,6 +66,9 @@ EOF
   else
     echo "- mock revision entry (planner call $n)" >>SPEC.md
   fi
+  for q in ${MOCK_QUESTIONS:-}; do
+    [[ "$q" == "$n" ]] && printf '1. Mock question from planner call %s?\n' "$n" >QUESTIONS.md
+  done
   echo "mock codex planner: call $n done"
   [[ -n "$outfile" ]] && echo "mock codex planner: call $n done" >"$outfile"
   exit 0

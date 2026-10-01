@@ -12,6 +12,8 @@ brief.
    name source files to read, standards to consider, and the artifact to
    produce. `BRIEF.md.example` is a template meant to be edited, not a schema.
    If you have true non-negotiables, put them in optional `CONSTRAINTS.md`.
+   To review a spec you already have, put it in the workspace as `SPEC.md`
+   instead; no brief is needed, and the loop starts at the r01 critique.
 2. Run:
 
    ```sh
@@ -32,7 +34,18 @@ Set `VOLLEY_CONTEXT_DIR=/abs/path/to/repo` and the brief can request plans
 about real systems ("plan the migration of X in this repo"): both planner
 and critic ground their work in the actual code. The path must be absolute,
 readable, and outside the workspace. Have `BRIEF.md` name the entry points
-and paths of interest so the agents don't drown in an unfamiliar tree.
+and paths of interest (or name them in a seeded `SPEC.md`) so the agents
+don't drown in an unfamiliar tree.
+
+### Skills
+
+A workspace file can name a skill as the standard (for example "the make-cli
+skill is the standard"). Both agents can load it with no setup. Claude gets
+its Skill tool and read-only allow rules for `~/.claude/skills` (or
+`$CLAUDE_CONFIG_DIR/skills`) and for the target of each linked skill there.
+Its system prompt names the skills folder and tells it to search there, not
+in a parent folder. Codex reads skills from `$CODEX_HOME/skills`; a scratch
+`CODEX_HOME` needs its own `skills/` links.
 
 ### Steering a running loop
 
@@ -43,8 +56,26 @@ archived to `rounds/rNN.human.md` so it applies exactly once. This is the
 only way to steer a run without killing it (`^C` discards an in-flight
 round).
 
+### Questions for you
+
+No one reads an agent's reply while the loop runs. So the planner is told to
+write any decision only you can make to `QUESTIONS.md`, with options and a
+recommendation, and to use its recommendation in `SPEC.md` for now. After a
+planner turn that leaves a non-empty `QUESTIONS.md`, the loop prints it and
+stops with exit `3`. With the gashki backend the panes stay up.
+
+To answer, write `HUMAN.md` and rerun. A `HUMAN.md` older than
+`QUESTIONS.md` does not count. The next round gives both agents the
+questions and your answers as one directive, then archives them to
+`rounds/rNN.questions.md` and `rounds/rNN.human.md`. A rerun with no answer
+stops again. To go on without answers, delete `QUESTIONS.md` and rerun.
+
+Only the planner writes `QUESTIONS.md`. The critic cannot write files; it
+names such points in its critique.
+
 Exit codes: `0` converged (critic approved), `2` impasse (round cap reached),
-`1` setup or invocation failure.
+`3` the planner needs your decision (see `QUESTIONS.md`), `1` setup or
+invocation failure.
 
 ## Files produced
 
@@ -58,6 +89,8 @@ Exit codes: `0` converged (critic approved), `2` impasse (round cap reached),
 | `rounds/second-opinion.md` | The swapped critic's advisory review (only with `VOLLEY_SECOND_OPINION=1`) |
 | `rounds/rNN.closing-response.md` | The planner's final reply after a closing pass, if one ran |
 | `rounds/rNN.human.md` | Archived one-shot `HUMAN.md` directive, if you steered round NN |
+| `rounds/rNN.questions.md` | The planner's `QUESTIONS.md` that `rNN.human.md` answers, if any |
+| `QUESTIONS.md` | Open questions from the planner; present only while the loop waits on you |
 | `state/provenance.md` | Run provenance: role assignment, CLI versions, explicit model pins if any, context/profile settings |
 | `state/*.log` | Full planner/critic transcripts and the loop log |
 | `state/IMPASSE.md` | Written only if the round cap is hit without approval |
@@ -103,8 +136,12 @@ A rerun from another window stops with `CONFLICT` and keeps the earlier panes.
   reuses the same panes and never pastes a prompt twice.
 - The critic writes its reply to the critique file itself. volley fails the
   run if the file is missing after the turn, or if SPEC.md changed during a
-  critic turn. Claude runs with `--tools` limited to file tools; codex runs
-  in gashki's `workspace-write` sandbox.
+  critic turn. Claude runs with `--tools` limited to file tools and Skill,
+  in `--permission-mode dontAsk`: a call that no rule allows is denied and
+  the agent goes on, so no permission prompt can stop an unattended turn.
+  Its rules allow edits in the workspace only; reads in the workspace and
+  the context dir need no rule. Codex runs in gashki's `workspace-write`
+  sandbox.
 - A send that exits 7 (the agent may not have the prompt) is not resent:
   volley waits from the barrier cursor and lets the file check decide. With
   `CALL_TIMEOUT` unset, a wait has no limit: volley waits again while the

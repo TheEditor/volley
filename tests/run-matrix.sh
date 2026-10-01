@@ -163,6 +163,89 @@ for planner in claude codex; do
   assert "[$planner] steering: no placeholder residue" \
     sh -c "! grep -q '{{HUMAN}}' '$MOCK/critic-$critic-02.prompt'"
 
+  # --- QUESTIONS.md: a planner question stops the loop until HUMAN.md answers it ---
+  new_ws
+  run_volley "$planner" 8 "REVISE APPROVE" MOCK_QUESTIONS=2
+  assert "[$planner] questions: stop with exit 3" test $? -eq 3
+  assert "[$planner] questions: QUESTIONS.md kept for the user" test -f "$WS/QUESTIONS.md"
+  assert "[$planner] questions: questions printed" \
+    grep -q 'Mock question from planner call 2' "$WS/run.out"
+  assert "[$planner] questions: user told to answer in HUMAN.md" \
+    grep -q 'answer in HUMAN.md, then rerun' "$WS/run.out"
+  assert "[$planner] questions: revision snapshot written before the stop" \
+    test -f "$WS/rounds/r01.spec.md"
+  assert "[$planner] questions: no round 2 critique" test ! -e "$WS/rounds/r02.critique.md"
+  assert "[$planner] questions: stop logged" \
+    grep -q 'r01: planner left questions' "$WS/state/volley.log"
+  assert "[$planner] questions: init prompt names QUESTIONS.md" \
+    grep -q 'Write the questions to QUESTIONS.md' "$MOCK/planner-$planner-01.prompt"
+  assert "[$planner] questions: revise prompt names QUESTIONS.md" \
+    grep -q 'Write the questions to QUESTIONS.md' "$MOCK/planner-$planner-02.prompt"
+  assert "[$planner] questions: critic prompt does not" \
+    sh -c "! grep -q 'QUESTIONS.md' '$MOCK/critic-$critic-01.prompt'"
+  touch -t 202601010000 "$WS/QUESTIONS.md"
+  run_volley "$planner" 8 "REVISE APPROVE"
+  assert "[$planner] questions: rerun with no answer stops again" test $? -eq 3
+  assert "[$planner] questions: no agent call before the answer" \
+    test "$(cat "$MOCK/critic-calls"):$(cat "$MOCK/planner-calls")" = 1:2
+  echo "Old directive." >"$WS/HUMAN.md"; touch -t 202501010000 "$WS/HUMAN.md"
+  run_volley "$planner" 8 "REVISE APPROVE"
+  assert "[$planner] questions: a HUMAN.md older than QUESTIONS.md is no answer" \
+    test $? -eq 3
+  echo "Answer to 1: use TSV." >"$WS/HUMAN.md"
+  run_volley "$planner" 8 "REVISE APPROVE"
+  assert "[$planner] questions: answered rerun converges" test $? -eq 0
+  assert "[$planner] questions: QUESTIONS.md consumed" test ! -e "$WS/QUESTIONS.md"
+  assert "[$planner] questions: archived beside the answer" \
+    test -f "$WS/rounds/r02.questions.md" -a -f "$WS/rounds/r02.human.md"
+  assert "[$planner] questions: critic gets the questions" \
+    grep -q 'Mock question from planner call 2' "$MOCK/critic-$critic-02.prompt"
+  assert "[$planner] questions: critic gets the answer" \
+    grep -q 'Answer to 1: use TSV.' "$MOCK/critic-$critic-02.prompt"
+  assert "[$planner] questions: answer labeled as one" \
+    grep -q 'The user answered:' "$MOCK/critic-$critic-02.prompt"
+
+  # --- QUESTIONS.md: deleting it goes on without answers -------------------------
+  new_ws
+  run_volley "$planner" 8 "REVISE APPROVE" MOCK_QUESTIONS=2
+  rm -f "$WS/QUESTIONS.md"
+  run_volley "$planner" 8 "REVISE APPROVE"
+  assert "[$planner] questions-deleted: rerun converges" test $? -eq 0
+  assert "[$planner] questions-deleted: no directive in round 2" \
+    sh -c "! grep -q 'HUMAN DIRECTIVE' '$MOCK/critic-$critic-02.prompt'"
+
+  # --- QUESTIONS.md: from the initial draft, before any critique ------------------
+  new_ws
+  run_volley "$planner" 8 "APPROVE" MOCK_QUESTIONS=1
+  assert "[$planner] questions-init: stop with exit 3" test $? -eq 3
+  assert "[$planner] questions-init: no critique yet" test ! -e "$WS/rounds/r01.critique.md"
+  echo "Answer: yes." >"$WS/HUMAN.md"
+  run_volley "$planner" 8 "APPROVE"
+  assert "[$planner] questions-init: answered rerun converges" test $? -eq 0
+  assert "[$planner] questions-init: archived with round 1" \
+    test -f "$WS/rounds/r01.questions.md"
+
+  # --- QUESTIONS.md: a closing-pass question holds back convergence ---------------
+  new_ws
+  run_volley "$planner" 8 "APPROVE_REMARKS APPROVE" MOCK_QUESTIONS=2
+  assert "[$planner] questions-closing: stop with exit 3" test $? -eq 3
+  assert "[$planner] questions-closing: not logged as converged" \
+    sh -c "! grep -q converged '$WS/state/volley.log'"
+  echo "Answer: no." >"$WS/HUMAN.md"
+  run_volley "$planner" 8 "APPROVE_REMARKS APPROVE"
+  assert "[$planner] questions-closing: answered rerun reviews again and converges" \
+    test $? -eq 0 -a -f "$WS/rounds/r02.critique.md"
+
+  # --- QUESTIONS.md: an answer past the round cap ends in impasse, not a crash ----
+  new_ws
+  run_volley "$planner" 1 "REVISE" MOCK_QUESTIONS=2
+  assert "[$planner] questions-cap: stop with exit 3" test $? -eq 3
+  echo "Answer: yes." >"$WS/HUMAN.md"
+  run_volley "$planner" 1 "REVISE"
+  assert "[$planner] questions-cap: rerun at the cap exits 2" test $? -eq 2
+  assert "[$planner] questions-cap: impasse report has the last critique" \
+    grep -q 'VERDICT: REVISE' "$WS/state/IMPASSE.md"
+
   # --- CONSTRAINTS.md: injected into both roles and retained across rounds ---------
   new_ws
   echo "The plan must name the TSV wire format." >"$WS/CONSTRAINTS.md"
@@ -467,6 +550,20 @@ for planner in claude codex; do
     grep -qx "mock $planner planner: call 2 done" "$WS/rounds/r01.response.md"
 
   new_ws
+  run_volley "$planner" 8 "REVISE APPROVE" "${GK[@]}" MOCK_QUESTIONS=2
+  assert "[gashki $planner] questions: stop with exit 3" test $? -eq 3
+  assert "[gashki $planner] questions: panes kept" test "$(gk_count '^kill ')" = 0
+  assert "[gashki $planner] questions: state/run kept" test -s "$WS/state/run"
+  assert "[gashki $planner] questions: user told the panes stay up" \
+    grep -q 'stay up for the rerun' "$WS/run.out"
+  echo "Answer to 1: use TSV." >"$WS/HUMAN.md"
+  run_volley "$planner" 8 "REVISE APPROVE" "${GK[@]}"
+  assert "[gashki $planner] questions: answered rerun converges" test $? -eq 0
+  assert "[gashki $planner] questions: rerun reuses the panes" test "$(gk_spawns)" = 2
+  assert "[gashki $planner] questions: critic gets the answer" \
+    grep -q 'Answer to 1: use TSV.' "$MOCK/critic-$critic-02.prompt"
+
+  new_ws
   run_volley "$planner" 8 "APPROVE_REMARKS" "${GK[@]}"
   assert "[gashki $planner] closing-pass: exit 0" test $? -eq 0
   assert "[gashki $planner] closing-pass: closing reply saved from the transcript" \
@@ -514,7 +611,7 @@ run_volley claude 8 "APPROVE" "${GK[@]}" VOLLEY_CLAUDE_MODEL=mock-sonnet
 assert "[gashki] agent-args: claude planner gets model" \
   grep -q '"--model","mock-sonnet"' "$MOCK"/gk/panes/*_planner.args
 assert "[gashki] agent-args: claude planner tools limited" \
-  grep -q '"--tools=Read,Write,Edit,Glob,Grep"' "$MOCK"/gk/panes/*_planner.args
+  grep -q '"--tools=Read,Write,Edit,Glob,Grep,Skill"' "$MOCK"/gk/panes/*_planner.args
 assert "[gashki] agent-args: no 1M override without [1m]" \
   sh -c "! grep -q 'DISABLE_1M' '$MOCK'/gk/panes/*_planner.args"
 
@@ -524,7 +621,8 @@ assert "[gashki] 1M model: exit 0" test $? -eq 0
 assert "[gashki] 1M model: planner gets the model" \
   grep -q '"--model","mock-sonnet\[1m\]"' "$MOCK"/gk/panes/*_planner.args
 assert "[gashki] 1M model: planner gets the cap override" \
-  grep -qF '"--settings","{\"env\":{\"CLAUDE_CODE_DISABLE_1M_CONTEXT\":\"0\"}}"' "$MOCK"/gk/panes/*_planner.args
+  bash -c 'jq -r "index(\"--settings\") as \$i | .[\$i+1]" "$1" | jq -e ".env.CLAUDE_CODE_DISABLE_1M_CONTEXT == \"0\""' \
+  _ "$(ls "$MOCK"/gk/panes/*_planner.args)"
 
 new_ws
 run_volley claude 8 "APPROVE" 'VOLLEY_CLAUDE_MODEL=mock-sonnet[1m]'
@@ -535,7 +633,7 @@ assert "[cli] 1M model: claude gets the cap override" \
 new_ws
 run_volley codex 8 "APPROVE" "${GK[@]}"
 assert "[gashki] agent-args: claude critic tools limited" \
-  grep -q '"--tools=Read,Glob,Grep,Write"' "$MOCK"/gk/panes/*_critic.args
+  grep -q '"--tools=Read,Glob,Grep,Write,Skill"' "$MOCK"/gk/panes/*_critic.args
 
 new_ws
 mkdir -p "$WS-ctx"
@@ -544,6 +642,82 @@ run_volley claude 8 "APPROVE" "${GK[@]}" VOLLEY_CONTEXT_DIR="$CTXDIR"
 assert "[gashki] context: claude gets --add-dir" \
   grep -q "\"--add-dir=$CTXDIR\"" "$MOCK"/gk/panes/*_planner.args
 rm -rf "$CTXDIR"
+
+# --- skills: claude may read the skills dir and each linked skill's target ---
+new_skills() { # a skills dir in FAKEHOME: one plain skill, one linked skill
+  mkdir -p "$FAKEHOME/.claude/skills/plain" "$WS/skill-src/linked"
+  ln -s "$WS/skill-src/linked" "$FAKEHOME/.claude/skills/linked"
+  SKDIR="$FAKEHOME/.claude/skills"
+  SKREAL="$(cd "$SKDIR" && pwd -P)"
+  SKLINK="$(cd "$WS/skill-src/linked" && pwd -P)"
+}
+
+new_ws; new_skills
+run_volley claude 8 "APPROVE"
+assert "[cli] skills: exit 0" test $? -eq 0
+assert "[cli] skills: one --settings flag" \
+  test "$(grep -cx -- '--settings' "$MOCK/planner-claude-01.argv")" = 1
+assert "[cli] skills: read rule for the skills dir" \
+  grep -qF "\"Read(/$SKDIR/**)\"" "$MOCK/planner-claude-01.argv"
+assert "[cli] skills: read rule for the resolved skills dir" \
+  grep -qF "\"Read(/$SKREAL/**)\"" "$MOCK/planner-claude-01.argv"
+assert "[cli] skills: read rule for the linked skill's target" \
+  grep -qF "\"Read(/$SKLINK/**)\"" "$MOCK/planner-claude-01.argv"
+assert "[cli] skills: no rule for a plain skill" \
+  sh -c "! grep -qF 'skills/plain' '$MOCK/planner-claude-01.argv'"
+assert "[cli] skills: no write rules" \
+  sh -c "! grep -qE '(Write|Edit)\(' '$MOCK/planner-claude-01.argv'"
+
+new_ws; new_skills
+run_volley claude 8 "APPROVE" 'VOLLEY_CLAUDE_MODEL=mock-sonnet[1m]'
+assert "[cli] skills+1M: one --settings flag" \
+  test "$(grep -cx -- '--settings' "$MOCK/planner-claude-01.argv")" = 1
+assert "[cli] skills+1M: settings keep the cap override and the read rules" \
+  bash -c 'grep -x "{.*}" "$1" | jq -e --arg r "Read(/$2/**)" ".env.CLAUDE_CODE_DISABLE_1M_CONTEXT == \"0\" and (.permissions.allow | index(\$r)) != null"' \
+  _ "$MOCK/planner-claude-01.argv" "$SKLINK"
+
+assert "[cli] skills: hint names the skills dir" \
+  grep -qF "Skills are folders under $SKDIR," "$MOCK/planner-claude-01.argv"
+
+new_ws
+run_volley claude 8 "APPROVE"
+assert "[cli] no skills dir: no --settings" \
+  sh -c "! grep -qx -- '--settings' '$MOCK/planner-claude-01.argv'"
+assert "[cli] no skills dir: no skills hint" \
+  sh -c "! grep -qx -- '--append-system-prompt' '$MOCK/planner-claude-01.argv'"
+
+new_ws; new_skills
+run_volley codex 8 "APPROVE"
+assert "[cli] skills: claude critic gets no write rule" \
+  sh -c "! grep -qE '(Write|Edit)\\(' '$MOCK/critic-claude-01.argv'"
+
+new_ws
+run_volley claude 8 "APPROVE" "${GK[@]}"
+GKP="$(ls "$MOCK"/gk/panes/*_planner.args)"
+gk_settings() { jq -r 'index("--settings") as $i | .[$i+1]' "$1"; }
+assert "[gashki] dontAsk: planner runs in dontAsk mode" \
+  grep -qF '"--permission-mode","dontAsk"' "$GKP"
+assert "[gashki] dontAsk: one --settings flag" \
+  test "$(jq '[.[] | select(. == "--settings")] | length' "$GKP")" = 1
+assert "[gashki] dontAsk: workspace Edit rule" \
+  bash -c 'jq -r "index(\"--settings\") as \$i | .[\$i+1]" "$1" | jq -e --arg r "Edit(/$2/**)" ".permissions.allow | index(\$r) != null"' \
+  _ "$GKP" "$(cd "$WS" && pwd)"
+assert "[gashki] dontAsk: no Edit rule for the context dir or home" \
+  test "$(gk_settings "$GKP" | jq '[.permissions.allow[] | select(startswith("Edit("))] | length')" = 1
+
+new_ws; new_skills
+run_volley claude 8 "APPROVE" "${GK[@]}"
+assert "[gashki] skills: planner gets the skills hint" \
+  grep -qF "Skills are folders under $SKDIR," "$MOCK"/gk/panes/*_planner.args
+assert "[gashki] skills: planner gets the read rules" \
+  grep -qF "Read(/$SKLINK/**)" "$MOCK"/gk/panes/*_planner.args
+
+new_ws; new_skills
+run_volley codex 8 "APPROVE" "${GK[@]}"
+assert "[gashki] skills: claude critic gets the read rules" \
+  grep -qF "Read(/$SKLINK/**)" "$MOCK"/gk/panes/*_critic.args
+assert "[gashki] dontAsk: claude critic runs in dontAsk mode" \
+  grep -qF '"--permission-mode","dontAsk"' "$MOCK"/gk/panes/*_critic.args
 
 new_ws
 run_volley claude 8 "NONE APPROVE" "${GK[@]}"
@@ -707,11 +881,25 @@ for prof in security data decision-memo plan-spec; do
     test -s "$REPO/prompts/profiles/$prof.md"
 done
 
+# --- seeded spec: SPEC.md without BRIEF.md starts at the r01 critique ----------
+new_ws
+rm "$WS/BRIEF.md"
+echo "# Seed spec" >"$WS/SPEC.md"
+run_volley claude 8 "APPROVE" VOLLEY_CONTEXT_DIR="$REPO"
+assert "seed: SPEC.md without BRIEF.md runs, exit 0" test $? -eq 0
+assert "seed: no initial draft (planner not called)" test ! -f "$MOCK/planner-calls"
+assert "seed: r01 critique has verdict" \
+  grep -q 'VERDICT: APPROVE' "$WS/rounds/r01.critique.md"
+assert "seed: SPEC.md kept as given" grep -qx '# Seed spec' "$WS/SPEC.md"
+assert "seed: context block without BRIEF.md in the critic prompt" \
+  bash -c 'grep -q "reference codebase" "$1" && ! grep -q BRIEF "$1"' \
+  _ "$MOCK/critic-codex-01.prompt"
+
 # --- setup failure -------------------------------------------------------------
 new_ws
 rm "$WS/BRIEF.md"
 run_volley claude 8 "APPROVE"
-assert "setup: missing BRIEF.md refused" test $? -eq 1
+assert "setup: missing BRIEF.md and SPEC.md refused" test $? -eq 1
 
 echo
 echo "matrix: $pass passed, $fail failed"
