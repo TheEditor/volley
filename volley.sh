@@ -649,7 +649,7 @@ human_block_of() { # <rNN> <round> — render the injected directive block from
   # rounds/rNN.human.md, with the planner's questions it answers, if any
   local q="$ROUNDS/$1.questions.md" asked=""
   grep -qs '[^[:space:]]' "$q" \
-    && asked="$(printf 'The planner asked the user these questions:\n%s\n\nThe user answered:\n' "$(cat "$q")")"
+    && printf -v asked 'The planner asked the user these questions:\n%s\n\nThe user answered:\n' "$(cat "$q")"
   printf '\n\n--- HUMAN DIRECTIVE (round %s) ---\n%s\n\n%s%s\n--- END HUMAN DIRECTIVE ---' \
     "$2" \
     "The human running this loop left the following instructions. They outrank the critic: comply with them, and treat any point they settle as settled — do not re-raise it in critiques or revisit it in revisions." \

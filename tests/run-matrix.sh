@@ -202,8 +202,10 @@ for planner in claude codex; do
     grep -q 'Mock question from planner call 2' "$MOCK/critic-$critic-02.prompt"
   assert "[$planner] questions: critic gets the answer" \
     grep -q 'Answer to 1: use TSV.' "$MOCK/critic-$critic-02.prompt"
-  assert "[$planner] questions: answer labeled as one" \
-    grep -q 'The user answered:' "$MOCK/critic-$critic-02.prompt"
+  assert "[$planner] questions: answer label on its own line" \
+    grep -qx 'The user answered:' "$MOCK/critic-$critic-02.prompt"
+  assert "[$planner] questions: answer starts its own line" \
+    grep -qx 'Answer to 1: use TSV.' "$MOCK/critic-$critic-02.prompt"
 
   # --- QUESTIONS.md: deleting it goes on without answers -------------------------
   new_ws
