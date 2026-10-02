@@ -3,8 +3,8 @@
 Automated plan/critique loop between two coding agents on the same machine:
 one of **Claude Code** and **Codex** is the planner, the other the critic.
 The planner drafts a spec from your brief; the critic reviews it; the planner
-revises or rebuts; repeat until the critic approves. No human input after the
-brief.
+revises or rebuts; repeat until the critic approves. The loop waits when a
+decision needs the user's answer.
 
 ## Usage
 
@@ -57,10 +57,25 @@ way to steer a run without killing it (`^C` discards an in-flight round).
 
 ### Questions for you
 
-The planner is told to write any decision only you can make to
-`QUESTIONS.md`, with options and a recommendation, and to use its
-recommendation in `SPEC.md` for now. After a planner turn that leaves a
-non-empty `QUESTIONS.md`, the loop prints the questions and waits in place.
+Both agents are told to resolve technical design objections together. They
+can revise proposed choices without approving implementation. They ask you
+during review only when progress requires a change to an explicit user
+requirement or a user preference that the available evidence cannot settle.
+They must preserve explicit requirements and binding constraints. A proposed
+design choice is not a settled user requirement. A critic's request for a
+user answer does not by itself require the planner to ask you.
+
+Future execution approvals stay as gates in the plan. The review does not
+stop to request permission for future live tests, implementation, or release.
+This does not grant permission to execute those steps.
+
+For a question that meets this rule, the planner writes `QUESTIONS.md`, with
+options and a recommendation, and uses its recommendation in `SPEC.md` for
+now. After a planner turn that leaves a non-empty `QUESTIONS.md`, the loop
+prints the questions and waits in place.
+The file holds only open questions. When none remain, the planner leaves
+it absent or empty. Answer records and "No open questions" text belong
+outside this file: any non-empty text makes the loop wait.
 It makes no agent call until you answer. Answer in one of these ways:
 
 - Type the answer in volley's terminal and end it with an empty line. This

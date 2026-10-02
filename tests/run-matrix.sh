@@ -22,6 +22,21 @@ assert() { # assert <description> <command...>
   if "$@" >/dev/null 2>&1; then ok "$d"; else bad "$d"; fi
 }
 
+review_rule_present() { # check the prompt received by an agent, not a template
+  local rule
+  for rule in \
+    'Resolve technical design objections together.' \
+    'Revise proposed choices without treating them as approved for implementation.' \
+    'Ask the user during review only when progress requires a change to an explicit user requirement or a user preference that the available evidence cannot settle.' \
+    'Keep future execution approvals as gates in the plan; do not stop this review to request permission for future execution.' \
+    'Preserve explicit requirements and binding constraints.' \
+    'Do not treat a proposed design choice as a settled user requirement.' \
+    'A request for a user answer in a critique is not binding by itself; apply this rule before forwarding it.'; do
+    grep -qF "$rule" "$1" || return 1
+  done
+  ! grep -qF 'A change to the agreed scope or to a user requirement needs a question' "$1"
+}
+
 new_ws() { # fresh workspace with a brief, mock state dir, and isolated HOME
   WS="$(mktemp -d "${TMPDIR:-/tmp}/volley-matrix.XXXXXX")"
   echo "Build a mock thing that does mock work." >"$WS/BRIEF.md"
@@ -124,6 +139,10 @@ for planner in claude codex; do
     grep -q "default/unrecorded by volley" "$WS/state/provenance.md"
   assert "[$planner] approve-first: planner prompt stays free of loop framing" \
     sh -c "! grep -qiE 'automated|counterpart|critic' '$MOCK/planner-$planner-01.prompt'"
+  assert "[$planner] review rule: initial planner receives it" \
+    review_rule_present "$MOCK/planner-$planner-01.prompt"
+  assert "[$planner] review rule: critic receives it" \
+    review_rule_present "$MOCK/critic-$critic-01.prompt"
 
   # --- revise then approve ---------------------------------------------------
   new_ws
@@ -145,6 +164,8 @@ for planner in claude codex; do
     test -f "$WS/rounds/r02.critique.md"
   assert "[$planner] revise-approve: no closing pass on clean approve" \
     test "$(cat "$MOCK/planner-calls")" = 2
+  assert "[$planner] review rule: revision planner receives it" \
+    review_rule_present "$MOCK/planner-$planner-02.prompt"
 
   # --- closing pass: approve with non-blocking remarks --------------------------
   new_ws
@@ -162,6 +183,8 @@ for planner in claude codex; do
     grep -q 'mock revision entry' "$WS/SPEC.md"
   assert "[$planner] closing-pass: critic not re-run" \
     test "$(cat "$MOCK/critic-calls")" = 1
+  assert "[$planner] review rule: closing planner receives it" \
+    review_rule_present "$MOCK/planner-$planner-02.prompt"
 
   # --- closing pass disabled -----------------------------------------------------
   new_ws
@@ -186,6 +209,8 @@ for planner in claude codex; do
     grep -q 'rounds/second-opinion.md' "$MOCK/planner-$planner-02.prompt"
   assert "[$planner] second-opinion: no placeholder residue in its prompt" \
     sh -c "! grep -q '{{HUMAN}}' '$MOCK/critic-$planner-02.prompt'"
+  assert "[$planner] review rule: second opinion receives it" \
+    review_rule_present "$MOCK/critic-$planner-02.prompt"
 
   # --- second opinion clean + clean approval: nothing to dispose ------------------
   new_ws
@@ -243,7 +268,9 @@ for planner in claude codex; do
     sh -c "! grep -q 'word for word to HUMAN.md' '$MOCK/planner-$planner-02.prompt'"
   assert "[$planner] questions: critic prompt does not" \
     sh -c "! grep -q 'QUESTIONS.md' '$MOCK/critic-$critic-01.prompt'"
-  echo "Old directive." >"$WS/HUMAN.md"; touch -t 202501010000 "$WS/HUMAN.md"
+  echo "Old directive." >"$WS/old-human.tmp"
+  touch -t 202501010000 "$WS/old-human.tmp"
+  mv "$WS/old-human.tmp" "$WS/HUMAN.md"
   assert "[$planner] questions: a HUMAN.md older than QUESTIONS.md is no answer" still_waiting
   echo "Answer to 1: use TSV." >"$WS/HUMAN.md"
   end_volley
@@ -308,6 +335,19 @@ for planner in claude codex; do
     grep -q 'QUESTIONS.md removed; going on without answers' "$WS/state/volley.log"
   assert "[$planner] questions-deleted: no directive in round 2" \
     sh -c "! grep -q 'HUMAN DIRECTIVE' '$MOCK/critic-$critic-02.prompt'"
+
+  # A file-only planner can clear the file without a shell or delete tool.
+  new_ws
+  start_volley "$planner" 8 "REVISE APPROVE" MOCK_QUESTIONS=2
+  assert "[$planner] questions-empty: waits for an answer" \
+    wait_for "$WS/state/volley.log" 'waiting for an answer'
+  : >"$WS/QUESTIONS.md"
+  end_volley
+  assert "[$planner] questions-empty: loop goes on and converges" test $? -eq 0
+  assert "[$planner] questions-empty: no answer is invented" \
+    test ! -e "$WS/HUMAN.md" -a ! -e "$WS/rounds/r02.human.md"
+  assert "[$planner] questions-empty: next critique runs" \
+    test -f "$WS/rounds/r02.critique.md"
 
   # --- QUESTIONS.md: from the initial draft, before any critique ---------------------
   new_ws
@@ -425,6 +465,8 @@ for planner in claude codex; do
     test "$(cat "$MOCK/critic-calls")" = 2
   assert "[$planner] verdict-retry: still round 1" \
     test ! -e "$WS/rounds/r02.critique.md"
+  assert "[$planner] review rule: re-asked critic receives it" \
+    review_rule_present "$MOCK/critic-$critic-02.prompt"
 
   # --- repo context: both agents pointed at a read-only codebase -------------------
   new_ws
@@ -680,6 +722,10 @@ for planner in claude codex; do
   assert "[gashki $planner] converge: state/run removed" test ! -e "$WS/state/run"
   assert "[gashki $planner] converge: provenance records backend" \
     grep -q 'Backend: gashki' "$WS/state/provenance.md"
+  assert "[gashki $planner] review rule: initial planner receives it" \
+    review_rule_present "$MOCK/planner-$planner-01.prompt"
+  assert "[gashki $planner] review rule: critic receives it" \
+    review_rule_present "$MOCK/critic-$critic-01.prompt"
 
   new_ws
   run_volley "$planner" 8 "REVISE APPROVE" "${GK[@]}"
@@ -692,6 +738,8 @@ for planner in claude codex; do
     grep -qx "mock $planner planner: call 1 done" "$WS/rounds/r00.response.md"
   assert "[gashki $planner] revise-approve: revise reply saved from the transcript" \
     grep -qx "mock $planner planner: call 2 done" "$WS/rounds/r01.response.md"
+  assert "[gashki $planner] review rule: revision planner receives it" \
+    review_rule_present "$MOCK/planner-$planner-02.prompt"
 
   new_ws
   start_volley "$planner" 8 "REVISE APPROVE" "${GK[@]}" MOCK_QUESTIONS=2
@@ -721,6 +769,22 @@ for planner in claude codex; do
   assert "[gashki $planner] closing-pass: exit 0" test $? -eq 0
   assert "[gashki $planner] closing-pass: closing reply saved from the transcript" \
     grep -qx "mock $planner planner: call 2 done" "$WS/rounds/r01.closing-response.md"
+  assert "[gashki $planner] review rule: closing planner receives it" \
+    review_rule_present "$MOCK/planner-$planner-02.prompt"
+
+  new_ws
+  run_volley "$planner" 8 "APPROVE_REMARKS APPROVE_REMARKS" "${GK[@]}" VOLLEY_SECOND_OPINION=1
+  assert "[gashki $planner] second opinion: exit 0" test $? -eq 0
+  assert "[gashki $planner] review rule: second opinion receives it" \
+    review_rule_present "$MOCK/critic-$planner-02.prompt"
+
+  new_ws
+  run_volley "$planner" 8 "NONE APPROVE" "${GK[@]}"
+  assert "[gashki $planner] re-ask: exit 0" test $? -eq 0
+  assert "[gashki $planner] re-ask: critic asked twice" test "$(cat "$MOCK/critic-calls")" = 2
+  assert "[gashki $planner] re-ask: own key" test "$(gk_count '^send .*-r01-critique-2')" = 1
+  assert "[gashki $planner] review rule: re-asked critic receives it" \
+    review_rule_present "$MOCK/critic-$critic-02.prompt"
 
   new_ws
   run_volley "$planner" 8 "REVISE APPROVE" "${GK[@]}" GK_FAULTS="r01-revise:notranscript"
@@ -871,12 +935,6 @@ assert "[gashki] skills: claude critic gets the read rules" \
   grep -qF "Read(/$SKLINK/**)" "$MOCK"/gk/panes/*_critic.args
 assert "[gashki] dontAsk: claude critic runs in dontAsk mode" \
   grep -qF '"--permission-mode","dontAsk"' "$MOCK"/gk/panes/*_critic.args
-
-new_ws
-run_volley claude 8 "NONE APPROVE" "${GK[@]}"
-assert "[gashki] re-ask: exit 0" test $? -eq 0
-assert "[gashki] re-ask: critic asked twice" test "$(cat "$MOCK/critic-calls")" = 2
-assert "[gashki] re-ask: own key" test "$(gk_count '^send .*-r01-critique-2')" = 1
 
 new_ws
 run_volley claude 8 "APPROVE" "${GK[@]}" GK_FAULTS="r01-critique:send7"

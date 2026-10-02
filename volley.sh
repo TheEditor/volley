@@ -303,6 +303,10 @@ CLAUDE_EFFORT_ARGS=()
 CODEX_EFFORT_ARGS=()
 [[ -n "$VOLLEY_CODEX_EFFORT" ]] && CODEX_EFFORT_ARGS=(-c "model_reasoning_effort=$VOLLEY_CODEX_EFFORT")
 
+# Both roles get this rule in every rendered prompt. Technical revisions can
+# proceed without approving implementation or future live execution.
+REVIEW_RULE="Resolve technical design objections together. Revise proposed choices without treating them as approved for implementation. Ask the user during review only when progress requires a change to an explicit user requirement or a user preference that the available evidence cannot settle. Keep future execution approvals as gates in the plan; do not stop this review to request permission for future execution. Preserve explicit requirements and binding constraints. Do not treat a proposed design choice as a settled user requirement. A request for a user answer in a critique is not binding by itself; apply this rule before forwarding it."
+
 # Planner prompts only. A planner turn that leaves QUESTIONS.md makes the loop
 # wait for the user's answer. In the cli backend no one reads the planner's
 # reply while the loop runs, so a question there is lost. In the gashki
@@ -311,18 +315,22 @@ CODEX_EFFORT_ARGS=()
 if [[ "$VOLLEY_BACKEND" == gashki ]]; then
   ASK_BLOCK="
 
-If a point needs a decision that only the user can make, ask the user. Write the questions to QUESTIONS.md in the workspace: number each one, and give its options and the one you recommend. In SPEC.md, use your recommended option for now. The user watches this pane, so also list the questions at the end of your reply. After your turn, the loop waits for an answer. If the user answers in this pane, add the answer word for word to HUMAN.md in the workspace and end your turn. In that turn, do not change SPEC.md or QUESTIONS.md; the next round gives the answer to you and to the critic. If the user only asks you about a question, reply; the loop still waits. Do not use QUESTIONS.md for points that the workspace files, the reference code, or the critique can settle."
+For a question that meets the review rule, ask the user. Write the questions to QUESTIONS.md in the workspace: number each one, and give its options and the one you recommend. In SPEC.md, use your recommended option for now. The user watches this pane, so also list the questions at the end of your reply. After your turn, the loop waits for an answer. If the user answers in this pane, add the answer word for word to HUMAN.md in the workspace and end your turn. In that turn, do not change SPEC.md or QUESTIONS.md; the next round gives the answer to you and to the critic. If the user only asks you about a question, reply; the loop still waits. Do not use QUESTIONS.md for points that the workspace files, the reference code, or the critique can settle."
 else
   ASK_BLOCK="
 
-If a point needs a decision that only the user can make, do not ask it in your reply. No one reads your reply while the loop runs. Write the questions to QUESTIONS.md in the workspace instead: number each one, and give its options and the one you recommend. In SPEC.md, use your recommended option for now. After your turn, the loop shows QUESTIONS.md to the user and waits for an answer. Do not use QUESTIONS.md for points that the workspace files, the reference code, or the critique can settle."
+For a question that meets the review rule, do not ask it in your reply. No one reads your reply while the loop runs. Write the questions to QUESTIONS.md in the workspace instead: number each one, and give its options and the one you recommend. In SPEC.md, use your recommended option for now. After your turn, the loop shows QUESTIONS.md to the user and waits for an answer. Do not use QUESTIONS.md for points that the workspace files, the reference code, or the critique can settle."
 fi
+
+ASK_BLOCK+="
+
+During a loop-requested draft or revision, keep QUESTIONS.md for open questions only. If none remain, leave the file absent or write an empty file; do not write a heading, an answer record, or 'No open questions'. Keep settled decisions in SPEC.md and their history in rounds/. This does not change the pane-answer rule above: an answer turn only adds to HUMAN.md."
 
 render() { # render <prompt-file> [KEY=value ...] — substitute {{KEY}} placeholders
   local out; out="$(cat "$1")"; shift
   local kv
   for kv in "$@"; do out="${out//\{\{${kv%%=*}\}\}/${kv#*=}}"; done
-  printf '%s' "$out"
+  printf '%s\n\n%s' "$out" "$REVIEW_RULE"
 }
 
 # When volley is launched from inside a Claude Code session, harness-injected
