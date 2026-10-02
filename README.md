@@ -53,29 +53,44 @@ Drop a `HUMAN.md` into the workspace at any time. At the next round it is
 injected into both role prompts as a directive that outranks the critic —
 any point it settles is settled, and neither agent may re-litigate it — then
 archived to `rounds/rNN.human.md` so it applies exactly once. This is the
-only way to steer a run without killing it (`^C` discards an in-flight
-round).
+way to steer a run without killing it (`^C` discards an in-flight round).
 
 ### Questions for you
 
-No one reads an agent's reply while the loop runs. So the planner is told to
-write any decision only you can make to `QUESTIONS.md`, with options and a
-recommendation, and to use its recommendation in `SPEC.md` for now. After a
-planner turn that leaves a non-empty `QUESTIONS.md`, the loop prints it and
-stops with exit `3`. With the gashki backend the panes stay up.
+The planner is told to write any decision only you can make to
+`QUESTIONS.md`, with options and a recommendation, and to use its
+recommendation in `SPEC.md` for now. After a planner turn that leaves a
+non-empty `QUESTIONS.md`, the loop prints the questions and waits in place.
+It makes no agent call until you answer. Answer in one of these ways:
 
-To answer, write `HUMAN.md` and rerun. A `HUMAN.md` older than
-`QUESTIONS.md` does not count. The next round gives both agents the
-questions and your answers as one directive, then archives them to
-`rounds/rNN.questions.md` and `rounds/rNN.human.md`. A rerun with no answer
-stops again. To go on without answers, delete `QUESTIONS.md` and rerun.
+- Type the answer in volley's terminal and end it with an empty line. This
+  works when volley's stdin is a terminal.
+- With the gashki backend, type the answer in the planner pane. The planner
+  lists its questions at the end of its reply there. It copies your answer
+  word for word to `HUMAN.md`, and volley waits until that turn ends. You can
+  also ask the planner about a question first; the loop waits on.
+- Write `HUMAN.md` in the workspace.
 
-Only the planner writes `QUESTIONS.md`. The critic cannot write files; it
-names such points in its critique.
+A typed answer goes after any directive already in `HUMAN.md`. A `HUMAN.md`
+older than both `QUESTIONS.md` and the start of the wait is not an answer.
+The next round gives both agents the questions and your answers as one
+directive, then archives them to `rounds/rNN.questions.md` and
+`rounds/rNN.human.md`. To go on without answers, delete `QUESTIONS.md`.
+`VOLLEY_POLL` sets how often the wait checks for an answer.
 
-Exit codes: `0` converged (critic approved), `2` impasse (round cap reached),
-`3` the planner needs your decision (see `QUESTIONS.md`), `1` setup or
-invocation failure.
+A question from the closing pass holds back convergence: after your answer
+the critic reviews again. If you delete `QUESTIONS.md` instead, the loop
+converges. Questions from the last round get no wait, because no round is
+left to apply the answer. The loop then ends in impasse, and
+`state/IMPASSE.md` lists the open questions. A rerun with open questions and
+rounds left waits for the answer before any agent call; a higher
+`MAX_ROUNDS` gives rounds.
+
+Only the planner writes `QUESTIONS.md`. The critic names such points in its
+critique.
+
+Exit codes: `0` converged (critic approved), `2` impasse (round cap reached,
+or open questions with no round left), `1` setup or invocation failure.
 
 ## Files produced
 
@@ -90,10 +105,10 @@ invocation failure.
 | `rounds/rNN.closing-response.md` | The planner's final reply after a closing pass, if one ran |
 | `rounds/rNN.human.md` | Archived one-shot `HUMAN.md` directive, if you steered round NN |
 | `rounds/rNN.questions.md` | The planner's `QUESTIONS.md` that `rNN.human.md` answers, if any |
-| `QUESTIONS.md` | Open questions from the planner; present only while the loop waits on you |
+| `QUESTIONS.md` | Open questions from the planner; present while the loop waits on you, or after an impasse that left them open |
 | `state/provenance.md` | Run provenance: role assignment, CLI versions, explicit model pins if any, context/profile settings |
 | `state/*.log` | Full planner/critic transcripts and the loop log |
-| `state/IMPASSE.md` | Written only if the round cap is hit without approval |
+| `state/IMPASSE.md` | Written only if the round cap is hit without approval, or with open questions |
 
 ## Knobs (environment variables)
 
@@ -113,6 +128,7 @@ invocation failure.
 | `VOLLEY_PERSISTENT` | `0` | `1` keeps one CLI session per role across rounds (claude `--session-id`/`--resume`, codex `exec resume`), so later rounds carry working memory instead of cold-starting from the files. Session ids live in `state/session.<role>`; the mode is pinned per workspace like the role assignment. The second opinion stays one-shot: fresh eyes are its point |
 | `VOLLEY_BACKEND` | `cli` | `gashki` runs each role in a live tmux pane through the gashki CLI instead of one-shot `claude -p` / `codex exec` calls. See "gashki backend" below. Pinned per workspace |
 | `GASHKI_BIN` | `gashki` | gashki binary for `VOLLEY_BACKEND=gashki` |
+| `VOLLEY_POLL` | `2` | Seconds between checks for an answer while the loop waits on `QUESTIONS.md` |
 | `VOLLEY_TRUST_FOLDER` | unset | Set to `1` to pass `--trust-folder` when gashki starts an agent. Other values do not pass the flag. This gives gashki permission to answer a folder trust screen for the full workspace path. |
 
 ## gashki backend
@@ -146,6 +162,8 @@ A rerun from another window stops with `CONFLICT` and keeps the earlier panes.
   volley waits from the barrier cursor and lets the file check decide. With
   `CALL_TIMEOUT` unset, a wait has no limit: volley waits again while the
   pane is still working. With it set, a wait that uses it up stops the run. Any other gashki error stops the run with its code.
+- While the loop waits on `QUESTIONS.md`, the panes stay up. You can answer
+  in the planner pane (see "Questions for you").
 - On converge or impasse volley kills its panes and removes `state/run`.
   If a wait fails (timeout, approval prompt, dead pane), the turn may still
   be running, so the panes stay up: rerun to resume, or kill them with

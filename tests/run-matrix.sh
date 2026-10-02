@@ -30,14 +30,66 @@ new_ws() { # fresh workspace with a brief, mock state dir, and isolated HOME
   mkdir -p "$MOCK" "$FAKEHOME"
 }
 
-run_volley() { # run_volley <planner> <max-rounds> <verdicts> [VAR=VAL ...]
+volley_argv() { # volley_argv <planner> <max-rounds> <verdicts> [VAR=VAL ...] — sets CMD
   local planner="$1" max="$2" verdicts="$3"; shift 3
-  env -u ANTHROPIC_API_KEY -u OPENAI_API_KEY -u VOLLEY_ALLOW_API_KEY -u VOLLEY_TRUST_FOLDER \
-    -u CLAUDE_CONFIG_DIR -u CODEX_HOME -u CALL_TIMEOUT \
-    HOME="$FAKEHOME" MOCK_STATE="$MOCK" MOCK_VERDICTS="$verdicts" \
-    CLAUDE_BIN="$MOCKS/claude" CODEX_BIN="$MOCKS/codex" \
-    VOLLEY_PLANNER="$planner" MAX_ROUNDS="$max" \
-    "$@" "$VOLLEY" "$WS" >"$WS/run.out" 2>&1
+  CMD=(env -u ANTHROPIC_API_KEY -u OPENAI_API_KEY -u VOLLEY_ALLOW_API_KEY -u VOLLEY_TRUST_FOLDER
+    -u CLAUDE_CONFIG_DIR -u CODEX_HOME -u CALL_TIMEOUT -u VOLLEY_POLL -u TMUX_PANE
+    HOME="$FAKEHOME" MOCK_STATE="$MOCK" MOCK_VERDICTS="$verdicts"
+    CLAUDE_BIN="$MOCKS/claude" CODEX_BIN="$MOCKS/codex"
+    VOLLEY_PLANNER="$planner" MAX_ROUNDS="$max"
+    "$@" "$VOLLEY" "$WS")
+}
+
+run_volley() { # run_volley <planner> <max-rounds> <verdicts> [VAR=VAL ...]
+  volley_argv "$@"
+  "${CMD[@]}" </dev/null >"$WS/run.out" 2>&1
+}
+
+# A loop that waits for an answer runs in the background: start_volley starts
+# it, the test answers, and end_volley collects the exit code.
+start_volley() { # start_volley <planner> <max-rounds> <verdicts> [VAR=VAL ...]
+  volley_argv "$@" VOLLEY_POLL=0.1
+  "${CMD[@]}" </dev/null >"$WS/run.out" 2>&1 &
+  VPID=$!
+}
+
+wait_for() { # wait_for <file> <pattern> — true once the file matches, within 10s
+  local i
+  for (( i = 0; i < 100; i++ )); do
+    grep -qs -- "$2" "$1" && return 0
+    sleep 0.1
+  done
+  return 1
+}
+
+end_volley() { # exit code of the background loop; 124 if it still runs after 10s
+  local i
+  for (( i = 0; i < 100; i++ )); do
+    kill -0 "$VPID" 2>/dev/null || { wait "$VPID"; return; }
+    sleep 0.1
+  done
+  kill "$VPID" 2>/dev/null; wait "$VPID" 2>/dev/null
+  return 124
+}
+
+still_waiting() { # the background loop runs on, with no new agent call
+  local calls="$(cat "$MOCK/critic-calls" 2>/dev/null):$(cat "$MOCK/planner-calls")"
+  sleep 0.5
+  kill -0 "$VPID" 2>/dev/null \
+    && [[ "$calls" == "$(cat "$MOCK/critic-calls" 2>/dev/null):$(cat "$MOCK/planner-calls")" ]]
+}
+
+tty_volley() { # tty_volley <input> <planner> <max-rounds> <verdicts> [VAR=VAL ...]
+  # Runs the loop on a pseudo-terminal in the background. Once the loop
+  # waits for an answer, the input is typed on that terminal.
+  local input="$1"; shift
+  volley_argv "$@" VOLLEY_POLL=0.1
+  if [[ "$(uname)" == Darwin ]]; then CMD=(script -q /dev/null "${CMD[@]}")
+  else CMD=(script -qec "$(printf '%q ' "${CMD[@]}")" /dev/null); fi
+  { wait_for "$WS/state/volley.log" 'waiting for an answer' && printf '%s' "$input"
+    wait_for "$WS/state/volley.log" 'converged\|impasse'; } \
+    | "${CMD[@]}" >"$WS/run.out" 2>&1 &
+  VPID=$!
 }
 
 other() { [[ "$1" == claude ]] && echo codex || echo claude; }
@@ -163,39 +215,43 @@ for planner in claude codex; do
   assert "[$planner] steering: no placeholder residue" \
     sh -c "! grep -q '{{HUMAN}}' '$MOCK/critic-$critic-02.prompt'"
 
-  # --- QUESTIONS.md: a planner question stops the loop until HUMAN.md answers it ---
+  # --- QUESTIONS.md: a planner question makes the loop wait for HUMAN.md ---------
   new_ws
-  run_volley "$planner" 8 "REVISE APPROVE" MOCK_QUESTIONS=2
-  assert "[$planner] questions: stop with exit 3" test $? -eq 3
+  start_volley "$planner" 8 "REVISE APPROVE" MOCK_QUESTIONS=2
+  assert "[$planner] questions: waits after the revision" \
+    wait_for "$WS/state/volley.log" 'r01: planner left questions.*waiting for an answer'
+  assert "[$planner] questions: no agent call while it waits" still_waiting
   assert "[$planner] questions: QUESTIONS.md kept for the user" test -f "$WS/QUESTIONS.md"
   assert "[$planner] questions: questions printed" \
     grep -q 'Mock question from planner call 2' "$WS/run.out"
-  assert "[$planner] questions: user told to answer in HUMAN.md" \
-    grep -q 'answer in HUMAN.md, then rerun' "$WS/run.out"
-  assert "[$planner] questions: revision snapshot written before the stop" \
+  assert "[$planner] questions: user told to write HUMAN.md" \
+    grep -q "write it to $(cd "$WS" && pwd)/HUMAN.md" "$WS/run.out"
+  assert "[$planner] questions: no typing hint without a terminal" \
+    sh -c "! grep -q 'type it here' '$WS/run.out'"
+  assert "[$planner] questions: no pane hint without gashki" \
+    sh -c "! grep -q 'planner pane' '$WS/run.out'"
+  assert "[$planner] questions: revision snapshot written before the wait" \
     test -f "$WS/rounds/r01.spec.md"
   assert "[$planner] questions: no round 2 critique" test ! -e "$WS/rounds/r02.critique.md"
-  assert "[$planner] questions: stop logged" \
-    grep -q 'r01: planner left questions' "$WS/state/volley.log"
   assert "[$planner] questions: init prompt names QUESTIONS.md" \
     grep -q 'Write the questions to QUESTIONS.md' "$MOCK/planner-$planner-01.prompt"
   assert "[$planner] questions: revise prompt names QUESTIONS.md" \
     grep -q 'Write the questions to QUESTIONS.md' "$MOCK/planner-$planner-02.prompt"
+  assert "[$planner] questions: cli prompt says the loop waits" \
+    grep -q 'waits for an answer' "$MOCK/planner-$planner-02.prompt"
+  assert "[$planner] questions: cli prompt has no pane answer rule" \
+    sh -c "! grep -q 'word for word to HUMAN.md' '$MOCK/planner-$planner-02.prompt'"
   assert "[$planner] questions: critic prompt does not" \
     sh -c "! grep -q 'QUESTIONS.md' '$MOCK/critic-$critic-01.prompt'"
-  touch -t 202601010000 "$WS/QUESTIONS.md"
-  run_volley "$planner" 8 "REVISE APPROVE"
-  assert "[$planner] questions: rerun with no answer stops again" test $? -eq 3
-  assert "[$planner] questions: no agent call before the answer" \
-    test "$(cat "$MOCK/critic-calls"):$(cat "$MOCK/planner-calls")" = 1:2
   echo "Old directive." >"$WS/HUMAN.md"; touch -t 202501010000 "$WS/HUMAN.md"
-  run_volley "$planner" 8 "REVISE APPROVE"
-  assert "[$planner] questions: a HUMAN.md older than QUESTIONS.md is no answer" \
-    test $? -eq 3
+  assert "[$planner] questions: a HUMAN.md older than QUESTIONS.md is no answer" still_waiting
   echo "Answer to 1: use TSV." >"$WS/HUMAN.md"
-  run_volley "$planner" 8 "REVISE APPROVE"
-  assert "[$planner] questions: answered rerun converges" test $? -eq 0
+  end_volley
+  assert "[$planner] questions: answer ends the wait and the loop converges" test $? -eq 0
+  assert "[$planner] questions: answer logged" \
+    grep -q 'answer received in HUMAN.md' "$WS/state/volley.log"
   assert "[$planner] questions: QUESTIONS.md consumed" test ! -e "$WS/QUESTIONS.md"
+  assert "[$planner] questions: wait marker removed" test ! -e "$WS/state/asked"
   assert "[$planner] questions: archived beside the answer" \
     test -f "$WS/rounds/r02.questions.md" -a -f "$WS/rounds/r02.human.md"
   assert "[$planner] questions: critic gets the questions" \
@@ -207,46 +263,132 @@ for planner in claude codex; do
   assert "[$planner] questions: answer starts its own line" \
     grep -qx 'Answer to 1: use TSV.' "$MOCK/critic-$critic-02.prompt"
 
-  # --- QUESTIONS.md: deleting it goes on without answers -------------------------
+  # --- QUESTIONS.md: an answer typed in volley's terminal, on a rerun ----------------
   new_ws
-  run_volley "$planner" 8 "REVISE APPROVE" MOCK_QUESTIONS=2
+  start_volley "$planner" 8 "REVISE APPROVE" MOCK_QUESTIONS=2
+  wait_for "$WS/state/volley.log" 'waiting for an answer'
+  kill "$VPID"; wait "$VPID" 2>/dev/null
+  echo "Steer: keep it short." >"$WS/HUMAN.md"; touch -t 202501010000 "$WS/HUMAN.md"
+  tty_volley $'\n  \nAnswer: B\nline 2\n\n' "$planner" 8 "REVISE APPROVE"
+  end_volley
+  assert "[$planner] questions-tty: typed answer ends the wait" test $? -eq 0
+  assert "[$planner] questions-tty: typing hint shown" grep -q 'type it here' "$WS/run.out"
+  assert "[$planner] questions-tty: blank line before text is skipped" \
+    test "$(grep -c . "$WS/rounds/r02.human.md")" = 3
+  assert "[$planner] questions-tty: older directive kept above the answer" \
+    grep -qx 'Steer: keep it short.' "$WS/rounds/r02.human.md"
+  assert "[$planner] questions-tty: first typed line kept" \
+    grep -qx 'Answer: B' "$WS/rounds/r02.human.md"
+  assert "[$planner] questions-tty: second typed line kept" \
+    grep -qx 'line 2' "$WS/rounds/r02.human.md"
+  assert "[$planner] questions-tty: critic gets the typed answer" \
+    grep -qx 'line 2' "$MOCK/critic-$critic-02.prompt"
+  assert "[$planner] questions-tty: no temp file left" test ! -e "$WS/state/HUMAN.md.tmp"
+
+  # --- QUESTIONS.md: the planner touches QUESTIONS.md as it copies the answer -------
+  new_ws
+  start_volley "$planner" 8 "REVISE APPROVE" MOCK_QUESTIONS=2
+  wait_for "$WS/state/volley.log" 'waiting for an answer'
+  touch -t 203001010000 "$WS/QUESTIONS.md"
+  echo "Answer: A." >"$WS/HUMAN.md"
+  end_volley
+  assert "[$planner] questions-touched: HUMAN.md newer than the wait start answers" \
+    test $? -eq 0
+  assert "[$planner] questions-touched: critic gets the answer" \
+    grep -q 'Answer: A.' "$MOCK/critic-$critic-02.prompt"
+
+  # --- QUESTIONS.md: deleting it goes on without answers ----------------------------
+  new_ws
+  start_volley "$planner" 8 "REVISE APPROVE" MOCK_QUESTIONS=2
+  wait_for "$WS/state/volley.log" 'waiting for an answer'
   rm -f "$WS/QUESTIONS.md"
-  run_volley "$planner" 8 "REVISE APPROVE"
-  assert "[$planner] questions-deleted: rerun converges" test $? -eq 0
+  end_volley
+  assert "[$planner] questions-deleted: loop goes on and converges" test $? -eq 0
+  assert "[$planner] questions-deleted: logged" \
+    grep -q 'QUESTIONS.md removed; going on without answers' "$WS/state/volley.log"
   assert "[$planner] questions-deleted: no directive in round 2" \
     sh -c "! grep -q 'HUMAN DIRECTIVE' '$MOCK/critic-$critic-02.prompt'"
 
-  # --- QUESTIONS.md: from the initial draft, before any critique ------------------
+  # --- QUESTIONS.md: from the initial draft, before any critique ---------------------
   new_ws
-  run_volley "$planner" 8 "APPROVE" MOCK_QUESTIONS=1
-  assert "[$planner] questions-init: stop with exit 3" test $? -eq 3
+  start_volley "$planner" 8 "APPROVE" MOCK_QUESTIONS=1
+  assert "[$planner] questions-init: waits after the draft" \
+    wait_for "$WS/state/volley.log" 'r00: planner left questions.*waiting for an answer'
   assert "[$planner] questions-init: no critique yet" test ! -e "$WS/rounds/r01.critique.md"
   echo "Answer: yes." >"$WS/HUMAN.md"
-  run_volley "$planner" 8 "APPROVE"
-  assert "[$planner] questions-init: answered rerun converges" test $? -eq 0
+  end_volley
+  assert "[$planner] questions-init: answer ends the wait and the loop converges" test $? -eq 0
   assert "[$planner] questions-init: archived with round 1" \
     test -f "$WS/rounds/r01.questions.md"
 
-  # --- QUESTIONS.md: a closing-pass question holds back convergence ---------------
+  # --- QUESTIONS.md: a stopped wait waits again on rerun ----------------------------
   new_ws
-  run_volley "$planner" 8 "APPROVE_REMARKS APPROVE" MOCK_QUESTIONS=2
-  assert "[$planner] questions-closing: stop with exit 3" test $? -eq 3
+  start_volley "$planner" 8 "REVISE APPROVE" MOCK_QUESTIONS=2
+  wait_for "$WS/state/volley.log" 'waiting for an answer'
+  kill "$VPID"; wait "$VPID" 2>/dev/null
+  start_volley "$planner" 8 "REVISE APPROVE"
+  assert "[$planner] questions-rerun: rerun waits at the start" \
+    wait_for "$WS/state/volley.log" 'QUESTIONS.md has no answer yet; waiting for an answer'
+  assert "[$planner] questions-rerun: no agent call before the answer" still_waiting
+  echo "Answer to 1: use TSV." >"$WS/HUMAN.md"
+  end_volley
+  assert "[$planner] questions-rerun: answered rerun converges" test $? -eq 0
+  assert "[$planner] questions-rerun: critic gets the answer" \
+    grep -q 'Answer to 1: use TSV.' "$MOCK/critic-$critic-02.prompt"
+
+  # --- QUESTIONS.md: a closing-pass question holds back convergence -----------------
+  new_ws
+  start_volley "$planner" 8 "APPROVE_REMARKS APPROVE" MOCK_QUESTIONS=2
+  assert "[$planner] questions-closing: waits after the closing pass" \
+    wait_for "$WS/state/volley.log" 'r01: planner left questions.*waiting for an answer'
   assert "[$planner] questions-closing: not logged as converged" \
     sh -c "! grep -q converged '$WS/state/volley.log'"
   echo "Answer: no." >"$WS/HUMAN.md"
-  run_volley "$planner" 8 "APPROVE_REMARKS APPROVE"
-  assert "[$planner] questions-closing: answered rerun reviews again and converges" \
+  end_volley
+  assert "[$planner] questions-closing: answer gets another review, then converges" \
     test $? -eq 0 -a -f "$WS/rounds/r02.critique.md"
+  assert "[$planner] questions-closing: critic gets the answer" \
+    grep -q 'Answer: no.' "$MOCK/critic-$critic-02.prompt"
 
-  # --- QUESTIONS.md: an answer past the round cap ends in impasse, not a crash ----
   new_ws
-  run_volley "$planner" 1 "REVISE" MOCK_QUESTIONS=2
-  assert "[$planner] questions-cap: stop with exit 3" test $? -eq 3
-  echo "Answer: yes." >"$WS/HUMAN.md"
-  run_volley "$planner" 1 "REVISE"
-  assert "[$planner] questions-cap: rerun at the cap exits 2" test $? -eq 2
+  start_volley "$planner" 8 "APPROVE_REMARKS APPROVE" MOCK_QUESTIONS=2
+  wait_for "$WS/state/volley.log" 'waiting for an answer'
+  rm -f "$WS/QUESTIONS.md"
+  end_volley
+  assert "[$planner] questions-closing-deleted: converges with no new round" \
+    test $? -eq 0 -a ! -e "$WS/rounds/r02.critique.md"
+
+  # --- QUESTIONS.md: no round left to apply an answer ends in impasse ---------------
+  new_ws
+  start_volley "$planner" 1 "REVISE" MOCK_QUESTIONS=2
+  end_volley
+  assert "[$planner] questions-cap: last round does not wait; exits 2" test $? -eq 2
+  assert "[$planner] questions-cap: logged" \
+    grep -q 'r01: planner left questions in QUESTIONS.md, but no round is left' "$WS/state/volley.log"
   assert "[$planner] questions-cap: impasse report has the last critique" \
     grep -q 'VERDICT: REVISE' "$WS/state/IMPASSE.md"
+  assert "[$planner] questions-cap: impasse report lists the open questions" \
+    grep -q 'Mock question from planner call 2' "$WS/state/IMPASSE.md"
+  start_volley "$planner" 1 "REVISE"
+  end_volley
+  assert "[$planner] questions-cap: rerun at the cap does not wait; exits 2" test $? -eq 2
+  start_volley "$planner" 2 "REVISE APPROVE"
+  assert "[$planner] questions-cap: rerun with a higher cap waits" \
+    wait_for "$WS/state/volley.log" 'QUESTIONS.md has no answer yet; waiting'
+  echo "Answer: yes." >"$WS/HUMAN.md"
+  end_volley
+  assert "[$planner] questions-cap: answered rerun converges in round 2" \
+    test $? -eq 0 -a -f "$WS/rounds/r02.human.md"
+
+  new_ws
+  start_volley "$planner" 1 "APPROVE_REMARKS" MOCK_QUESTIONS=2
+  end_volley
+  assert "[$planner] questions-closing-cap: approval with open questions at the cap exits 2" \
+    test $? -eq 2
+  assert "[$planner] questions-closing-cap: report says the critic approved" \
+    grep -q 'The critic approved, but' "$WS/state/IMPASSE.md"
+  assert "[$planner] questions-closing-cap: not logged as converged" \
+    sh -c "! grep -q converged '$WS/state/volley.log'"
 
   # --- CONSTRAINTS.md: injected into both roles and retained across rounds ---------
   new_ws
@@ -552,18 +694,27 @@ for planner in claude codex; do
     grep -qx "mock $planner planner: call 2 done" "$WS/rounds/r01.response.md"
 
   new_ws
-  run_volley "$planner" 8 "REVISE APPROVE" "${GK[@]}" MOCK_QUESTIONS=2
-  assert "[gashki $planner] questions: stop with exit 3" test $? -eq 3
-  assert "[gashki $planner] questions: panes kept" test "$(gk_count '^kill ')" = 0
-  assert "[gashki $planner] questions: state/run kept" test -s "$WS/state/run"
-  assert "[gashki $planner] questions: user told the panes stay up" \
-    grep -q 'stay up for the rerun' "$WS/run.out"
+  start_volley "$planner" 8 "REVISE APPROVE" "${GK[@]}" MOCK_QUESTIONS=2
+  assert "[gashki $planner] questions: waits after the revision" \
+    wait_for "$WS/state/volley.log" 'r01: planner left questions.*waiting for an answer'
+  assert "[gashki $planner] questions: no agent call while it waits" still_waiting
+  assert "[gashki $planner] questions: panes stay up" test "$(gk_count '^kill ')" = 0
+  assert "[gashki $planner] questions: user told to answer in the planner pane" \
+    grep -q 'type it in the planner pane' "$WS/run.out"
+  assert "[gashki $planner] questions: planner told to list the questions in its reply" \
+    grep -q 'list the questions at the end of your reply' "$WS/state/prompts/$(cat "$WS/state/run")-r01-revise.md"
+  assert "[gashki $planner] questions: planner told to copy a pane answer to HUMAN.md" \
+    grep -q 'add the answer word for word to HUMAN.md' "$WS/state/prompts/$(cat "$WS/state/run")-r01-revise.md"
   echo "Answer to 1: use TSV." >"$WS/HUMAN.md"
-  run_volley "$planner" 8 "REVISE APPROVE" "${GK[@]}"
-  assert "[gashki $planner] questions: answered rerun converges" test $? -eq 0
-  assert "[gashki $planner] questions: rerun reuses the panes" test "$(gk_spawns)" = 2
+  end_volley
+  assert "[gashki $planner] questions: answer ends the wait and the loop converges" test $? -eq 0
+  assert "[gashki $planner] questions: panes reused" test "$(gk_spawns)" = 2
   assert "[gashki $planner] questions: critic gets the answer" \
     grep -q 'Answer to 1: use TSV.' "$MOCK/critic-$critic-02.prompt"
+  settle="$(grep -n '^wait volley-[^ ]*/planner --until=idle --wait-timeout' "$MOCK/gk/calls" | head -1 | cut -d: -f1)"
+  crit2="$(grep -n '^send .*-r02-critique' "$MOCK/gk/calls" | head -1 | cut -d: -f1)"
+  assert "[gashki $planner] questions: planner pane idle before the next turn" \
+    test -n "$settle" -a -n "$crit2" -a "${settle:-0}" -lt "${crit2:-0}"
 
   new_ws
   run_volley "$planner" 8 "APPROVE_REMARKS" "${GK[@]}"
@@ -902,6 +1053,15 @@ new_ws
 rm "$WS/BRIEF.md"
 run_volley claude 8 "APPROVE"
 assert "setup: missing BRIEF.md and SPEC.md refused" test $? -eq 1
+
+for poll in 0 0.0 -1 abc 1.; do
+  new_ws
+  run_volley claude 8 "APPROVE" VOLLEY_POLL="$poll"
+  assert "setup: VOLLEY_POLL=$poll refused" test $? -eq 1
+done
+new_ws
+run_volley claude 8 "APPROVE" VOLLEY_POLL=0.5
+assert "setup: VOLLEY_POLL=0.5 accepted" test $? -eq 0
 
 echo
 echo "matrix: $pass passed, $fail failed"

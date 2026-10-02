@@ -8,9 +8,10 @@
 # the first draft. It then alternates critic review and planner revision
 # until the critic emits VERDICT: APPROVE or MAX_ROUNDS is reached.
 #
-# A planner turn that leaves questions for the user in QUESTIONS.md stops the
-# loop (exit 3). The user answers in HUMAN.md and reruns; the next round gives
-# both agents the questions and the answers.
+# A planner turn that leaves questions for the user in QUESTIONS.md makes the
+# loop wait in place. The user answers in volley's terminal, in the planner
+# pane (gashki backend) or in HUMAN.md; the next round gives both agents the
+# questions and the answers.
 #
 # Roles: VOLLEY_PLANNER=claude (default) or codex chooses which agent drafts
 # and revises the spec; the other agent critiques. The cc-volley and
@@ -35,7 +36,9 @@
 #                VOLLEY_BACKEND (cli default; gashki runs each role in a
 #                live tmux pane through the gashki CLI), GASHKI_BIN,
 #                VOLLEY_TRUST_FOLDER (set to 1 to allow a verified folder
-#                trust response during gashki spawn).
+#                trust response during gashki spawn),
+#                VOLLEY_POLL (seconds between checks for an answer while the
+#                loop waits on QUESTIONS.md; default 2).
 set -euo pipefail
 
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
@@ -47,6 +50,7 @@ CONSTRAINTS="$ROOT/CONSTRAINTS.md"
 SPEC="$ROOT/SPEC.md"
 HUMAN="$ROOT/HUMAN.md"
 QUESTIONS="$ROOT/QUESTIONS.md"
+ASKED="$ROOT/state/asked" # touched when a wait for an answer starts
 ROUNDS="$ROOT/rounds"
 STATE="$ROOT/state"
 
@@ -64,6 +68,7 @@ VOLLEY_CLAUDE_EFFORT="${VOLLEY_CLAUDE_EFFORT:-}"
 VOLLEY_CODEX_EFFORT="${VOLLEY_CODEX_EFFORT:-}"
 VOLLEY_BACKEND="${VOLLEY_BACKEND:-cli}"
 GASHKI_BIN="${GASHKI_BIN:-gashki}"
+VOLLEY_POLL="${VOLLEY_POLL:-2}"
 
 die() { echo "volley: $*" >&2; ! declare -F gk_abort >/dev/null || gk_abort; exit 1; }
 
@@ -138,6 +143,9 @@ if [[ -n "${VOLLEY_PROFILE:-}" ]]; then
 
 $(cat "$PROFILE_FILE")"
 fi
+
+[[ "$VOLLEY_POLL" =~ ^[0-9]*[.]?[0-9]+$ && "$VOLLEY_POLL" =~ [1-9] ]] \
+  || die "VOLLEY_POLL must be a positive number of seconds (got '$VOLLEY_POLL')"
 
 if [[ "$VOLLEY_PERSISTENT" == "1" ]]; then
   command -v uuidgen >/dev/null 2>&1 \
@@ -295,12 +303,20 @@ CLAUDE_EFFORT_ARGS=()
 CODEX_EFFORT_ARGS=()
 [[ -n "$VOLLEY_CODEX_EFFORT" ]] && CODEX_EFFORT_ARGS=(-c "model_reasoning_effort=$VOLLEY_CODEX_EFFORT")
 
-# Planner prompts only. The planner's reply goes to a round file that no one
-# reads while the loop runs, so a question there is lost; QUESTIONS.md stops
-# the loop until the user answers.
-ASK_BLOCK="
+# Planner prompts only. A planner turn that leaves QUESTIONS.md makes the loop
+# wait for the user's answer. In the cli backend no one reads the planner's
+# reply while the loop runs, so a question there is lost. In the gashki
+# backend the user watches the planner pane and may answer there; the planner
+# then copies the answer to HUMAN.md, which ends the wait.
+if [[ "$VOLLEY_BACKEND" == gashki ]]; then
+  ASK_BLOCK="
 
-If a point needs a decision that only the user can make, do not ask it in your reply. No one reads your reply while the loop runs. Write the questions to QUESTIONS.md in the workspace instead: number each one, and give its options and the one you recommend. In SPEC.md, use your recommended option for now. The loop stops after your turn so the user can answer. Do not use QUESTIONS.md for points that the workspace files, the reference code, or the critique can settle."
+If a point needs a decision that only the user can make, ask the user. Write the questions to QUESTIONS.md in the workspace: number each one, and give its options and the one you recommend. In SPEC.md, use your recommended option for now. The user watches this pane, so also list the questions at the end of your reply. After your turn, the loop waits for an answer. If the user answers in this pane, add the answer word for word to HUMAN.md in the workspace and end your turn. In that turn, do not change SPEC.md or QUESTIONS.md; the next round gives the answer to you and to the critic. If the user only asks you about a question, reply; the loop still waits. Do not use QUESTIONS.md for points that the workspace files, the reference code, or the critique can settle."
+else
+  ASK_BLOCK="
+
+If a point needs a decision that only the user can make, do not ask it in your reply. No one reads your reply while the loop runs. Write the questions to QUESTIONS.md in the workspace instead: number each one, and give its options and the one you recommend. In SPEC.md, use your recommended option for now. After your turn, the loop shows QUESTIONS.md to the user and waits for an answer. Do not use QUESTIONS.md for points that the workspace files, the reference code, or the critique can settle."
+fi
 
 render() { # render <prompt-file> [KEY=value ...] — substitute {{KEY}} placeholders
   local out; out="$(cat "$1")"; shift
@@ -499,11 +515,12 @@ gk_spawn() { # <pane> <agent> <role> — returns the live pane on a rerun
 
 gk_wait() { # <pane> <cursor> — with CALL_TIMEOUT set, one wait of that
   # budget. Without it there is no limit: gashki caps one wait at 24h, so
-  # wait again while the pane still works.
+  # wait again while the pane still works. An empty cursor waits on the
+  # pane's current state.
   local out rc st budget="${CALL_TIMEOUT:+${CALL_TIMEOUT}s}"
   while :; do
     rc=0
-    out="$("$GASHKI_BIN" wait "$1" --until=idle --since="$2" --wait-timeout="${budget:-24h}" --json 2>>"$STATE/gashki.log")" || rc=$?
+    out="$("$GASHKI_BIN" wait "$1" --until=idle ${2:+--since="$2"} --wait-timeout="${budget:-24h}" --json 2>>"$STATE/gashki.log")" || rc=$?
     (( rc == 0 )) && return 0
     if [[ -z "$CALL_TIMEOUT" && "$(gk_code "$out")" == WAIT_TIMEOUT ]]; then
       st="$("$GASHKI_BIN" observe "$1" --json 2>>"$STATE/gashki.log" | jq -r '.data.state // empty' 2>/dev/null || true)"
@@ -619,6 +636,17 @@ gk_kill() { # <pane> — a pane already gone is fine
     || log "gashki: kill $1 failed: $(gk_code "$out")"
 }
 
+gk_settle() { # after an answer: a turn the user started in the planner pane
+  # may still run, and it may still write files. Wait until it ends.
+  [[ -s "$STATE/run" ]] || return 0
+  local p st
+  p="$(gk_pane planner)"
+  st="$("$GASHKI_BIN" observe "$p" --json 2>>"$STATE/gashki.log" | jq -r '.data.state // empty' 2>/dev/null || true)"
+  [[ -n "$st" && "$st" != dead ]] || return 0
+  [[ "$st" == idle ]] || log "gashki: waiting for the turn in $p to end"
+  gk_wait "$p" ""
+}
+
 gk_abort() { # on die: keep the panes only if a rerun can resume them
   [[ "${VOLLEY_BACKEND:-}" == gashki ]] && (( ${GK_PANES:-0} )) || return 0
   local r="$(gk_run)"
@@ -656,32 +684,112 @@ human_block_of() { # <rNN> <round> — render the injected directive block from
     "$asked" "$(cat "$ROUNDS/$1.human.md")"
 }
 
-# QUESTIONS.md is answered once a HUMAN.md newer than it exists. An empty
-# QUESTIONS.md asks nothing; the user may delete it to go on without answers.
+# QUESTIONS.md is answered once HUMAN.md is newer than it, or newer than the
+# start of the wait: the planner may touch QUESTIONS.md in the same turn in
+# which it copies the user's answer to HUMAN.md. An empty QUESTIONS.md asks
+# nothing; the user may delete it to go on without answers.
 questions_open() {
   grep -qs '[^[:space:]]' "$QUESTIONS" || return 1
-  ! [[ -f "$HUMAN" && "$HUMAN" -nt "$QUESTIONS" ]]
+  [[ -f "$HUMAN" ]] || return 0
+  [[ "$HUMAN" -nt "$QUESTIONS" ]] && return 1
+  ! [[ -f "$ASKED" && "$HUMAN" -nt "$ASKED" ]]
 }
 
-ask_user() { # <log-line> — stop until the user answers QUESTIONS.md
+add_answer() { # <line>... — add typed lines to HUMAN.md in one rename, after
+  # any directive already there
+  local tmp="$STATE/HUMAN.md.tmp"
+  { [[ -f "$HUMAN" ]] && { cat "$HUMAN"; echo; }; printf '%s\n' "$@"; } >"$tmp"
+  mv "$tmp" "$HUMAN"
+}
+
+ANSWER="" # set by await_answer: human (HUMAN.md answers) or none (QUESTIONS.md removed)
+
+await_answer() { # <log-line> — wait in place until the user answers QUESTIONS.md.
+  # No agent call runs while it waits. Answers come from volley's terminal,
+  # from HUMAN.md, or (gashki) from the planner pane through HUMAN.md.
+  local typed=() x rc tty=0
+  [[ -t 0 ]] && tty=1
+  touch "$ASKED"
   log "$1"
   {
+    echo
     echo "volley: the planner needs a decision from you. QUESTIONS.md:"
     echo
     cat "$QUESTIONS"
     echo
-    echo "volley: answer in HUMAN.md, then rerun volley. The next round gives your answers to both agents."
-    echo "volley: to go on without answers, delete QUESTIONS.md and rerun."
-    if [[ "$VOLLEY_BACKEND" == gashki && -s "$STATE/run" ]]; then
-      echo "volley: panes volley-$(cat "$STATE/run")/* stay up for the rerun"
-    fi
+    echo "volley: the loop waits for your answer. Answer in one of these ways:"
+    (( tty )) && echo "volley:   type it here, and end it with an empty line"
+    [[ "$VOLLEY_BACKEND" == gashki && -s "$STATE/run" ]] \
+      && echo "volley:   type it in the planner pane; the planner copies it to HUMAN.md"
+    echo "volley:   write it to $HUMAN"
+    echo "volley: the next round gives the questions and your answer to both agents."
+    echo "volley: to go on without answers, delete QUESTIONS.md."
   } >&2
-  exit 3
+  while questions_open; do
+    if (( ! tty )); then
+      sleep "$VOLLEY_POLL"
+      continue
+    fi
+    rc=0
+    IFS= read -r -t "$VOLLEY_POLL" x || rc=$?
+    (( rc > 128 )) && continue
+    if (( rc == 0 )) && [[ "$x" == *[^[:space:]]* ]]; then
+      typed+=("$x")
+      continue
+    fi
+    if (( rc )); then
+      tty=0
+      [[ "$x" == *[^[:space:]]* ]] && typed+=("$x")
+    fi
+    (( ${#typed[@]} )) || continue
+    add_answer "${typed[@]}"
+    typed=()
+  done
+  rm -f "$ASKED"
+  (( ${#typed[@]} )) && echo "volley: an answer came in first; the lines you typed here were not used" >&2
+  if grep -qs '[^[:space:]]' "$QUESTIONS"; then
+    ANSWER=human
+    log "answer received in HUMAN.md; the next round applies it"
+  else
+    ANSWER=none
+    log "QUESTIONS.md removed; going on without answers"
+  fi
+  [[ "$VOLLEY_BACKEND" == gashki ]] && gk_settle
+  return 0
 }
 
-check_questions() { # <rNN> — after a planner turn
-  questions_open && ask_user "$1: planner left questions for the user in QUESTIONS.md; stopping (exit 3)"
-  return 0
+check_questions() { # <rNN> <round> — after a planner turn
+  ANSWER=""
+  rm -f "$ASKED"
+  questions_open || return 0
+  if (( $2 >= MAX_ROUNDS )); then
+    log "$1: planner left questions in QUESTIONS.md, but no round is left to apply an answer"
+    return 0
+  fi
+  await_answer "$1: planner left questions for the user in QUESTIONS.md; waiting for an answer"
+}
+
+impasse() { # the round cap is reached; report and stop
+  local why="No approval after $MAX_ROUNDS rounds."
+  [[ "$(verdict_of "$CRIT")" == APPROVE ]] \
+    && why="The critic approved, but the planner's questions have no answer, and no round is left to apply one."
+  {
+    echo "# Impasse"
+    echo
+    echo "$why Final critique:"
+    echo
+    cat "$CRIT"
+    if questions_open; then
+      echo
+      echo "## Open questions"
+      echo
+      echo "QUESTIONS.md has no answer. Rerun with a higher MAX_ROUNDS to answer it:"
+      echo
+      cat "$QUESTIONS"
+    fi
+  } >"$STATE/IMPASSE.md"
+  log "impasse: $why See state/IMPASSE.md"
+  finish 2
 }
 
 REMARK_RE='non.?blocking|minor|remark|nitpick'
@@ -698,9 +806,10 @@ second_opinion() { # <round> — after APPROVE, the other agent reviews SPEC.md
   log "second opinion from $SECOND_AGENT: ${n_remarks:-0} remark(s)"
 }
 
-closing_pass() { # <rNN> <critique-file> — after APPROVE, the planner addresses
-  # or consciously declines any non-blocking remarks, incl. the second
-  # opinion's if one ran. The approval stands; the critic is not re-run.
+closing_pass() { # <rNN> <critique-file> <round> — after APPROVE, the planner
+  # addresses or consciously declines any non-blocking remarks, incl. the
+  # second opinion's if one ran. The approval stands; the critic is not re-run,
+  # unless the user answers questions from this pass (ANSWER=human).
   # Over-triggering is harmless (the planner declines vacuously), so the
   # remark check errs toward running.
   [[ "$VOLLEY_CLOSING_PASS" != "0" ]] || return 0
@@ -717,14 +826,20 @@ closing_pass() { # <rNN> <critique-file> — after APPROVE, the planner addresse
   log "$1: closing pass — planner disposing of non-blocking remarks"
   CALL_KEY="$1-closing"
   "$PLAN_FN" "$(render "$PROMPTS/closing-pass.md" ROUND="$1" "SECOND_OPINION=$extra" "CONSTRAINTS=$CONSTRAINTS_BLOCK" "CONTEXT=$CONTEXT_BLOCK")$ASK_BLOCK" planner
-  check_questions "$1"
+  check_questions "$1" "$3"
 }
 
 log "roles: planner=$VOLLEY_PLANNER critic=$CRITIC"
 write_provenance
 
-# A rerun after a stop for questions goes on only once they are answered.
-questions_open && ask_user "QUESTIONS.md has no answer yet (no HUMAN.md newer than it); stopping (exit 3)"
+# Rounds already reviewed; the loop resumes after the last completed critique.
+last=$(( $(find "$ROUNDS" -name 'r*.critique.md' 2>/dev/null | wc -l) ))
+
+# A run stopped while it waited for an answer waits again before any agent
+# call. With no round left, the impasse report lists the open questions.
+if questions_open && (( last < MAX_ROUNDS )); then
+  await_answer "QUESTIONS.md has no answer yet; waiting for an answer"
+fi
 
 # --- Round 0: initial spec (skipped on rerun so an interrupted loop resumes) ---
 if [[ ! -f "$SPEC" ]]; then
@@ -732,11 +847,9 @@ if [[ ! -f "$SPEC" ]]; then
   CALL_KEY=init
   "$PLAN_FN" "$(render "$PROMPTS/planner-init.md" "CONSTRAINTS=$CONSTRAINTS_BLOCK" "CONTEXT=$CONTEXT_BLOCK")$ASK_BLOCK" planner
   [[ -f "$SPEC" ]] || die "planner produced no SPEC.md (see state/planner.log)"
-  check_questions r00
+  check_questions r00 0
 fi
 
-# Resume after the last completed critique, if any.
-last=$(( $(find "$ROUNDS" -name 'r*.critique.md' 2>/dev/null | wc -l) ))
 start=$(( last + 1 ))
 # A rerun past MAX_ROUNDS (say, after questions in the last round) runs no
 # round; the impasse report then shows the last critique.
@@ -754,7 +867,7 @@ if (( last >= 1 )); then
     CALL_KEY="$P-revise"
     "$PLAN_FN" "$(render "$PROMPTS/planner-revise.md" ROUND="$P" "HUMAN=$HUMAN_BLOCK" "CONSTRAINTS=$CONSTRAINTS_BLOCK" "CONTEXT=$CONTEXT_BLOCK")$ASK_BLOCK" planner
     cp "$SPEC" "$ROUNDS/$P.spec.md"
-    check_questions "$P"
+    check_questions "$P" "$last"
   fi
 fi
 
@@ -763,8 +876,8 @@ for (( n=start; n<=MAX_ROUNDS; n++ )); do
   CRIT="$ROUNDS/$N.critique.md"
 
   # HUMAN.md steering: a directive dropped into the workspace applies to both
-  # role prompts of exactly one round, then is archived. This is the only way
-  # to steer a running loop without killing it. It also answers QUESTIONS.md,
+  # role prompts of exactly one round, then is archived. This is the way to
+  # steer a running loop without killing it. It also answers QUESTIONS.md,
   # which is archived with it.
   HUMAN_BLOCK=""
   if [[ -f "$HUMAN" ]]; then
@@ -793,7 +906,13 @@ REMINDER: your previous reply omitted the required final line. It must be exactl
 
   if [[ "$v" == "APPROVE" ]]; then
     second_opinion "$n"
-    closing_pass "$N" "$CRIT"
+    ANSWER=""
+    closing_pass "$N" "$CRIT" "$n"
+    if [[ "$ANSWER" == human ]]; then
+      log "$N: the user answered the closing pass's questions; the critic reviews again"
+      continue
+    fi
+    questions_open && impasse
     log "converged after $n round(s) — SPEC.md is final"
     finish 0
   fi
@@ -802,15 +921,7 @@ REMINDER: your previous reply omitted the required final line. It must be exactl
   CALL_KEY="$N-revise"
   "$PLAN_FN" "$(render "$PROMPTS/planner-revise.md" ROUND="$N" "HUMAN=$HUMAN_BLOCK" "CONSTRAINTS=$CONSTRAINTS_BLOCK" "CONTEXT=$CONTEXT_BLOCK")$ASK_BLOCK" planner
   cp "$SPEC" "$ROUNDS/$N.spec.md"
-  check_questions "$N"
+  check_questions "$N" "$n"
 done
 
-{
-  echo "# Impasse"
-  echo
-  echo "No approval after $MAX_ROUNDS rounds. Final critique:"
-  echo
-  cat "$CRIT"
-} >"$STATE/IMPASSE.md"
-log "impasse: $MAX_ROUNDS rounds without approval — see state/IMPASSE.md"
-finish 2
+impasse
