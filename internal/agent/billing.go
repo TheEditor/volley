@@ -32,7 +32,7 @@ func GuardBilling(ctx context.Context, roots EffectiveRoots, env []string, works
 	if err := roots.RequireKnown(); err != nil {
 		return err
 	}
-	for _, name := range []string{"ANTHROPIC_API_KEY", "OPENAI_API_KEY"} {
+	for _, name := range []string{"ANTHROPIC_API_KEY", "OPENAI_API_KEY", "CODEX_API_KEY"} {
 		v := envVariable(env, name, "caller")
 		if v.Present && v.Value != nil && *v.Value != "" {
 			return billingRefusal(name, "", "API credential indicator is present")
@@ -55,7 +55,7 @@ func GuardBilling(ctx context.Context, roots EffectiveRoots, env []string, works
 			return billingRefusal("apiKeyHelper", path, "Credential helper is configured")
 		}
 		if vars, ok := m["env"].(map[string]any); ok {
-			for _, name := range []string{"ANTHROPIC_API_KEY", "OPENAI_API_KEY"} {
+			for _, name := range []string{"ANTHROPIC_API_KEY", "OPENAI_API_KEY", "CODEX_API_KEY"} {
 				if value, present := vars[name]; present && value != nil && value != "" {
 					return billingRefusal(name, path, "Settings contain an API credential indicator")
 				}

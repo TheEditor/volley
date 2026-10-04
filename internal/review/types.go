@@ -1,7 +1,10 @@
 // Package review owns pure decisions. It does not launch or inspect agents.
 package review
 
-import "context"
+import (
+	"context"
+	"time"
+)
 
 type Status string
 type Phase string
@@ -58,6 +61,8 @@ type TurnRequest struct {
 	ExpectedArtifacts []string
 	SpecBeforeHash    string
 	SessionID         string
+	Timeout           time.Duration
+	ElapsedBefore     time.Duration
 }
 type PreparedTurn struct {
 	Request          TurnRequest
@@ -99,6 +104,7 @@ type TurnOutcome struct {
 	Reply          Reply
 	Retention      RetentionDecision
 	ArtifactHashes map[string]string
+	Warnings       []string
 }
 type Operation func(context.Context) (TurnOutcome, error)
 type TurnAdapter interface {
