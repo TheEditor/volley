@@ -1,0 +1,38 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://volley.invalid/schema/1/data-human-skip",
+  "type": "object",
+  "additionalProperties": false,
+  "properties": {
+    "run_id": {
+      "type": "string"
+    },
+    "workspace": {
+      "type": "string"
+    },
+    "receipt_id": {
+      "type": "string"
+    },
+    "receipt_path": {
+      "type": "string"
+    },
+    "question_id": {
+      "type": "string"
+    },
+    "applied": {
+      "type": "boolean"
+    },
+    "duplicate": {
+      "type": "boolean"
+    }
+  },
+  "required": [
+    "run_id",
+    "workspace",
+    "receipt_id",
+    "receipt_path",
+    "question_id",
+    "applied",
+    "duplicate"
+  ]
+}

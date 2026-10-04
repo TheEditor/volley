@@ -1,0 +1,51 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://volley.invalid/schema/1/warning",
+  "type": "object",
+  "additionalProperties": false,
+  "properties": {
+    "code": {
+      "enum": [
+        "ENV_SETTING_IGNORED",
+        "REPLY_UNAVAILABLE",
+        "MODEL_UNRECORDED",
+        "INDEX_UNAVAILABLE",
+        "CLEANUP_PENDING",
+        "INACTIVE_SETTING"
+      ]
+    },
+    "message": {
+      "type": "string"
+    },
+    "evidence": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "path": {
+          "type": "string"
+        },
+        "reason": {
+          "type": "string"
+        },
+        "setting": {
+          "type": "string"
+        },
+        "replacement_flag": {
+          "type": "string"
+        },
+        "turn_id": {
+          "type": "string"
+        },
+        "environment_variable": {
+          "type": "string"
+        }
+      },
+      "required": []
+    }
+  },
+  "required": [
+    "code",
+    "message",
+    "evidence"
+  ]
+}

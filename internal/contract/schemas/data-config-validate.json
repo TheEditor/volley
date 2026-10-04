@@ -1,0 +1,22 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://volley.invalid/schema/1/data-config-validate",
+  "type": "object",
+  "additionalProperties": false,
+  "properties": {
+    "path": {
+      "type": "string"
+    },
+    "valid": {
+      "type": "boolean"
+    },
+    "exists": {
+      "type": "boolean"
+    }
+  },
+  "required": [
+    "path",
+    "valid",
+    "exists"
+  ]
+}

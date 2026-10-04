@@ -1,0 +1,271 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://volley.invalid/schema/1/receipt",
+  "type": "object",
+  "additionalProperties": false,
+  "properties": {
+    "record_version": {
+      "type": "integer"
+    },
+    "run_id": {
+      "type": "string"
+    },
+    "turn_id": {
+      "type": "string"
+    },
+    "purpose": {
+      "type": "string"
+    },
+    "role": {
+      "type": "string"
+    },
+    "round": {
+      "type": "integer"
+    },
+    "prompt_hash": {
+      "type": "string"
+    },
+    "spec_before_hash": {
+      "type": "string"
+    },
+    "delivery": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "kind": {
+          "type": "string"
+        },
+        "cursor": {
+          "type": "string"
+        },
+        "payload_hash": {
+          "type": "string"
+        },
+        "pane_uuid": {
+          "type": "string"
+        },
+        "replayed": {
+          "type": "boolean"
+        }
+      },
+      "required": [
+        "kind",
+        "cursor",
+        "payload_hash",
+        "pane_uuid",
+        "replayed"
+      ]
+    },
+    "completion": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "kind": {
+          "type": "string"
+        },
+        "exit": {
+          "type": "integer"
+        },
+        "signal": {
+          "type": "string"
+        },
+        "deadline": {
+          "type": "boolean"
+        },
+        "settled": {
+          "type": "boolean"
+        },
+        "cursor": {
+          "type": "string"
+        },
+        "source": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "kind",
+        "exit",
+        "signal",
+        "deadline",
+        "settled",
+        "cursor",
+        "source"
+      ]
+    },
+    "artifacts": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "path": {
+            "type": "string"
+          },
+          "sha256": {
+            "type": "string"
+          },
+          "bytes": {
+            "type": "integer"
+          },
+          "type": {
+            "type": "string"
+          },
+          "device": {
+            "type": "integer"
+          },
+          "inode": {
+            "type": "integer"
+          }
+        },
+        "required": [
+          "path",
+          "sha256",
+          "bytes",
+          "type",
+          "device",
+          "inode"
+        ]
+      }
+    },
+    "identity": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "session_id": {
+          "type": "string"
+        },
+        "pane_uuid": {
+          "type": "string"
+        },
+        "reason": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "session_id",
+        "pane_uuid",
+        "reason"
+      ]
+    },
+    "reply": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "kind": {
+          "type": "string"
+        },
+        "path": {
+          "type": "string"
+        },
+        "sha256": {
+          "type": "string"
+        },
+        "reason": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "kind",
+        "path",
+        "sha256",
+        "reason"
+      ]
+    },
+    "retention": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "kind": {
+          "type": "string"
+        },
+        "reason": {
+          "type": "string"
+        },
+        "panes": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "processes": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "pid": {
+                "type": "integer"
+              },
+              "pgid": {
+                "type": "integer"
+              },
+              "start_identity": {
+                "type": "string"
+              },
+              "verified": {
+                "type": "boolean"
+              }
+            },
+            "required": [
+              "pid",
+              "pgid",
+              "start_identity",
+              "verified"
+            ]
+          }
+        }
+      },
+      "required": [
+        "kind",
+        "reason",
+        "panes",
+        "processes"
+      ]
+    },
+    "evidence": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "stdout_path": {
+          "type": "string"
+        },
+        "stderr_path": {
+          "type": "string"
+        },
+        "protocol_path": {
+          "type": "string"
+        },
+        "upstream_code": {
+          "type": "string"
+        },
+        "upstream_exit": {
+          "type": "integer"
+        }
+      },
+      "required": [
+        "stdout_path",
+        "stderr_path",
+        "protocol_path",
+        "upstream_code",
+        "upstream_exit"
+      ]
+    }
+  },
+  "required": [
+    "record_version",
+    "run_id",
+    "turn_id",
+    "purpose",
+    "role",
+    "round",
+    "prompt_hash",
+    "spec_before_hash",
+    "delivery",
+    "completion",
+    "artifacts",
+    "identity",
+    "reply",
+    "retention",
+    "evidence"
+  ]
+}

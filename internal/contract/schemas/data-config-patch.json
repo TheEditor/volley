@@ -1,0 +1,30 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://volley.invalid/schema/1/data-config-patch",
+  "type": "object",
+  "additionalProperties": false,
+  "properties": {
+    "path": {
+      "type": "string"
+    },
+    "changed": {
+      "type": "boolean"
+    },
+    "created": {
+      "type": "boolean"
+    },
+    "sha256": {
+      "type": "string"
+    },
+    "candidate_path": {
+      "type": "string"
+    }
+  },
+  "required": [
+    "path",
+    "changed",
+    "created",
+    "sha256",
+    "candidate_path"
+  ]
+}

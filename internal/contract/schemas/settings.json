@@ -1,0 +1,195 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://volley.invalid/schema/1/settings",
+  "type": "object",
+  "additionalProperties": false,
+  "properties": {
+    "planner": {
+      "type": "string",
+      "default": "claude",
+      "enum": [
+        "claude",
+        "codex"
+      ]
+    },
+    "backend": {
+      "type": "string",
+      "default": "cli",
+      "enum": [
+        "cli",
+        "gashki"
+      ]
+    },
+    "max_rounds": {
+      "type": "integer",
+      "default": 8,
+      "minimum": 1,
+      "maximum": 9999
+    },
+    "wait_timeout": {
+      "type": "string",
+      "default": "0s"
+    },
+    "poll_interval": {
+      "type": "string",
+      "default": "2s"
+    },
+    "persistent": {
+      "type": "boolean",
+      "default": false
+    },
+    "closing_pass": {
+      "type": "boolean",
+      "default": true
+    },
+    "second_opinion": {
+      "type": "boolean",
+      "default": false
+    },
+    "rubric": {
+      "type": "string",
+      "default": "",
+      "enum": [
+        "",
+        "security",
+        "data",
+        "decision-memo",
+        "plan-spec"
+      ]
+    },
+    "context_dir": {
+      "type": "string",
+      "default": ""
+    },
+    "claude_bin": {
+      "type": "string",
+      "default": "claude"
+    },
+    "codex_bin": {
+      "type": "string",
+      "default": "codex"
+    },
+    "gashki_bin": {
+      "type": "string",
+      "default": "gashki"
+    },
+    "gashki_config": {
+      "type": "string",
+      "default": ""
+    },
+    "claude_model": {
+      "type": "string",
+      "default": ""
+    },
+    "codex_model": {
+      "type": "string",
+      "default": ""
+    },
+    "claude_effort": {
+      "type": "string",
+      "default": "",
+      "enum": [
+        "",
+        "low",
+        "medium",
+        "high",
+        "xhigh",
+        "max"
+      ]
+    },
+    "codex_effort": {
+      "type": "string",
+      "default": ""
+    },
+    "claude_permission_mode": {
+      "type": "string",
+      "default": "dontAsk",
+      "enum": [
+        "dontAsk"
+      ]
+    },
+    "claude_planner_tools": {
+      "type": "array",
+      "default": [
+        "Read",
+        "Write",
+        "Edit",
+        "Glob",
+        "Grep",
+        "Skill"
+      ],
+      "items": {
+        "enum": [
+          "Read",
+          "Write",
+          "Edit",
+          "Glob",
+          "Grep",
+          "Skill"
+        ]
+      },
+      "uniqueItems": true
+    },
+    "claude_critic_tools": {
+      "type": "array",
+      "default": [
+        "Read",
+        "Glob",
+        "Grep",
+        "Skill"
+      ],
+      "items": {
+        "enum": [
+          "Read",
+          "Glob",
+          "Grep",
+          "Skill"
+        ]
+      },
+      "uniqueItems": true
+    },
+    "trust_folder": {
+      "type": "boolean",
+      "default": false
+    },
+    "placement": {
+      "type": "string",
+      "default": "auto",
+      "enum": [
+        "auto",
+        "normal",
+        "here"
+      ]
+    },
+    "allow_api_key": {
+      "type": "boolean",
+      "default": false
+    }
+  },
+  "required": [
+    "planner",
+    "backend",
+    "max_rounds",
+    "wait_timeout",
+    "poll_interval",
+    "persistent",
+    "closing_pass",
+    "second_opinion",
+    "rubric",
+    "context_dir",
+    "claude_bin",
+    "codex_bin",
+    "gashki_bin",
+    "gashki_config",
+    "claude_model",
+    "codex_model",
+    "claude_effort",
+    "codex_effort",
+    "claude_permission_mode",
+    "claude_planner_tools",
+    "claude_critic_tools",
+    "trust_folder",
+    "placement",
+    "allow_api_key"
+  ]
+}

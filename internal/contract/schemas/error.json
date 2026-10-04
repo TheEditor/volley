@@ -1,0 +1,195 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://volley.invalid/schema/1/error",
+  "type": "object",
+  "additionalProperties": false,
+  "properties": {
+    "code": {
+      "enum": [
+        "INVALID_INPUT",
+        "UNKNOWN_FLAG",
+        "UNKNOWN_COMMAND",
+        "MISSING_REQUIRED",
+        "INVALID_CONFIG",
+        "CONFIG_READ_FAILED",
+        "DEPENDENCY_MISSING",
+        "UNSUPPORTED_PLATFORM",
+        "BILLING_REFUSED",
+        "ACK_REQUIRED",
+        "LOCKED",
+        "WAIT_TIMEOUT",
+        "NOT_FOUND",
+        "CONFIG_CONFLICT",
+        "IDEMPOTENCY_CONFLICT",
+        "STATE_VERSION_UNSUPPORTED",
+        "OUTPUT_CONFLICT",
+        "ARTIFACT_CHANGED",
+        "CONTEXT_CHANGED",
+        "IDENTITY_CONFLICT",
+        "SERVER_CONFLICT",
+        "PANE_CONFLICT",
+        "REVIEW_IMPASSE",
+        "ANSWER_REQUIRED",
+        "ANSWER_CONFLICT",
+        "SEND_UNCERTAIN",
+        "TURN_UNCERTAIN",
+        "SESSION_LOST",
+        "LEGACY_BOUNDARY_UNVERIFIED",
+        "UPSTREAM_FAILURE",
+        "TURN_FAILED",
+        "TURN_TIMEOUT",
+        "ARTIFACT_MISSING",
+        "CRITIC_MUTATION",
+        "INTERNAL",
+        "CONFORMANCE_FAILED",
+        "UNKNOWN_DELIVERY_SCHEME",
+        "CONTROLLER_INTERRUPTED",
+        "CONTROLLER_STOPPED",
+        "PLANNER_MUTATION",
+        "EXECUTION_ENVIRONMENT_FAILED",
+        "STATE_INVALID"
+      ]
+    },
+    "message": {
+      "type": "string"
+    },
+    "exit_code": {
+      "type": "integer"
+    },
+    "retryable": {
+      "type": [
+        "boolean",
+        "null"
+      ]
+    },
+    "stage": {
+      "type": "string"
+    },
+    "path": {
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "did_you_mean": {
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "remediation": {
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "evidence": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "path": {
+          "type": "string"
+        },
+        "run_id": {
+          "type": "string"
+        },
+        "turn_id": {
+          "type": "string"
+        },
+        "actor": {
+          "type": "string"
+        },
+        "expected": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "integer"
+            },
+            {
+              "type": "boolean"
+            },
+            {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            }
+          ]
+        },
+        "observed": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "integer"
+            },
+            {
+              "type": "boolean"
+            },
+            {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            }
+          ]
+        },
+        "upstream": {
+          "type": "object",
+          "description": "Checked additive upstream protocol evidence; not an owned input record."
+        },
+        "artifact_paths": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "reason": {
+          "type": "string"
+        },
+        "receipt_path": {
+          "type": "string"
+        },
+        "process": {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "pid": {
+              "type": "integer"
+            },
+            "pgid": {
+              "type": "integer"
+            },
+            "start_identity": {
+              "type": "string"
+            },
+            "verified": {
+              "type": "boolean"
+            },
+            "settled": {
+              "type": "boolean"
+            }
+          }
+        },
+        "candidate_path": {
+          "type": "string"
+        }
+      },
+      "required": []
+    }
+  },
+  "required": [
+    "code",
+    "message",
+    "exit_code",
+    "retryable",
+    "stage",
+    "path",
+    "did_you_mean",
+    "remediation",
+    "evidence"
+  ]
+}

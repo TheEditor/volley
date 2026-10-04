@@ -1,0 +1,1786 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://volley.invalid/schema/1/manifest",
+  "type": "object",
+  "additionalProperties": false,
+  "properties": {
+    "record_version": {
+      "const": 1
+    },
+    "run_id": {
+      "type": "string",
+      "pattern": "^[a-z2-7]{26}$"
+    },
+    "tool_version": {
+      "type": "string"
+    },
+    "source_commit": {
+      "type": "string"
+    },
+    "revision": {
+      "type": "integer"
+    },
+    "last_transaction_id": {
+      "type": "string"
+    },
+    "workspace": {
+      "type": "string"
+    },
+    "canonical_workspace": {
+      "type": "string"
+    },
+    "ownership": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "device": {
+          "type": "integer"
+        },
+        "inode": {
+          "type": "integer"
+        }
+      },
+      "required": [
+        "device",
+        "inode"
+      ]
+    },
+    "created_at": {
+      "type": "string"
+    },
+    "request_keys": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "request_hash": {
+      "type": "string"
+    },
+    "status": {
+      "type": "string",
+      "enum": [
+        "ready",
+        "running",
+        "awaiting_answer",
+        "handover",
+        "impasse",
+        "approved",
+        "stopped"
+      ]
+    },
+    "phase": {
+      "type": "string",
+      "enum": [
+        "prepare",
+        "draft",
+        "apply_directive",
+        "critique",
+        "critique_retry",
+        "revise",
+        "await_answer",
+        "second_opinion",
+        "closing",
+        "confirm_closing",
+        "commit_final",
+        "cleanup"
+      ]
+    },
+    "round": {
+      "type": "integer"
+    },
+    "completed_rounds": {
+      "type": "integer"
+    },
+    "max_rounds": {
+      "type": "integer"
+    },
+    "amendments": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "revision": {
+            "type": "integer"
+          },
+          "max_rounds": {
+            "type": "integer"
+          },
+          "at": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "revision",
+          "max_rounds",
+          "at"
+        ]
+      }
+    },
+    "setting_sources": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "planner": {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "source": {
+              "type": "string"
+            },
+            "path": {
+              "type": "string"
+            },
+            "line": {
+              "type": "integer"
+            },
+            "flag": {
+              "type": "string"
+            },
+            "argument_position": {
+              "type": "integer"
+            },
+            "rule": {
+              "type": "string"
+            }
+          },
+          "required": [
+            "source",
+            "path",
+            "line",
+            "flag",
+            "argument_position",
+            "rule"
+          ]
+        },
+        "backend": {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "source": {
+              "type": "string"
+            },
+            "path": {
+              "type": "string"
+            },
+            "line": {
+              "type": "integer"
+            },
+            "flag": {
+              "type": "string"
+            },
+            "argument_position": {
+              "type": "integer"
+            },
+            "rule": {
+              "type": "string"
+            }
+          },
+          "required": [
+            "source",
+            "path",
+            "line",
+            "flag",
+            "argument_position",
+            "rule"
+          ]
+        },
+        "max_rounds": {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "source": {
+              "type": "string"
+            },
+            "path": {
+              "type": "string"
+            },
+            "line": {
+              "type": "integer"
+            },
+            "flag": {
+              "type": "string"
+            },
+            "argument_position": {
+              "type": "integer"
+            },
+            "rule": {
+              "type": "string"
+            }
+          },
+          "required": [
+            "source",
+            "path",
+            "line",
+            "flag",
+            "argument_position",
+            "rule"
+          ]
+        },
+        "wait_timeout": {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "source": {
+              "type": "string"
+            },
+            "path": {
+              "type": "string"
+            },
+            "line": {
+              "type": "integer"
+            },
+            "flag": {
+              "type": "string"
+            },
+            "argument_position": {
+              "type": "integer"
+            },
+            "rule": {
+              "type": "string"
+            }
+          },
+          "required": [
+            "source",
+            "path",
+            "line",
+            "flag",
+            "argument_position",
+            "rule"
+          ]
+        },
+        "poll_interval": {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "source": {
+              "type": "string"
+            },
+            "path": {
+              "type": "string"
+            },
+            "line": {
+              "type": "integer"
+            },
+            "flag": {
+              "type": "string"
+            },
+            "argument_position": {
+              "type": "integer"
+            },
+            "rule": {
+              "type": "string"
+            }
+          },
+          "required": [
+            "source",
+            "path",
+            "line",
+            "flag",
+            "argument_position",
+            "rule"
+          ]
+        },
+        "persistent": {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "source": {
+              "type": "string"
+            },
+            "path": {
+              "type": "string"
+            },
+            "line": {
+              "type": "integer"
+            },
+            "flag": {
+              "type": "string"
+            },
+            "argument_position": {
+              "type": "integer"
+            },
+            "rule": {
+              "type": "string"
+            }
+          },
+          "required": [
+            "source",
+            "path",
+            "line",
+            "flag",
+            "argument_position",
+            "rule"
+          ]
+        },
+        "closing_pass": {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "source": {
+              "type": "string"
+            },
+            "path": {
+              "type": "string"
+            },
+            "line": {
+              "type": "integer"
+            },
+            "flag": {
+              "type": "string"
+            },
+            "argument_position": {
+              "type": "integer"
+            },
+            "rule": {
+              "type": "string"
+            }
+          },
+          "required": [
+            "source",
+            "path",
+            "line",
+            "flag",
+            "argument_position",
+            "rule"
+          ]
+        },
+        "second_opinion": {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "source": {
+              "type": "string"
+            },
+            "path": {
+              "type": "string"
+            },
+            "line": {
+              "type": "integer"
+            },
+            "flag": {
+              "type": "string"
+            },
+            "argument_position": {
+              "type": "integer"
+            },
+            "rule": {
+              "type": "string"
+            }
+          },
+          "required": [
+            "source",
+            "path",
+            "line",
+            "flag",
+            "argument_position",
+            "rule"
+          ]
+        },
+        "rubric": {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "source": {
+              "type": "string"
+            },
+            "path": {
+              "type": "string"
+            },
+            "line": {
+              "type": "integer"
+            },
+            "flag": {
+              "type": "string"
+            },
+            "argument_position": {
+              "type": "integer"
+            },
+            "rule": {
+              "type": "string"
+            }
+          },
+          "required": [
+            "source",
+            "path",
+            "line",
+            "flag",
+            "argument_position",
+            "rule"
+          ]
+        },
+        "context_dir": {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "source": {
+              "type": "string"
+            },
+            "path": {
+              "type": "string"
+            },
+            "line": {
+              "type": "integer"
+            },
+            "flag": {
+              "type": "string"
+            },
+            "argument_position": {
+              "type": "integer"
+            },
+            "rule": {
+              "type": "string"
+            }
+          },
+          "required": [
+            "source",
+            "path",
+            "line",
+            "flag",
+            "argument_position",
+            "rule"
+          ]
+        },
+        "claude_bin": {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "source": {
+              "type": "string"
+            },
+            "path": {
+              "type": "string"
+            },
+            "line": {
+              "type": "integer"
+            },
+            "flag": {
+              "type": "string"
+            },
+            "argument_position": {
+              "type": "integer"
+            },
+            "rule": {
+              "type": "string"
+            }
+          },
+          "required": [
+            "source",
+            "path",
+            "line",
+            "flag",
+            "argument_position",
+            "rule"
+          ]
+        },
+        "codex_bin": {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "source": {
+              "type": "string"
+            },
+            "path": {
+              "type": "string"
+            },
+            "line": {
+              "type": "integer"
+            },
+            "flag": {
+              "type": "string"
+            },
+            "argument_position": {
+              "type": "integer"
+            },
+            "rule": {
+              "type": "string"
+            }
+          },
+          "required": [
+            "source",
+            "path",
+            "line",
+            "flag",
+            "argument_position",
+            "rule"
+          ]
+        },
+        "gashki_bin": {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "source": {
+              "type": "string"
+            },
+            "path": {
+              "type": "string"
+            },
+            "line": {
+              "type": "integer"
+            },
+            "flag": {
+              "type": "string"
+            },
+            "argument_position": {
+              "type": "integer"
+            },
+            "rule": {
+              "type": "string"
+            }
+          },
+          "required": [
+            "source",
+            "path",
+            "line",
+            "flag",
+            "argument_position",
+            "rule"
+          ]
+        },
+        "gashki_config": {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "source": {
+              "type": "string"
+            },
+            "path": {
+              "type": "string"
+            },
+            "line": {
+              "type": "integer"
+            },
+            "flag": {
+              "type": "string"
+            },
+            "argument_position": {
+              "type": "integer"
+            },
+            "rule": {
+              "type": "string"
+            }
+          },
+          "required": [
+            "source",
+            "path",
+            "line",
+            "flag",
+            "argument_position",
+            "rule"
+          ]
+        },
+        "claude_model": {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "source": {
+              "type": "string"
+            },
+            "path": {
+              "type": "string"
+            },
+            "line": {
+              "type": "integer"
+            },
+            "flag": {
+              "type": "string"
+            },
+            "argument_position": {
+              "type": "integer"
+            },
+            "rule": {
+              "type": "string"
+            }
+          },
+          "required": [
+            "source",
+            "path",
+            "line",
+            "flag",
+            "argument_position",
+            "rule"
+          ]
+        },
+        "codex_model": {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "source": {
+              "type": "string"
+            },
+            "path": {
+              "type": "string"
+            },
+            "line": {
+              "type": "integer"
+            },
+            "flag": {
+              "type": "string"
+            },
+            "argument_position": {
+              "type": "integer"
+            },
+            "rule": {
+              "type": "string"
+            }
+          },
+          "required": [
+            "source",
+            "path",
+            "line",
+            "flag",
+            "argument_position",
+            "rule"
+          ]
+        },
+        "claude_effort": {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "source": {
+              "type": "string"
+            },
+            "path": {
+              "type": "string"
+            },
+            "line": {
+              "type": "integer"
+            },
+            "flag": {
+              "type": "string"
+            },
+            "argument_position": {
+              "type": "integer"
+            },
+            "rule": {
+              "type": "string"
+            }
+          },
+          "required": [
+            "source",
+            "path",
+            "line",
+            "flag",
+            "argument_position",
+            "rule"
+          ]
+        },
+        "codex_effort": {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "source": {
+              "type": "string"
+            },
+            "path": {
+              "type": "string"
+            },
+            "line": {
+              "type": "integer"
+            },
+            "flag": {
+              "type": "string"
+            },
+            "argument_position": {
+              "type": "integer"
+            },
+            "rule": {
+              "type": "string"
+            }
+          },
+          "required": [
+            "source",
+            "path",
+            "line",
+            "flag",
+            "argument_position",
+            "rule"
+          ]
+        },
+        "claude_permission_mode": {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "source": {
+              "type": "string"
+            },
+            "path": {
+              "type": "string"
+            },
+            "line": {
+              "type": "integer"
+            },
+            "flag": {
+              "type": "string"
+            },
+            "argument_position": {
+              "type": "integer"
+            },
+            "rule": {
+              "type": "string"
+            }
+          },
+          "required": [
+            "source",
+            "path",
+            "line",
+            "flag",
+            "argument_position",
+            "rule"
+          ]
+        },
+        "claude_planner_tools": {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "source": {
+              "type": "string"
+            },
+            "path": {
+              "type": "string"
+            },
+            "line": {
+              "type": "integer"
+            },
+            "flag": {
+              "type": "string"
+            },
+            "argument_position": {
+              "type": "integer"
+            },
+            "rule": {
+              "type": "string"
+            }
+          },
+          "required": [
+            "source",
+            "path",
+            "line",
+            "flag",
+            "argument_position",
+            "rule"
+          ]
+        },
+        "claude_critic_tools": {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "source": {
+              "type": "string"
+            },
+            "path": {
+              "type": "string"
+            },
+            "line": {
+              "type": "integer"
+            },
+            "flag": {
+              "type": "string"
+            },
+            "argument_position": {
+              "type": "integer"
+            },
+            "rule": {
+              "type": "string"
+            }
+          },
+          "required": [
+            "source",
+            "path",
+            "line",
+            "flag",
+            "argument_position",
+            "rule"
+          ]
+        },
+        "trust_folder": {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "source": {
+              "type": "string"
+            },
+            "path": {
+              "type": "string"
+            },
+            "line": {
+              "type": "integer"
+            },
+            "flag": {
+              "type": "string"
+            },
+            "argument_position": {
+              "type": "integer"
+            },
+            "rule": {
+              "type": "string"
+            }
+          },
+          "required": [
+            "source",
+            "path",
+            "line",
+            "flag",
+            "argument_position",
+            "rule"
+          ]
+        },
+        "placement": {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "source": {
+              "type": "string"
+            },
+            "path": {
+              "type": "string"
+            },
+            "line": {
+              "type": "integer"
+            },
+            "flag": {
+              "type": "string"
+            },
+            "argument_position": {
+              "type": "integer"
+            },
+            "rule": {
+              "type": "string"
+            }
+          },
+          "required": [
+            "source",
+            "path",
+            "line",
+            "flag",
+            "argument_position",
+            "rule"
+          ]
+        },
+        "allow_api_key": {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "source": {
+              "type": "string"
+            },
+            "path": {
+              "type": "string"
+            },
+            "line": {
+              "type": "integer"
+            },
+            "flag": {
+              "type": "string"
+            },
+            "argument_position": {
+              "type": "integer"
+            },
+            "rule": {
+              "type": "string"
+            }
+          },
+          "required": [
+            "source",
+            "path",
+            "line",
+            "flag",
+            "argument_position",
+            "rule"
+          ]
+        }
+      },
+      "required": [
+        "planner",
+        "backend",
+        "max_rounds",
+        "wait_timeout",
+        "poll_interval",
+        "persistent",
+        "closing_pass",
+        "second_opinion",
+        "rubric",
+        "context_dir",
+        "claude_bin",
+        "codex_bin",
+        "gashki_bin",
+        "gashki_config",
+        "claude_model",
+        "codex_model",
+        "claude_effort",
+        "codex_effort",
+        "claude_permission_mode",
+        "claude_planner_tools",
+        "claude_critic_tools",
+        "trust_folder",
+        "placement",
+        "allow_api_key"
+      ]
+    },
+    "config_records": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "volley": {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "path": {
+              "type": "string"
+            },
+            "sha256": {
+              "type": "string"
+            },
+            "bytes": {
+              "type": "integer"
+            },
+            "type": {
+              "type": "string"
+            },
+            "device": {
+              "type": "integer"
+            },
+            "inode": {
+              "type": "integer"
+            }
+          },
+          "required": [
+            "path",
+            "sha256",
+            "bytes",
+            "type",
+            "device",
+            "inode"
+          ]
+        },
+        "gashki": {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "path": {
+              "type": "string"
+            },
+            "sha256": {
+              "type": "string"
+            },
+            "bytes": {
+              "type": "integer"
+            },
+            "type": {
+              "type": "string"
+            },
+            "device": {
+              "type": "integer"
+            },
+            "inode": {
+              "type": "integer"
+            }
+          },
+          "required": [
+            "path",
+            "sha256",
+            "bytes",
+            "type",
+            "device",
+            "inode"
+          ]
+        }
+      },
+      "required": [
+        "volley",
+        "gashki"
+      ]
+    },
+    "prompt_hashes": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "template": {
+          "type": "string"
+        },
+        "rendered": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "template",
+        "rendered"
+      ]
+    },
+    "executables": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "claude": {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "path": {
+              "type": "string"
+            },
+            "sha256": {
+              "type": "string"
+            },
+            "version": {
+              "type": "string"
+            }
+          },
+          "required": [
+            "path",
+            "sha256",
+            "version"
+          ]
+        },
+        "codex": {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "path": {
+              "type": "string"
+            },
+            "sha256": {
+              "type": "string"
+            },
+            "version": {
+              "type": "string"
+            }
+          },
+          "required": [
+            "path",
+            "sha256",
+            "version"
+          ]
+        },
+        "gashki": {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "path": {
+              "type": "string"
+            },
+            "sha256": {
+              "type": "string"
+            },
+            "version": {
+              "type": "string"
+            }
+          },
+          "required": [
+            "path",
+            "sha256",
+            "version"
+          ]
+        }
+      },
+      "required": [
+        "claude",
+        "codex",
+        "gashki"
+      ]
+    },
+    "roles": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "planner": {
+          "type": "string"
+        },
+        "critic": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "planner",
+        "critic"
+      ]
+    },
+    "backend_capabilities": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "process_per_turn": {
+          "type": "boolean"
+        },
+        "exact_resume_id": {
+          "type": "boolean"
+        },
+        "read_only_critic": {
+          "type": "boolean"
+        }
+      },
+      "required": [
+        "process_per_turn",
+        "exact_resume_id",
+        "read_only_critic"
+      ]
+    },
+    "sessions": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "planner": {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "intended_id": {
+              "type": "string"
+            },
+            "observed_id": {
+              "type": "string"
+            },
+            "observed_model": {
+              "type": "string"
+            },
+            "observed_effort": {
+              "type": "string"
+            },
+            "reason": {
+              "type": "string"
+            }
+          },
+          "required": [
+            "intended_id",
+            "observed_id",
+            "observed_model",
+            "observed_effort",
+            "reason"
+          ]
+        },
+        "critic": {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "intended_id": {
+              "type": "string"
+            },
+            "observed_id": {
+              "type": "string"
+            },
+            "observed_model": {
+              "type": "string"
+            },
+            "observed_effort": {
+              "type": "string"
+            },
+            "reason": {
+              "type": "string"
+            }
+          },
+          "required": [
+            "intended_id",
+            "observed_id",
+            "observed_model",
+            "observed_effort",
+            "reason"
+          ]
+        }
+      },
+      "required": [
+        "planner",
+        "critic"
+      ]
+    },
+    "panes": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "planner": {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "uuid": {
+              "type": "string"
+            },
+            "target": {
+              "type": "string"
+            },
+            "selector": {
+              "type": "string"
+            },
+            "provider": {
+              "type": "string"
+            },
+            "ready_cursor": {
+              "type": "string"
+            }
+          },
+          "required": [
+            "uuid",
+            "target",
+            "selector",
+            "provider",
+            "ready_cursor"
+          ]
+        },
+        "critic": {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "uuid": {
+              "type": "string"
+            },
+            "target": {
+              "type": "string"
+            },
+            "selector": {
+              "type": "string"
+            },
+            "provider": {
+              "type": "string"
+            },
+            "ready_cursor": {
+              "type": "string"
+            }
+          },
+          "required": [
+            "uuid",
+            "target",
+            "selector",
+            "provider",
+            "ready_cursor"
+          ]
+        },
+        "second": {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "uuid": {
+              "type": "string"
+            },
+            "target": {
+              "type": "string"
+            },
+            "selector": {
+              "type": "string"
+            },
+            "provider": {
+              "type": "string"
+            },
+            "ready_cursor": {
+              "type": "string"
+            }
+          },
+          "required": [
+            "uuid",
+            "target",
+            "selector",
+            "provider",
+            "ready_cursor"
+          ]
+        }
+      },
+      "required": [
+        "planner",
+        "critic",
+        "second"
+      ]
+    },
+    "server": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "socket_path": {
+          "type": "string"
+        },
+        "caller_window": {
+          "type": "string"
+        },
+        "identity_reason": {
+          "type": "string"
+        },
+        "home": {
+          "type": "string"
+        },
+        "claude_root": {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "present": {
+              "type": "boolean"
+            },
+            "value": {
+              "type": "string"
+            },
+            "reason": {
+              "type": "string"
+            }
+          },
+          "required": [
+            "present",
+            "value",
+            "reason"
+          ]
+        },
+        "codex_root": {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "present": {
+              "type": "boolean"
+            },
+            "value": {
+              "type": "string"
+            },
+            "reason": {
+              "type": "string"
+            }
+          },
+          "required": [
+            "present",
+            "value",
+            "reason"
+          ]
+        }
+      },
+      "required": [
+        "socket_path",
+        "caller_window",
+        "identity_reason",
+        "home",
+        "claude_root",
+        "codex_root"
+      ]
+    },
+    "identity": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "home": {
+          "type": "string"
+        },
+        "claude_root": {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "present": {
+              "type": "boolean"
+            },
+            "value": {
+              "type": "string"
+            },
+            "reason": {
+              "type": "string"
+            }
+          },
+          "required": [
+            "present",
+            "value",
+            "reason"
+          ]
+        },
+        "codex_root": {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "present": {
+              "type": "boolean"
+            },
+            "value": {
+              "type": "string"
+            },
+            "reason": {
+              "type": "string"
+            }
+          },
+          "required": [
+            "present",
+            "value",
+            "reason"
+          ]
+        }
+      },
+      "required": [
+        "home",
+        "claude_root",
+        "codex_root"
+      ]
+    },
+    "current_turn": {
+      "anyOf": [
+        {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "id": {
+              "type": "string"
+            },
+            "purpose": {
+              "type": "string"
+            },
+            "role": {
+              "type": "string"
+            },
+            "round": {
+              "type": "integer"
+            },
+            "attempt": {
+              "type": "integer"
+            },
+            "intent_hash": {
+              "type": "string"
+            },
+            "prompt_path": {
+              "type": "string"
+            },
+            "prompt_hash": {
+              "type": "string"
+            },
+            "operation": {
+              "type": "string"
+            },
+            "delivery_uncertain": {
+              "type": "boolean"
+            },
+            "receipt_path": {
+              "type": "string"
+            },
+            "cursor": {
+              "type": "string"
+            },
+            "started_at": {
+              "type": "string"
+            },
+            "budget": {
+              "type": "string"
+            },
+            "remaining": {
+              "type": "string"
+            }
+          },
+          "required": [
+            "id",
+            "purpose",
+            "role",
+            "round",
+            "attempt",
+            "intent_hash",
+            "prompt_path",
+            "prompt_hash",
+            "operation",
+            "delivery_uncertain",
+            "receipt_path",
+            "cursor",
+            "started_at",
+            "budget",
+            "remaining"
+          ]
+        },
+        {
+          "type": "null"
+        }
+      ]
+    },
+    "spec_hash": {
+      "type": "string"
+    },
+    "reviewed_spec_hash": {
+      "type": "string"
+    },
+    "verdict": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "value": {
+          "type": "string"
+        },
+        "hash": {
+          "type": "string"
+        },
+        "line": {
+          "type": "integer"
+        },
+        "parser_version": {
+          "type": "integer"
+        }
+      },
+      "required": [
+        "value",
+        "hash",
+        "line",
+        "parser_version"
+      ]
+    },
+    "approval": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "spec_hash": {
+          "type": "string"
+        },
+        "reviewed_hash": {
+          "type": "string"
+        },
+        "inputs_hash": {
+          "type": "string"
+        },
+        "receipt_path": {
+          "type": "string"
+        },
+        "basis": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "spec_hash",
+        "reviewed_hash",
+        "inputs_hash",
+        "receipt_path",
+        "basis"
+      ]
+    },
+    "question": {
+      "anyOf": [
+        {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "id": {
+              "type": "string"
+            },
+            "sha256": {
+              "type": "string"
+            },
+            "text": {
+              "type": "string"
+            },
+            "observed": {
+              "type": "object",
+              "additionalProperties": false,
+              "properties": {
+                "path": {
+                  "type": "string"
+                },
+                "sha256": {
+                  "type": "string"
+                },
+                "bytes": {
+                  "type": "integer"
+                },
+                "type": {
+                  "type": "string"
+                },
+                "device": {
+                  "type": "integer"
+                },
+                "inode": {
+                  "type": "integer"
+                }
+              },
+              "required": [
+                "path",
+                "sha256",
+                "bytes",
+                "type",
+                "device",
+                "inode"
+              ]
+            },
+            "answered": {
+              "type": "boolean"
+            }
+          },
+          "required": [
+            "id",
+            "sha256",
+            "text",
+            "observed",
+            "answered"
+          ]
+        },
+        {
+          "type": "null"
+        }
+      ]
+    },
+    "answers": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "steering": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "auxiliary": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "second_opinion": {
+          "type": "string"
+        },
+        "closing": {
+          "type": "string"
+        },
+        "confirmation": {
+          "type": "string"
+        },
+        "approved_hash": {
+          "type": "string"
+        },
+        "rejected_hash": {
+          "type": "string"
+        },
+        "skip_reason": {
+          "type": "string"
+        },
+        "restoration_intent": {
+          "type": "string"
+        },
+        "restoration_receipt": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "second_opinion",
+        "closing",
+        "confirmation",
+        "approved_hash",
+        "rejected_hash",
+        "skip_reason",
+        "restoration_intent",
+        "restoration_receipt"
+      ]
+    },
+    "retention": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "kind": {
+          "type": "string"
+        },
+        "reason": {
+          "type": "string"
+        },
+        "panes": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "processes": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "pid": {
+                "type": "integer"
+              },
+              "pgid": {
+                "type": "integer"
+              },
+              "start_identity": {
+                "type": "string"
+              },
+              "verified": {
+                "type": "boolean"
+              }
+            },
+            "required": [
+              "pid",
+              "pgid",
+              "start_identity",
+              "verified"
+            ]
+          }
+        }
+      },
+      "required": [
+        "kind",
+        "reason",
+        "panes",
+        "processes"
+      ]
+    },
+    "cleanup": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "pending": {
+          "type": "boolean"
+        },
+        "actions": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        }
+      },
+      "required": [
+        "pending",
+        "actions"
+      ]
+    },
+    "errors": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "recommended_commands": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "event_sequence": {
+      "type": "integer"
+    },
+    "audit_pending": {
+      "type": "boolean"
+    },
+    "index_registered": {
+      "type": "boolean"
+    }
+  },
+  "required": [
+    "record_version",
+    "run_id",
+    "tool_version",
+    "source_commit",
+    "revision",
+    "last_transaction_id",
+    "workspace",
+    "canonical_workspace",
+    "ownership",
+    "created_at",
+    "request_keys",
+    "request_hash",
+    "status",
+    "phase",
+    "round",
+    "completed_rounds",
+    "max_rounds",
+    "amendments",
+    "setting_sources",
+    "config_records",
+    "prompt_hashes",
+    "executables",
+    "roles",
+    "backend_capabilities",
+    "sessions",
+    "panes",
+    "server",
+    "identity",
+    "current_turn",
+    "spec_hash",
+    "reviewed_spec_hash",
+    "verdict",
+    "approval",
+    "question",
+    "answers",
+    "steering",
+    "auxiliary",
+    "retention",
+    "cleanup",
+    "errors",
+    "recommended_commands",
+    "event_sequence",
+    "audit_pending",
+    "index_registered"
+  ]
+}

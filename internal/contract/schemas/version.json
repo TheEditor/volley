@@ -1,0 +1,43 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://volley.invalid/schema/1/version",
+  "type": "object",
+  "additionalProperties": false,
+  "properties": {
+    "contract_version": {
+      "const": "1"
+    },
+    "build": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "commit": {
+          "type": "string"
+        },
+        "date": {
+          "type": "string"
+        },
+        "go": {
+          "type": "string"
+        },
+        "platform": {
+          "type": "string"
+        },
+        "modified": {
+          "type": "boolean"
+        }
+      },
+      "required": [
+        "commit",
+        "date",
+        "go",
+        "platform",
+        "modified"
+      ]
+    }
+  },
+  "required": [
+    "contract_version",
+    "build"
+  ]
+}

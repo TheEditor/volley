@@ -1,0 +1,1069 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://volley.invalid/schema/1/data-plan",
+  "type": "object",
+  "additionalProperties": false,
+  "properties": {
+    "workspace": {
+      "type": "string"
+    },
+    "settings": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "planner": {
+          "type": "string"
+        },
+        "backend": {
+          "type": "string"
+        },
+        "max_rounds": {
+          "type": "integer"
+        },
+        "wait_timeout": {
+          "type": "string"
+        },
+        "poll_interval": {
+          "type": "string"
+        },
+        "persistent": {
+          "type": "boolean"
+        },
+        "closing_pass": {
+          "type": "boolean"
+        },
+        "second_opinion": {
+          "type": "boolean"
+        },
+        "rubric": {
+          "type": "string"
+        },
+        "context_dir": {
+          "type": "string"
+        },
+        "claude_bin": {
+          "type": "string"
+        },
+        "codex_bin": {
+          "type": "string"
+        },
+        "gashki_bin": {
+          "type": "string"
+        },
+        "gashki_config": {
+          "type": "string"
+        },
+        "claude_model": {
+          "type": "string"
+        },
+        "codex_model": {
+          "type": "string"
+        },
+        "claude_effort": {
+          "type": "string"
+        },
+        "codex_effort": {
+          "type": "string"
+        },
+        "claude_permission_mode": {
+          "type": "string"
+        },
+        "claude_planner_tools": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "claude_critic_tools": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "trust_folder": {
+          "type": "boolean"
+        },
+        "placement": {
+          "type": "string"
+        },
+        "allow_api_key": {
+          "type": "boolean"
+        }
+      },
+      "required": [
+        "planner",
+        "backend",
+        "max_rounds",
+        "wait_timeout",
+        "poll_interval",
+        "persistent",
+        "closing_pass",
+        "second_opinion",
+        "rubric",
+        "context_dir",
+        "claude_bin",
+        "codex_bin",
+        "gashki_bin",
+        "gashki_config",
+        "claude_model",
+        "codex_model",
+        "claude_effort",
+        "codex_effort",
+        "claude_permission_mode",
+        "claude_planner_tools",
+        "claude_critic_tools",
+        "trust_folder",
+        "placement",
+        "allow_api_key"
+      ]
+    },
+    "sources": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "planner": {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "source": {
+              "type": "string"
+            },
+            "path": {
+              "type": "string"
+            },
+            "line": {
+              "type": "integer"
+            },
+            "flag": {
+              "type": "string"
+            },
+            "argument_position": {
+              "type": "integer"
+            },
+            "rule": {
+              "type": "string"
+            }
+          },
+          "required": [
+            "source",
+            "path",
+            "line",
+            "flag",
+            "argument_position",
+            "rule"
+          ]
+        },
+        "backend": {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "source": {
+              "type": "string"
+            },
+            "path": {
+              "type": "string"
+            },
+            "line": {
+              "type": "integer"
+            },
+            "flag": {
+              "type": "string"
+            },
+            "argument_position": {
+              "type": "integer"
+            },
+            "rule": {
+              "type": "string"
+            }
+          },
+          "required": [
+            "source",
+            "path",
+            "line",
+            "flag",
+            "argument_position",
+            "rule"
+          ]
+        },
+        "max_rounds": {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "source": {
+              "type": "string"
+            },
+            "path": {
+              "type": "string"
+            },
+            "line": {
+              "type": "integer"
+            },
+            "flag": {
+              "type": "string"
+            },
+            "argument_position": {
+              "type": "integer"
+            },
+            "rule": {
+              "type": "string"
+            }
+          },
+          "required": [
+            "source",
+            "path",
+            "line",
+            "flag",
+            "argument_position",
+            "rule"
+          ]
+        },
+        "wait_timeout": {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "source": {
+              "type": "string"
+            },
+            "path": {
+              "type": "string"
+            },
+            "line": {
+              "type": "integer"
+            },
+            "flag": {
+              "type": "string"
+            },
+            "argument_position": {
+              "type": "integer"
+            },
+            "rule": {
+              "type": "string"
+            }
+          },
+          "required": [
+            "source",
+            "path",
+            "line",
+            "flag",
+            "argument_position",
+            "rule"
+          ]
+        },
+        "poll_interval": {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "source": {
+              "type": "string"
+            },
+            "path": {
+              "type": "string"
+            },
+            "line": {
+              "type": "integer"
+            },
+            "flag": {
+              "type": "string"
+            },
+            "argument_position": {
+              "type": "integer"
+            },
+            "rule": {
+              "type": "string"
+            }
+          },
+          "required": [
+            "source",
+            "path",
+            "line",
+            "flag",
+            "argument_position",
+            "rule"
+          ]
+        },
+        "persistent": {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "source": {
+              "type": "string"
+            },
+            "path": {
+              "type": "string"
+            },
+            "line": {
+              "type": "integer"
+            },
+            "flag": {
+              "type": "string"
+            },
+            "argument_position": {
+              "type": "integer"
+            },
+            "rule": {
+              "type": "string"
+            }
+          },
+          "required": [
+            "source",
+            "path",
+            "line",
+            "flag",
+            "argument_position",
+            "rule"
+          ]
+        },
+        "closing_pass": {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "source": {
+              "type": "string"
+            },
+            "path": {
+              "type": "string"
+            },
+            "line": {
+              "type": "integer"
+            },
+            "flag": {
+              "type": "string"
+            },
+            "argument_position": {
+              "type": "integer"
+            },
+            "rule": {
+              "type": "string"
+            }
+          },
+          "required": [
+            "source",
+            "path",
+            "line",
+            "flag",
+            "argument_position",
+            "rule"
+          ]
+        },
+        "second_opinion": {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "source": {
+              "type": "string"
+            },
+            "path": {
+              "type": "string"
+            },
+            "line": {
+              "type": "integer"
+            },
+            "flag": {
+              "type": "string"
+            },
+            "argument_position": {
+              "type": "integer"
+            },
+            "rule": {
+              "type": "string"
+            }
+          },
+          "required": [
+            "source",
+            "path",
+            "line",
+            "flag",
+            "argument_position",
+            "rule"
+          ]
+        },
+        "rubric": {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "source": {
+              "type": "string"
+            },
+            "path": {
+              "type": "string"
+            },
+            "line": {
+              "type": "integer"
+            },
+            "flag": {
+              "type": "string"
+            },
+            "argument_position": {
+              "type": "integer"
+            },
+            "rule": {
+              "type": "string"
+            }
+          },
+          "required": [
+            "source",
+            "path",
+            "line",
+            "flag",
+            "argument_position",
+            "rule"
+          ]
+        },
+        "context_dir": {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "source": {
+              "type": "string"
+            },
+            "path": {
+              "type": "string"
+            },
+            "line": {
+              "type": "integer"
+            },
+            "flag": {
+              "type": "string"
+            },
+            "argument_position": {
+              "type": "integer"
+            },
+            "rule": {
+              "type": "string"
+            }
+          },
+          "required": [
+            "source",
+            "path",
+            "line",
+            "flag",
+            "argument_position",
+            "rule"
+          ]
+        },
+        "claude_bin": {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "source": {
+              "type": "string"
+            },
+            "path": {
+              "type": "string"
+            },
+            "line": {
+              "type": "integer"
+            },
+            "flag": {
+              "type": "string"
+            },
+            "argument_position": {
+              "type": "integer"
+            },
+            "rule": {
+              "type": "string"
+            }
+          },
+          "required": [
+            "source",
+            "path",
+            "line",
+            "flag",
+            "argument_position",
+            "rule"
+          ]
+        },
+        "codex_bin": {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "source": {
+              "type": "string"
+            },
+            "path": {
+              "type": "string"
+            },
+            "line": {
+              "type": "integer"
+            },
+            "flag": {
+              "type": "string"
+            },
+            "argument_position": {
+              "type": "integer"
+            },
+            "rule": {
+              "type": "string"
+            }
+          },
+          "required": [
+            "source",
+            "path",
+            "line",
+            "flag",
+            "argument_position",
+            "rule"
+          ]
+        },
+        "gashki_bin": {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "source": {
+              "type": "string"
+            },
+            "path": {
+              "type": "string"
+            },
+            "line": {
+              "type": "integer"
+            },
+            "flag": {
+              "type": "string"
+            },
+            "argument_position": {
+              "type": "integer"
+            },
+            "rule": {
+              "type": "string"
+            }
+          },
+          "required": [
+            "source",
+            "path",
+            "line",
+            "flag",
+            "argument_position",
+            "rule"
+          ]
+        },
+        "gashki_config": {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "source": {
+              "type": "string"
+            },
+            "path": {
+              "type": "string"
+            },
+            "line": {
+              "type": "integer"
+            },
+            "flag": {
+              "type": "string"
+            },
+            "argument_position": {
+              "type": "integer"
+            },
+            "rule": {
+              "type": "string"
+            }
+          },
+          "required": [
+            "source",
+            "path",
+            "line",
+            "flag",
+            "argument_position",
+            "rule"
+          ]
+        },
+        "claude_model": {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "source": {
+              "type": "string"
+            },
+            "path": {
+              "type": "string"
+            },
+            "line": {
+              "type": "integer"
+            },
+            "flag": {
+              "type": "string"
+            },
+            "argument_position": {
+              "type": "integer"
+            },
+            "rule": {
+              "type": "string"
+            }
+          },
+          "required": [
+            "source",
+            "path",
+            "line",
+            "flag",
+            "argument_position",
+            "rule"
+          ]
+        },
+        "codex_model": {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "source": {
+              "type": "string"
+            },
+            "path": {
+              "type": "string"
+            },
+            "line": {
+              "type": "integer"
+            },
+            "flag": {
+              "type": "string"
+            },
+            "argument_position": {
+              "type": "integer"
+            },
+            "rule": {
+              "type": "string"
+            }
+          },
+          "required": [
+            "source",
+            "path",
+            "line",
+            "flag",
+            "argument_position",
+            "rule"
+          ]
+        },
+        "claude_effort": {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "source": {
+              "type": "string"
+            },
+            "path": {
+              "type": "string"
+            },
+            "line": {
+              "type": "integer"
+            },
+            "flag": {
+              "type": "string"
+            },
+            "argument_position": {
+              "type": "integer"
+            },
+            "rule": {
+              "type": "string"
+            }
+          },
+          "required": [
+            "source",
+            "path",
+            "line",
+            "flag",
+            "argument_position",
+            "rule"
+          ]
+        },
+        "codex_effort": {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "source": {
+              "type": "string"
+            },
+            "path": {
+              "type": "string"
+            },
+            "line": {
+              "type": "integer"
+            },
+            "flag": {
+              "type": "string"
+            },
+            "argument_position": {
+              "type": "integer"
+            },
+            "rule": {
+              "type": "string"
+            }
+          },
+          "required": [
+            "source",
+            "path",
+            "line",
+            "flag",
+            "argument_position",
+            "rule"
+          ]
+        },
+        "claude_permission_mode": {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "source": {
+              "type": "string"
+            },
+            "path": {
+              "type": "string"
+            },
+            "line": {
+              "type": "integer"
+            },
+            "flag": {
+              "type": "string"
+            },
+            "argument_position": {
+              "type": "integer"
+            },
+            "rule": {
+              "type": "string"
+            }
+          },
+          "required": [
+            "source",
+            "path",
+            "line",
+            "flag",
+            "argument_position",
+            "rule"
+          ]
+        },
+        "claude_planner_tools": {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "source": {
+              "type": "string"
+            },
+            "path": {
+              "type": "string"
+            },
+            "line": {
+              "type": "integer"
+            },
+            "flag": {
+              "type": "string"
+            },
+            "argument_position": {
+              "type": "integer"
+            },
+            "rule": {
+              "type": "string"
+            }
+          },
+          "required": [
+            "source",
+            "path",
+            "line",
+            "flag",
+            "argument_position",
+            "rule"
+          ]
+        },
+        "claude_critic_tools": {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "source": {
+              "type": "string"
+            },
+            "path": {
+              "type": "string"
+            },
+            "line": {
+              "type": "integer"
+            },
+            "flag": {
+              "type": "string"
+            },
+            "argument_position": {
+              "type": "integer"
+            },
+            "rule": {
+              "type": "string"
+            }
+          },
+          "required": [
+            "source",
+            "path",
+            "line",
+            "flag",
+            "argument_position",
+            "rule"
+          ]
+        },
+        "trust_folder": {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "source": {
+              "type": "string"
+            },
+            "path": {
+              "type": "string"
+            },
+            "line": {
+              "type": "integer"
+            },
+            "flag": {
+              "type": "string"
+            },
+            "argument_position": {
+              "type": "integer"
+            },
+            "rule": {
+              "type": "string"
+            }
+          },
+          "required": [
+            "source",
+            "path",
+            "line",
+            "flag",
+            "argument_position",
+            "rule"
+          ]
+        },
+        "placement": {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "source": {
+              "type": "string"
+            },
+            "path": {
+              "type": "string"
+            },
+            "line": {
+              "type": "integer"
+            },
+            "flag": {
+              "type": "string"
+            },
+            "argument_position": {
+              "type": "integer"
+            },
+            "rule": {
+              "type": "string"
+            }
+          },
+          "required": [
+            "source",
+            "path",
+            "line",
+            "flag",
+            "argument_position",
+            "rule"
+          ]
+        },
+        "allow_api_key": {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "source": {
+              "type": "string"
+            },
+            "path": {
+              "type": "string"
+            },
+            "line": {
+              "type": "integer"
+            },
+            "flag": {
+              "type": "string"
+            },
+            "argument_position": {
+              "type": "integer"
+            },
+            "rule": {
+              "type": "string"
+            }
+          },
+          "required": [
+            "source",
+            "path",
+            "line",
+            "flag",
+            "argument_position",
+            "rule"
+          ]
+        }
+      },
+      "required": [
+        "planner",
+        "backend",
+        "max_rounds",
+        "wait_timeout",
+        "poll_interval",
+        "persistent",
+        "closing_pass",
+        "second_opinion",
+        "rubric",
+        "context_dir",
+        "claude_bin",
+        "codex_bin",
+        "gashki_bin",
+        "gashki_config",
+        "claude_model",
+        "codex_model",
+        "claude_effort",
+        "codex_effort",
+        "claude_permission_mode",
+        "claude_planner_tools",
+        "claude_critic_tools",
+        "trust_folder",
+        "placement",
+        "allow_api_key"
+      ]
+    },
+    "transitions": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "paths": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "brief": {
+          "type": "string"
+        },
+        "spec": {
+          "type": "string"
+        },
+        "state": {
+          "type": "string"
+        },
+        "volley_config": {
+          "type": "string"
+        },
+        "gashki_config": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "brief",
+        "spec",
+        "state",
+        "volley_config",
+        "gashki_config"
+      ]
+    },
+    "dependencies": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "path": {
+            "type": "string"
+          },
+          "sha256": {
+            "type": "string"
+          },
+          "version": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "path",
+          "sha256",
+          "version"
+        ]
+      }
+    },
+    "arguments": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "provider": {
+            "type": "string"
+          },
+          "role": {
+            "type": "string"
+          },
+          "argv": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "cwd": {
+            "type": "string"
+          },
+          "stdin": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "provider",
+          "role",
+          "argv",
+          "cwd",
+          "stdin"
+        ]
+      }
+    },
+    "warnings": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "recommended_action": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "command": {
+          "type": "string"
+        },
+        "rationale": {
+          "type": "string"
+        },
+        "is_destructive": {
+          "type": "boolean"
+        },
+        "alternatives": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "command": {
+                "type": "string"
+              },
+              "purpose": {
+                "type": "string"
+              }
+            },
+            "required": [
+              "command",
+              "purpose"
+            ]
+          }
+        }
+      },
+      "required": [
+        "command",
+        "rationale",
+        "is_destructive",
+        "alternatives"
+      ]
+    }
+  },
+  "required": [
+    "workspace",
+    "settings",
+    "sources",
+    "transitions",
+    "paths",
+    "dependencies",
+    "arguments",
+    "warnings",
+    "recommended_action"
+  ]
+}

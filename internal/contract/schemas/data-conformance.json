@@ -1,0 +1,116 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://volley.invalid/schema/1/data-conformance",
+  "type": "object",
+  "additionalProperties": false,
+  "properties": {
+    "profile": {
+      "type": "string"
+    },
+    "results": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "target": {
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "verb": {
+                "type": "string"
+              },
+              "flag": {
+                "type": "string"
+              },
+              "stage": {
+                "type": "string"
+              },
+              "shape": {
+                "type": "string"
+              },
+              "node": {
+                "type": "string"
+              }
+            },
+            "required": [
+              "verb",
+              "flag",
+              "stage",
+              "shape",
+              "node"
+            ]
+          },
+          "verdict": {
+            "type": "string"
+          },
+          "reason": {
+            "type": "string"
+          },
+          "observed": {
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "exit": {
+                "type": "integer"
+              },
+              "ok": {
+                "type": "boolean"
+              },
+              "code": {
+                "type": "string"
+              }
+            },
+            "required": [
+              "exit",
+              "ok",
+              "code"
+            ]
+          }
+        },
+        "required": [
+          "id",
+          "target",
+          "verdict",
+          "reason",
+          "observed"
+        ]
+      }
+    },
+    "counts": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "pass": {
+          "type": "integer"
+        },
+        "fail": {
+          "type": "integer"
+        },
+        "not_applicable": {
+          "type": "integer"
+        }
+      },
+      "required": [
+        "pass",
+        "fail",
+        "not_applicable"
+      ]
+    },
+    "verdicts": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    }
+  },
+  "required": [
+    "profile",
+    "results",
+    "counts",
+    "verdicts"
+  ]
+}

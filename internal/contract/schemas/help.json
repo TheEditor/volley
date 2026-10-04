@@ -1,0 +1,24 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://volley.invalid/schema/1/help",
+  "type": "object",
+  "additionalProperties": false,
+  "properties": {
+    "usage": {
+      "type": "string"
+    },
+    "capabilities_command": {
+      "type": "string"
+    },
+    "default_action": {
+      "type": [
+        "string",
+        "null"
+      ]
+    }
+  },
+  "required": [
+    "usage",
+    "capabilities_command"
+  ]
+}

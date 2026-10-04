@@ -1,0 +1,36 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://volley.invalid/schema/1/resolution",
+  "type": "object",
+  "additionalProperties": false,
+  "properties": {
+    "resolution": {
+      "enum": [
+        "accept_completed",
+        "confirm_not_executed",
+        "abandon"
+      ]
+    },
+    "artifact_paths": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "evidence_paths": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "note": {
+      "type": "string"
+    }
+  },
+  "required": [
+    "resolution",
+    "artifact_paths",
+    "evidence_paths",
+    "note"
+  ]
+}

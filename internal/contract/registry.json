@@ -1,0 +1,6135 @@
+{
+  "contract_version": "1",
+  "record_version": 1,
+  "tool_version": "0.0.0-dev",
+  "make_cli_revision": "26f47a9a621862b63f3d7baccbb2ca7e441f5254",
+  "diagnosis_order": [
+    "bootstrap_mode",
+    "global_flags",
+    "command_path",
+    "local_flags",
+    "types_enums",
+    "required_arguments",
+    "semantic_checks",
+    "execution"
+  ],
+  "diagnosis_tiebreaks": [
+    "source argument order",
+    "declared setting order",
+    "artifact path order"
+  ],
+  "global_flags": [
+    {
+      "name": "--config",
+      "arity": 1,
+      "type": "path",
+      "default": null,
+      "allow_empty": false,
+      "repeatable": false,
+      "aliases": [],
+      "parser_path": "internal/cli.Parse",
+      "forms": [
+        "equals",
+        "space"
+      ],
+      "scope": "global"
+    },
+    {
+      "name": "--json",
+      "arity": 0,
+      "type": "boolean",
+      "default": false,
+      "allow_empty": false,
+      "repeatable": false,
+      "aliases": [],
+      "parser_path": "internal/cli.Parse",
+      "forms": [
+        "bare"
+      ],
+      "scope": "global"
+    },
+    {
+      "name": "--no-color",
+      "arity": 0,
+      "type": "boolean",
+      "default": false,
+      "allow_empty": false,
+      "repeatable": false,
+      "aliases": [],
+      "parser_path": "internal/cli.Parse",
+      "forms": [
+        "bare"
+      ],
+      "scope": "global"
+    },
+    {
+      "name": "--quiet",
+      "arity": 0,
+      "type": "boolean",
+      "default": false,
+      "allow_empty": false,
+      "repeatable": false,
+      "aliases": [
+        "-q"
+      ],
+      "parser_path": "internal/cli.Parse",
+      "forms": [
+        "bare"
+      ],
+      "scope": "global"
+    },
+    {
+      "name": "--verbose",
+      "arity": 0,
+      "type": "boolean",
+      "default": false,
+      "allow_empty": false,
+      "repeatable": false,
+      "aliases": [
+        "-v"
+      ],
+      "parser_path": "internal/cli.Parse",
+      "forms": [
+        "bare"
+      ],
+      "scope": "global"
+    },
+    {
+      "name": "--contract-version",
+      "arity": 1,
+      "type": "string",
+      "default": "1",
+      "allow_empty": false,
+      "repeatable": false,
+      "aliases": [],
+      "parser_path": "internal/cli.Parse",
+      "forms": [
+        "equals",
+        "space"
+      ],
+      "enum": [
+        "1"
+      ],
+      "scope": "global"
+    },
+    {
+      "name": "--help",
+      "arity": 0,
+      "type": "boolean",
+      "default": false,
+      "allow_empty": false,
+      "repeatable": false,
+      "aliases": [
+        "-h"
+      ],
+      "parser_path": "internal/cli.Parse",
+      "forms": [
+        "bare"
+      ],
+      "scope": "global"
+    },
+    {
+      "name": "--version",
+      "arity": 0,
+      "type": "boolean",
+      "default": false,
+      "allow_empty": false,
+      "repeatable": false,
+      "aliases": [],
+      "parser_path": "internal/cli.Parse",
+      "forms": [
+        "bare"
+      ],
+      "scope": "global"
+    }
+  ],
+  "commands": {
+    "run": {
+      "path": "run",
+      "parser_path": "internal/cli.Parse/run",
+      "handler_path": "internal/cli.Handle/run",
+      "advertisement": "registered_handlers_only",
+      "positionals": [
+        {
+          "name": "WORKSPACE",
+          "required": true,
+          "type": "string",
+          "allow_empty": false
+        }
+      ],
+      "flags": [
+        {
+          "name": "--planner",
+          "arity": 1,
+          "type": "string",
+          "default": "claude",
+          "allow_empty": false,
+          "repeatable": false,
+          "aliases": [],
+          "parser_path": "internal/cli.Parse",
+          "forms": [
+            "equals",
+            "space"
+          ],
+          "enum": [
+            "claude",
+            "codex"
+          ],
+          "setting": "planner",
+          "scope": "run"
+        },
+        {
+          "name": "--backend",
+          "arity": 1,
+          "type": "string",
+          "default": "cli",
+          "allow_empty": false,
+          "repeatable": false,
+          "aliases": [],
+          "parser_path": "internal/cli.Parse",
+          "forms": [
+            "equals",
+            "space"
+          ],
+          "enum": [
+            "cli",
+            "gashki"
+          ],
+          "setting": "backend",
+          "scope": "run"
+        },
+        {
+          "name": "--max-rounds",
+          "arity": 1,
+          "type": "integer",
+          "default": 8,
+          "allow_empty": false,
+          "repeatable": false,
+          "aliases": [],
+          "parser_path": "internal/cli.Parse",
+          "forms": [
+            "equals",
+            "space"
+          ],
+          "setting": "max_rounds",
+          "scope": "run"
+        },
+        {
+          "name": "--wait-timeout",
+          "arity": 1,
+          "type": "duration",
+          "default": "0s",
+          "allow_empty": false,
+          "repeatable": false,
+          "aliases": [],
+          "parser_path": "internal/cli.Parse",
+          "forms": [
+            "equals",
+            "space"
+          ],
+          "setting": "wait_timeout",
+          "scope": "run"
+        },
+        {
+          "name": "--poll-interval",
+          "arity": 1,
+          "type": "duration",
+          "default": "2s",
+          "allow_empty": false,
+          "repeatable": false,
+          "aliases": [],
+          "parser_path": "internal/cli.Parse",
+          "forms": [
+            "equals",
+            "space"
+          ],
+          "setting": "poll_interval",
+          "scope": "run"
+        },
+        {
+          "name": "--persistent",
+          "arity": 1,
+          "type": "boolean",
+          "default": false,
+          "allow_empty": false,
+          "repeatable": false,
+          "aliases": [],
+          "parser_path": "internal/cli.Parse",
+          "forms": [
+            "equals",
+            "space"
+          ],
+          "setting": "persistent",
+          "scope": "run"
+        },
+        {
+          "name": "--closing-pass",
+          "arity": 1,
+          "type": "boolean",
+          "default": true,
+          "allow_empty": false,
+          "repeatable": false,
+          "aliases": [],
+          "parser_path": "internal/cli.Parse",
+          "forms": [
+            "equals",
+            "space"
+          ],
+          "setting": "closing_pass",
+          "scope": "run"
+        },
+        {
+          "name": "--second-opinion",
+          "arity": 1,
+          "type": "boolean",
+          "default": false,
+          "allow_empty": false,
+          "repeatable": false,
+          "aliases": [],
+          "parser_path": "internal/cli.Parse",
+          "forms": [
+            "equals",
+            "space"
+          ],
+          "setting": "second_opinion",
+          "scope": "run"
+        },
+        {
+          "name": "--rubric",
+          "arity": 1,
+          "type": "string",
+          "default": "",
+          "allow_empty": true,
+          "repeatable": false,
+          "aliases": [],
+          "parser_path": "internal/cli.Parse",
+          "forms": [
+            "equals",
+            "space"
+          ],
+          "enum": [
+            "",
+            "security",
+            "data",
+            "decision-memo",
+            "plan-spec"
+          ],
+          "setting": "rubric",
+          "scope": "run"
+        },
+        {
+          "name": "--context-dir",
+          "arity": 1,
+          "type": "path",
+          "default": "",
+          "allow_empty": true,
+          "repeatable": false,
+          "aliases": [],
+          "parser_path": "internal/cli.Parse",
+          "forms": [
+            "equals",
+            "space"
+          ],
+          "setting": "context_dir",
+          "scope": "run"
+        },
+        {
+          "name": "--claude-bin",
+          "arity": 1,
+          "type": "executable",
+          "default": "claude",
+          "allow_empty": false,
+          "repeatable": false,
+          "aliases": [],
+          "parser_path": "internal/cli.Parse",
+          "forms": [
+            "equals",
+            "space"
+          ],
+          "setting": "claude_bin",
+          "scope": "run"
+        },
+        {
+          "name": "--codex-bin",
+          "arity": 1,
+          "type": "executable",
+          "default": "codex",
+          "allow_empty": false,
+          "repeatable": false,
+          "aliases": [],
+          "parser_path": "internal/cli.Parse",
+          "forms": [
+            "equals",
+            "space"
+          ],
+          "setting": "codex_bin",
+          "scope": "run"
+        },
+        {
+          "name": "--gashki-bin",
+          "arity": 1,
+          "type": "executable",
+          "default": "gashki",
+          "allow_empty": false,
+          "repeatable": false,
+          "aliases": [],
+          "parser_path": "internal/cli.Parse",
+          "forms": [
+            "equals",
+            "space"
+          ],
+          "setting": "gashki_bin",
+          "scope": "run"
+        },
+        {
+          "name": "--gashki-config",
+          "arity": 1,
+          "type": "path",
+          "default": "",
+          "allow_empty": true,
+          "repeatable": false,
+          "aliases": [],
+          "parser_path": "internal/cli.Parse",
+          "forms": [
+            "equals",
+            "space"
+          ],
+          "setting": "gashki_config",
+          "scope": "run"
+        },
+        {
+          "name": "--claude-model",
+          "arity": 1,
+          "type": "string",
+          "default": "",
+          "allow_empty": true,
+          "repeatable": false,
+          "aliases": [],
+          "parser_path": "internal/cli.Parse",
+          "forms": [
+            "equals",
+            "space"
+          ],
+          "setting": "claude_model",
+          "scope": "run"
+        },
+        {
+          "name": "--codex-model",
+          "arity": 1,
+          "type": "string",
+          "default": "",
+          "allow_empty": true,
+          "repeatable": false,
+          "aliases": [],
+          "parser_path": "internal/cli.Parse",
+          "forms": [
+            "equals",
+            "space"
+          ],
+          "setting": "codex_model",
+          "scope": "run"
+        },
+        {
+          "name": "--claude-effort",
+          "arity": 1,
+          "type": "string",
+          "default": "",
+          "allow_empty": true,
+          "repeatable": false,
+          "aliases": [],
+          "parser_path": "internal/cli.Parse",
+          "forms": [
+            "equals",
+            "space"
+          ],
+          "enum": [
+            "",
+            "low",
+            "medium",
+            "high",
+            "xhigh",
+            "max"
+          ],
+          "setting": "claude_effort",
+          "scope": "run"
+        },
+        {
+          "name": "--codex-effort",
+          "arity": 1,
+          "type": "string",
+          "default": "",
+          "allow_empty": true,
+          "repeatable": false,
+          "aliases": [],
+          "parser_path": "internal/cli.Parse",
+          "forms": [
+            "equals",
+            "space"
+          ],
+          "setting": "codex_effort",
+          "scope": "run"
+        },
+        {
+          "name": "--claude-permission-mode",
+          "arity": 1,
+          "type": "string",
+          "default": "dontAsk",
+          "allow_empty": false,
+          "repeatable": false,
+          "aliases": [],
+          "parser_path": "internal/cli.Parse",
+          "forms": [
+            "equals",
+            "space"
+          ],
+          "enum": [
+            "dontAsk"
+          ],
+          "setting": "claude_permission_mode",
+          "scope": "run"
+        },
+        {
+          "name": "--claude-planner-tools",
+          "arity": 1,
+          "type": "array",
+          "default": [
+            "Read",
+            "Write",
+            "Edit",
+            "Glob",
+            "Grep",
+            "Skill"
+          ],
+          "allow_empty": false,
+          "repeatable": false,
+          "aliases": [],
+          "parser_path": "internal/cli.Parse",
+          "forms": [
+            "equals",
+            "space"
+          ],
+          "setting": "claude_planner_tools",
+          "scope": "run"
+        },
+        {
+          "name": "--claude-critic-tools",
+          "arity": 1,
+          "type": "array",
+          "default": [
+            "Read",
+            "Glob",
+            "Grep",
+            "Skill"
+          ],
+          "allow_empty": false,
+          "repeatable": false,
+          "aliases": [],
+          "parser_path": "internal/cli.Parse",
+          "forms": [
+            "equals",
+            "space"
+          ],
+          "setting": "claude_critic_tools",
+          "scope": "run"
+        },
+        {
+          "name": "--trust-folder",
+          "arity": 1,
+          "type": "boolean",
+          "default": false,
+          "allow_empty": false,
+          "repeatable": false,
+          "aliases": [],
+          "parser_path": "internal/cli.Parse",
+          "forms": [
+            "equals",
+            "space"
+          ],
+          "setting": "trust_folder",
+          "scope": "run"
+        },
+        {
+          "name": "--placement",
+          "arity": 1,
+          "type": "string",
+          "default": "auto",
+          "allow_empty": false,
+          "repeatable": false,
+          "aliases": [],
+          "parser_path": "internal/cli.Parse",
+          "forms": [
+            "equals",
+            "space"
+          ],
+          "enum": [
+            "auto",
+            "normal",
+            "here"
+          ],
+          "setting": "placement",
+          "scope": "run"
+        },
+        {
+          "name": "--allow-api-key",
+          "arity": 1,
+          "type": "boolean",
+          "default": false,
+          "allow_empty": false,
+          "repeatable": false,
+          "aliases": [],
+          "parser_path": "internal/cli.Parse",
+          "forms": [
+            "equals",
+            "space"
+          ],
+          "setting": "allow_api_key",
+          "scope": "run"
+        },
+        {
+          "name": "--brief",
+          "arity": 1,
+          "type": "path",
+          "default": null,
+          "allow_empty": false,
+          "repeatable": false,
+          "aliases": [],
+          "parser_path": "internal/cli.Parse",
+          "forms": [
+            "equals",
+            "space"
+          ],
+          "scope": "run"
+        },
+        {
+          "name": "--seed",
+          "arity": 1,
+          "type": "path",
+          "default": null,
+          "allow_empty": false,
+          "repeatable": false,
+          "aliases": [],
+          "parser_path": "internal/cli.Parse",
+          "forms": [
+            "equals",
+            "space"
+          ],
+          "scope": "run"
+        },
+        {
+          "name": "--idempotency-key",
+          "arity": 1,
+          "type": "string",
+          "default": null,
+          "allow_empty": false,
+          "repeatable": false,
+          "aliases": [],
+          "parser_path": "internal/cli.Parse",
+          "forms": [
+            "equals",
+            "space"
+          ],
+          "scope": "run"
+        },
+        {
+          "name": "--wait",
+          "arity": 0,
+          "type": "boolean",
+          "default": false,
+          "allow_empty": false,
+          "repeatable": false,
+          "aliases": [],
+          "parser_path": "internal/cli.Parse",
+          "forms": [
+            "bare"
+          ],
+          "scope": "run"
+        },
+        {
+          "name": "--interactive",
+          "arity": 0,
+          "type": "boolean",
+          "default": false,
+          "allow_empty": false,
+          "repeatable": false,
+          "aliases": [],
+          "parser_path": "internal/cli.Parse",
+          "forms": [
+            "bare"
+          ],
+          "scope": "run"
+        }
+      ],
+      "setting_flags": true,
+      "output_modes": [
+        "envelope"
+      ],
+      "schema": "data-run",
+      "read_only": false,
+      "stdin": null,
+      "constraints": [
+        {
+          "kind": "requires",
+          "flag": "--interactive",
+          "other": "--wait"
+        },
+        {
+          "kind": "excludes",
+          "flag": "--interactive",
+          "other": "--json"
+        }
+      ]
+    },
+    "plan": {
+      "path": "plan",
+      "parser_path": "internal/cli.Parse/plan",
+      "handler_path": "internal/cli.Handle/plan",
+      "advertisement": "registered_handlers_only",
+      "positionals": [
+        {
+          "name": "WORKSPACE",
+          "required": true,
+          "type": "string",
+          "allow_empty": false
+        }
+      ],
+      "flags": [
+        {
+          "name": "--planner",
+          "arity": 1,
+          "type": "string",
+          "default": "claude",
+          "allow_empty": false,
+          "repeatable": false,
+          "aliases": [],
+          "parser_path": "internal/cli.Parse",
+          "forms": [
+            "equals",
+            "space"
+          ],
+          "enum": [
+            "claude",
+            "codex"
+          ],
+          "setting": "planner",
+          "scope": "plan"
+        },
+        {
+          "name": "--backend",
+          "arity": 1,
+          "type": "string",
+          "default": "cli",
+          "allow_empty": false,
+          "repeatable": false,
+          "aliases": [],
+          "parser_path": "internal/cli.Parse",
+          "forms": [
+            "equals",
+            "space"
+          ],
+          "enum": [
+            "cli",
+            "gashki"
+          ],
+          "setting": "backend",
+          "scope": "plan"
+        },
+        {
+          "name": "--max-rounds",
+          "arity": 1,
+          "type": "integer",
+          "default": 8,
+          "allow_empty": false,
+          "repeatable": false,
+          "aliases": [],
+          "parser_path": "internal/cli.Parse",
+          "forms": [
+            "equals",
+            "space"
+          ],
+          "setting": "max_rounds",
+          "scope": "plan"
+        },
+        {
+          "name": "--wait-timeout",
+          "arity": 1,
+          "type": "duration",
+          "default": "0s",
+          "allow_empty": false,
+          "repeatable": false,
+          "aliases": [],
+          "parser_path": "internal/cli.Parse",
+          "forms": [
+            "equals",
+            "space"
+          ],
+          "setting": "wait_timeout",
+          "scope": "plan"
+        },
+        {
+          "name": "--poll-interval",
+          "arity": 1,
+          "type": "duration",
+          "default": "2s",
+          "allow_empty": false,
+          "repeatable": false,
+          "aliases": [],
+          "parser_path": "internal/cli.Parse",
+          "forms": [
+            "equals",
+            "space"
+          ],
+          "setting": "poll_interval",
+          "scope": "plan"
+        },
+        {
+          "name": "--persistent",
+          "arity": 1,
+          "type": "boolean",
+          "default": false,
+          "allow_empty": false,
+          "repeatable": false,
+          "aliases": [],
+          "parser_path": "internal/cli.Parse",
+          "forms": [
+            "equals",
+            "space"
+          ],
+          "setting": "persistent",
+          "scope": "plan"
+        },
+        {
+          "name": "--closing-pass",
+          "arity": 1,
+          "type": "boolean",
+          "default": true,
+          "allow_empty": false,
+          "repeatable": false,
+          "aliases": [],
+          "parser_path": "internal/cli.Parse",
+          "forms": [
+            "equals",
+            "space"
+          ],
+          "setting": "closing_pass",
+          "scope": "plan"
+        },
+        {
+          "name": "--second-opinion",
+          "arity": 1,
+          "type": "boolean",
+          "default": false,
+          "allow_empty": false,
+          "repeatable": false,
+          "aliases": [],
+          "parser_path": "internal/cli.Parse",
+          "forms": [
+            "equals",
+            "space"
+          ],
+          "setting": "second_opinion",
+          "scope": "plan"
+        },
+        {
+          "name": "--rubric",
+          "arity": 1,
+          "type": "string",
+          "default": "",
+          "allow_empty": true,
+          "repeatable": false,
+          "aliases": [],
+          "parser_path": "internal/cli.Parse",
+          "forms": [
+            "equals",
+            "space"
+          ],
+          "enum": [
+            "",
+            "security",
+            "data",
+            "decision-memo",
+            "plan-spec"
+          ],
+          "setting": "rubric",
+          "scope": "plan"
+        },
+        {
+          "name": "--context-dir",
+          "arity": 1,
+          "type": "path",
+          "default": "",
+          "allow_empty": true,
+          "repeatable": false,
+          "aliases": [],
+          "parser_path": "internal/cli.Parse",
+          "forms": [
+            "equals",
+            "space"
+          ],
+          "setting": "context_dir",
+          "scope": "plan"
+        },
+        {
+          "name": "--claude-bin",
+          "arity": 1,
+          "type": "executable",
+          "default": "claude",
+          "allow_empty": false,
+          "repeatable": false,
+          "aliases": [],
+          "parser_path": "internal/cli.Parse",
+          "forms": [
+            "equals",
+            "space"
+          ],
+          "setting": "claude_bin",
+          "scope": "plan"
+        },
+        {
+          "name": "--codex-bin",
+          "arity": 1,
+          "type": "executable",
+          "default": "codex",
+          "allow_empty": false,
+          "repeatable": false,
+          "aliases": [],
+          "parser_path": "internal/cli.Parse",
+          "forms": [
+            "equals",
+            "space"
+          ],
+          "setting": "codex_bin",
+          "scope": "plan"
+        },
+        {
+          "name": "--gashki-bin",
+          "arity": 1,
+          "type": "executable",
+          "default": "gashki",
+          "allow_empty": false,
+          "repeatable": false,
+          "aliases": [],
+          "parser_path": "internal/cli.Parse",
+          "forms": [
+            "equals",
+            "space"
+          ],
+          "setting": "gashki_bin",
+          "scope": "plan"
+        },
+        {
+          "name": "--gashki-config",
+          "arity": 1,
+          "type": "path",
+          "default": "",
+          "allow_empty": true,
+          "repeatable": false,
+          "aliases": [],
+          "parser_path": "internal/cli.Parse",
+          "forms": [
+            "equals",
+            "space"
+          ],
+          "setting": "gashki_config",
+          "scope": "plan"
+        },
+        {
+          "name": "--claude-model",
+          "arity": 1,
+          "type": "string",
+          "default": "",
+          "allow_empty": true,
+          "repeatable": false,
+          "aliases": [],
+          "parser_path": "internal/cli.Parse",
+          "forms": [
+            "equals",
+            "space"
+          ],
+          "setting": "claude_model",
+          "scope": "plan"
+        },
+        {
+          "name": "--codex-model",
+          "arity": 1,
+          "type": "string",
+          "default": "",
+          "allow_empty": true,
+          "repeatable": false,
+          "aliases": [],
+          "parser_path": "internal/cli.Parse",
+          "forms": [
+            "equals",
+            "space"
+          ],
+          "setting": "codex_model",
+          "scope": "plan"
+        },
+        {
+          "name": "--claude-effort",
+          "arity": 1,
+          "type": "string",
+          "default": "",
+          "allow_empty": true,
+          "repeatable": false,
+          "aliases": [],
+          "parser_path": "internal/cli.Parse",
+          "forms": [
+            "equals",
+            "space"
+          ],
+          "enum": [
+            "",
+            "low",
+            "medium",
+            "high",
+            "xhigh",
+            "max"
+          ],
+          "setting": "claude_effort",
+          "scope": "plan"
+        },
+        {
+          "name": "--codex-effort",
+          "arity": 1,
+          "type": "string",
+          "default": "",
+          "allow_empty": true,
+          "repeatable": false,
+          "aliases": [],
+          "parser_path": "internal/cli.Parse",
+          "forms": [
+            "equals",
+            "space"
+          ],
+          "setting": "codex_effort",
+          "scope": "plan"
+        },
+        {
+          "name": "--claude-permission-mode",
+          "arity": 1,
+          "type": "string",
+          "default": "dontAsk",
+          "allow_empty": false,
+          "repeatable": false,
+          "aliases": [],
+          "parser_path": "internal/cli.Parse",
+          "forms": [
+            "equals",
+            "space"
+          ],
+          "enum": [
+            "dontAsk"
+          ],
+          "setting": "claude_permission_mode",
+          "scope": "plan"
+        },
+        {
+          "name": "--claude-planner-tools",
+          "arity": 1,
+          "type": "array",
+          "default": [
+            "Read",
+            "Write",
+            "Edit",
+            "Glob",
+            "Grep",
+            "Skill"
+          ],
+          "allow_empty": false,
+          "repeatable": false,
+          "aliases": [],
+          "parser_path": "internal/cli.Parse",
+          "forms": [
+            "equals",
+            "space"
+          ],
+          "setting": "claude_planner_tools",
+          "scope": "plan"
+        },
+        {
+          "name": "--claude-critic-tools",
+          "arity": 1,
+          "type": "array",
+          "default": [
+            "Read",
+            "Glob",
+            "Grep",
+            "Skill"
+          ],
+          "allow_empty": false,
+          "repeatable": false,
+          "aliases": [],
+          "parser_path": "internal/cli.Parse",
+          "forms": [
+            "equals",
+            "space"
+          ],
+          "setting": "claude_critic_tools",
+          "scope": "plan"
+        },
+        {
+          "name": "--trust-folder",
+          "arity": 1,
+          "type": "boolean",
+          "default": false,
+          "allow_empty": false,
+          "repeatable": false,
+          "aliases": [],
+          "parser_path": "internal/cli.Parse",
+          "forms": [
+            "equals",
+            "space"
+          ],
+          "setting": "trust_folder",
+          "scope": "plan"
+        },
+        {
+          "name": "--placement",
+          "arity": 1,
+          "type": "string",
+          "default": "auto",
+          "allow_empty": false,
+          "repeatable": false,
+          "aliases": [],
+          "parser_path": "internal/cli.Parse",
+          "forms": [
+            "equals",
+            "space"
+          ],
+          "enum": [
+            "auto",
+            "normal",
+            "here"
+          ],
+          "setting": "placement",
+          "scope": "plan"
+        },
+        {
+          "name": "--allow-api-key",
+          "arity": 1,
+          "type": "boolean",
+          "default": false,
+          "allow_empty": false,
+          "repeatable": false,
+          "aliases": [],
+          "parser_path": "internal/cli.Parse",
+          "forms": [
+            "equals",
+            "space"
+          ],
+          "setting": "allow_api_key",
+          "scope": "plan"
+        },
+        {
+          "name": "--brief",
+          "arity": 1,
+          "type": "path",
+          "default": null,
+          "allow_empty": false,
+          "repeatable": false,
+          "aliases": [],
+          "parser_path": "internal/cli.Parse",
+          "forms": [
+            "equals",
+            "space"
+          ],
+          "scope": "plan"
+        },
+        {
+          "name": "--seed",
+          "arity": 1,
+          "type": "path",
+          "default": null,
+          "allow_empty": false,
+          "repeatable": false,
+          "aliases": [],
+          "parser_path": "internal/cli.Parse",
+          "forms": [
+            "equals",
+            "space"
+          ],
+          "scope": "plan"
+        },
+        {
+          "name": "--idempotency-key",
+          "arity": 1,
+          "type": "string",
+          "default": null,
+          "allow_empty": false,
+          "repeatable": false,
+          "aliases": [],
+          "parser_path": "internal/cli.Parse",
+          "forms": [
+            "equals",
+            "space"
+          ],
+          "scope": "plan"
+        },
+        {
+          "name": "--deliver",
+          "arity": 1,
+          "type": "string",
+          "default": "stdout",
+          "allow_empty": false,
+          "repeatable": false,
+          "aliases": [],
+          "parser_path": "internal/cli.Parse",
+          "forms": [
+            "equals",
+            "space"
+          ],
+          "scope": "plan"
+        },
+        {
+          "name": "--force",
+          "arity": 0,
+          "type": "boolean",
+          "default": false,
+          "allow_empty": false,
+          "repeatable": false,
+          "aliases": [],
+          "parser_path": "internal/cli.Parse",
+          "forms": [
+            "bare"
+          ],
+          "scope": "plan"
+        }
+      ],
+      "setting_flags": true,
+      "output_modes": [
+        "envelope"
+      ],
+      "schema": "data-plan",
+      "read_only": true,
+      "stdin": null,
+      "constraints": []
+    },
+    "status": {
+      "path": "status",
+      "parser_path": "internal/cli.Parse/status",
+      "handler_path": "internal/cli.Handle/status",
+      "advertisement": "registered_handlers_only",
+      "positionals": [
+        {
+          "name": "WORKSPACE",
+          "required": true,
+          "type": "string",
+          "allow_empty": false
+        }
+      ],
+      "flags": [
+        {
+          "name": "--probe",
+          "arity": 0,
+          "type": "boolean",
+          "default": false,
+          "allow_empty": false,
+          "repeatable": false,
+          "aliases": [],
+          "parser_path": "internal/cli.Parse",
+          "forms": [
+            "bare"
+          ],
+          "scope": "status"
+        },
+        {
+          "name": "--deliver",
+          "arity": 1,
+          "type": "string",
+          "default": "stdout",
+          "allow_empty": false,
+          "repeatable": false,
+          "aliases": [],
+          "parser_path": "internal/cli.Parse",
+          "forms": [
+            "equals",
+            "space"
+          ],
+          "scope": "status"
+        },
+        {
+          "name": "--force",
+          "arity": 0,
+          "type": "boolean",
+          "default": false,
+          "allow_empty": false,
+          "repeatable": false,
+          "aliases": [],
+          "parser_path": "internal/cli.Parse",
+          "forms": [
+            "bare"
+          ],
+          "scope": "status"
+        }
+      ],
+      "setting_flags": false,
+      "output_modes": [
+        "envelope"
+      ],
+      "schema": "data-status",
+      "read_only": true,
+      "stdin": null,
+      "constraints": []
+    },
+    "runs list": {
+      "path": "runs list",
+      "parser_path": "internal/cli.Parse/runs/list",
+      "handler_path": "internal/cli.Handle/runs/list",
+      "advertisement": "registered_handlers_only",
+      "positionals": [],
+      "flags": [
+        {
+          "name": "--limit",
+          "arity": 1,
+          "type": "integer",
+          "default": 25,
+          "allow_empty": false,
+          "repeatable": false,
+          "aliases": [],
+          "parser_path": "internal/cli.Parse",
+          "forms": [
+            "equals",
+            "space"
+          ],
+          "scope": "runs list"
+        },
+        {
+          "name": "--cursor",
+          "arity": 1,
+          "type": "string",
+          "default": null,
+          "allow_empty": false,
+          "repeatable": false,
+          "aliases": [],
+          "parser_path": "internal/cli.Parse",
+          "forms": [
+            "equals",
+            "space"
+          ],
+          "scope": "runs list"
+        },
+        {
+          "name": "--fields",
+          "arity": 1,
+          "type": "string",
+          "default": null,
+          "allow_empty": false,
+          "repeatable": false,
+          "aliases": [],
+          "parser_path": "internal/cli.Parse",
+          "forms": [
+            "equals",
+            "space"
+          ],
+          "scope": "runs list"
+        },
+        {
+          "name": "--deliver",
+          "arity": 1,
+          "type": "string",
+          "default": "stdout",
+          "allow_empty": false,
+          "repeatable": false,
+          "aliases": [],
+          "parser_path": "internal/cli.Parse",
+          "forms": [
+            "equals",
+            "space"
+          ],
+          "scope": "runs list"
+        },
+        {
+          "name": "--force",
+          "arity": 0,
+          "type": "boolean",
+          "default": false,
+          "allow_empty": false,
+          "repeatable": false,
+          "aliases": [],
+          "parser_path": "internal/cli.Parse",
+          "forms": [
+            "bare"
+          ],
+          "scope": "runs list"
+        }
+      ],
+      "setting_flags": false,
+      "output_modes": [
+        "envelope"
+      ],
+      "schema": "data-runs-list",
+      "read_only": true,
+      "stdin": null,
+      "constraints": []
+    },
+    "runs get": {
+      "path": "runs get",
+      "parser_path": "internal/cli.Parse/runs/get",
+      "handler_path": "internal/cli.Handle/runs/get",
+      "advertisement": "registered_handlers_only",
+      "positionals": [
+        {
+          "name": "SELECTOR",
+          "required": true,
+          "type": "string",
+          "allow_empty": false
+        }
+      ],
+      "flags": [
+        {
+          "name": "--wait",
+          "arity": 0,
+          "type": "boolean",
+          "default": false,
+          "allow_empty": false,
+          "repeatable": false,
+          "aliases": [],
+          "parser_path": "internal/cli.Parse",
+          "forms": [
+            "bare"
+          ],
+          "scope": "runs get"
+        },
+        {
+          "name": "--wait-timeout",
+          "arity": 1,
+          "type": "duration",
+          "default": "0s",
+          "allow_empty": false,
+          "repeatable": false,
+          "aliases": [],
+          "parser_path": "internal/cli.Parse",
+          "forms": [
+            "equals",
+            "space"
+          ],
+          "scope": "runs get"
+        },
+        {
+          "name": "--deliver",
+          "arity": 1,
+          "type": "string",
+          "default": "stdout",
+          "allow_empty": false,
+          "repeatable": false,
+          "aliases": [],
+          "parser_path": "internal/cli.Parse",
+          "forms": [
+            "equals",
+            "space"
+          ],
+          "scope": "runs get"
+        },
+        {
+          "name": "--force",
+          "arity": 0,
+          "type": "boolean",
+          "default": false,
+          "allow_empty": false,
+          "repeatable": false,
+          "aliases": [],
+          "parser_path": "internal/cli.Parse",
+          "forms": [
+            "bare"
+          ],
+          "scope": "runs get"
+        }
+      ],
+      "setting_flags": false,
+      "output_modes": [
+        "envelope"
+      ],
+      "schema": "data-runs-get",
+      "read_only": true,
+      "stdin": null,
+      "constraints": []
+    },
+    "runs resume": {
+      "path": "runs resume",
+      "parser_path": "internal/cli.Parse/runs/resume",
+      "handler_path": "internal/cli.Handle/runs/resume",
+      "advertisement": "registered_handlers_only",
+      "positionals": [
+        {
+          "name": "SELECTOR",
+          "required": true,
+          "type": "string",
+          "allow_empty": false
+        }
+      ],
+      "flags": [
+        {
+          "name": "--planner",
+          "arity": 1,
+          "type": "string",
+          "default": "claude",
+          "allow_empty": false,
+          "repeatable": false,
+          "aliases": [],
+          "parser_path": "internal/cli.Parse",
+          "forms": [
+            "equals",
+            "space"
+          ],
+          "enum": [
+            "claude",
+            "codex"
+          ],
+          "setting": "planner",
+          "scope": "runs resume"
+        },
+        {
+          "name": "--backend",
+          "arity": 1,
+          "type": "string",
+          "default": "cli",
+          "allow_empty": false,
+          "repeatable": false,
+          "aliases": [],
+          "parser_path": "internal/cli.Parse",
+          "forms": [
+            "equals",
+            "space"
+          ],
+          "enum": [
+            "cli",
+            "gashki"
+          ],
+          "setting": "backend",
+          "scope": "runs resume"
+        },
+        {
+          "name": "--max-rounds",
+          "arity": 1,
+          "type": "integer",
+          "default": 8,
+          "allow_empty": false,
+          "repeatable": false,
+          "aliases": [],
+          "parser_path": "internal/cli.Parse",
+          "forms": [
+            "equals",
+            "space"
+          ],
+          "setting": "max_rounds",
+          "scope": "runs resume"
+        },
+        {
+          "name": "--wait-timeout",
+          "arity": 1,
+          "type": "duration",
+          "default": "0s",
+          "allow_empty": false,
+          "repeatable": false,
+          "aliases": [],
+          "parser_path": "internal/cli.Parse",
+          "forms": [
+            "equals",
+            "space"
+          ],
+          "setting": "wait_timeout",
+          "scope": "runs resume"
+        },
+        {
+          "name": "--poll-interval",
+          "arity": 1,
+          "type": "duration",
+          "default": "2s",
+          "allow_empty": false,
+          "repeatable": false,
+          "aliases": [],
+          "parser_path": "internal/cli.Parse",
+          "forms": [
+            "equals",
+            "space"
+          ],
+          "setting": "poll_interval",
+          "scope": "runs resume"
+        },
+        {
+          "name": "--persistent",
+          "arity": 1,
+          "type": "boolean",
+          "default": false,
+          "allow_empty": false,
+          "repeatable": false,
+          "aliases": [],
+          "parser_path": "internal/cli.Parse",
+          "forms": [
+            "equals",
+            "space"
+          ],
+          "setting": "persistent",
+          "scope": "runs resume"
+        },
+        {
+          "name": "--closing-pass",
+          "arity": 1,
+          "type": "boolean",
+          "default": true,
+          "allow_empty": false,
+          "repeatable": false,
+          "aliases": [],
+          "parser_path": "internal/cli.Parse",
+          "forms": [
+            "equals",
+            "space"
+          ],
+          "setting": "closing_pass",
+          "scope": "runs resume"
+        },
+        {
+          "name": "--second-opinion",
+          "arity": 1,
+          "type": "boolean",
+          "default": false,
+          "allow_empty": false,
+          "repeatable": false,
+          "aliases": [],
+          "parser_path": "internal/cli.Parse",
+          "forms": [
+            "equals",
+            "space"
+          ],
+          "setting": "second_opinion",
+          "scope": "runs resume"
+        },
+        {
+          "name": "--rubric",
+          "arity": 1,
+          "type": "string",
+          "default": "",
+          "allow_empty": true,
+          "repeatable": false,
+          "aliases": [],
+          "parser_path": "internal/cli.Parse",
+          "forms": [
+            "equals",
+            "space"
+          ],
+          "enum": [
+            "",
+            "security",
+            "data",
+            "decision-memo",
+            "plan-spec"
+          ],
+          "setting": "rubric",
+          "scope": "runs resume"
+        },
+        {
+          "name": "--context-dir",
+          "arity": 1,
+          "type": "path",
+          "default": "",
+          "allow_empty": true,
+          "repeatable": false,
+          "aliases": [],
+          "parser_path": "internal/cli.Parse",
+          "forms": [
+            "equals",
+            "space"
+          ],
+          "setting": "context_dir",
+          "scope": "runs resume"
+        },
+        {
+          "name": "--claude-bin",
+          "arity": 1,
+          "type": "executable",
+          "default": "claude",
+          "allow_empty": false,
+          "repeatable": false,
+          "aliases": [],
+          "parser_path": "internal/cli.Parse",
+          "forms": [
+            "equals",
+            "space"
+          ],
+          "setting": "claude_bin",
+          "scope": "runs resume"
+        },
+        {
+          "name": "--codex-bin",
+          "arity": 1,
+          "type": "executable",
+          "default": "codex",
+          "allow_empty": false,
+          "repeatable": false,
+          "aliases": [],
+          "parser_path": "internal/cli.Parse",
+          "forms": [
+            "equals",
+            "space"
+          ],
+          "setting": "codex_bin",
+          "scope": "runs resume"
+        },
+        {
+          "name": "--gashki-bin",
+          "arity": 1,
+          "type": "executable",
+          "default": "gashki",
+          "allow_empty": false,
+          "repeatable": false,
+          "aliases": [],
+          "parser_path": "internal/cli.Parse",
+          "forms": [
+            "equals",
+            "space"
+          ],
+          "setting": "gashki_bin",
+          "scope": "runs resume"
+        },
+        {
+          "name": "--gashki-config",
+          "arity": 1,
+          "type": "path",
+          "default": "",
+          "allow_empty": true,
+          "repeatable": false,
+          "aliases": [],
+          "parser_path": "internal/cli.Parse",
+          "forms": [
+            "equals",
+            "space"
+          ],
+          "setting": "gashki_config",
+          "scope": "runs resume"
+        },
+        {
+          "name": "--claude-model",
+          "arity": 1,
+          "type": "string",
+          "default": "",
+          "allow_empty": true,
+          "repeatable": false,
+          "aliases": [],
+          "parser_path": "internal/cli.Parse",
+          "forms": [
+            "equals",
+            "space"
+          ],
+          "setting": "claude_model",
+          "scope": "runs resume"
+        },
+        {
+          "name": "--codex-model",
+          "arity": 1,
+          "type": "string",
+          "default": "",
+          "allow_empty": true,
+          "repeatable": false,
+          "aliases": [],
+          "parser_path": "internal/cli.Parse",
+          "forms": [
+            "equals",
+            "space"
+          ],
+          "setting": "codex_model",
+          "scope": "runs resume"
+        },
+        {
+          "name": "--claude-effort",
+          "arity": 1,
+          "type": "string",
+          "default": "",
+          "allow_empty": true,
+          "repeatable": false,
+          "aliases": [],
+          "parser_path": "internal/cli.Parse",
+          "forms": [
+            "equals",
+            "space"
+          ],
+          "enum": [
+            "",
+            "low",
+            "medium",
+            "high",
+            "xhigh",
+            "max"
+          ],
+          "setting": "claude_effort",
+          "scope": "runs resume"
+        },
+        {
+          "name": "--codex-effort",
+          "arity": 1,
+          "type": "string",
+          "default": "",
+          "allow_empty": true,
+          "repeatable": false,
+          "aliases": [],
+          "parser_path": "internal/cli.Parse",
+          "forms": [
+            "equals",
+            "space"
+          ],
+          "setting": "codex_effort",
+          "scope": "runs resume"
+        },
+        {
+          "name": "--claude-permission-mode",
+          "arity": 1,
+          "type": "string",
+          "default": "dontAsk",
+          "allow_empty": false,
+          "repeatable": false,
+          "aliases": [],
+          "parser_path": "internal/cli.Parse",
+          "forms": [
+            "equals",
+            "space"
+          ],
+          "enum": [
+            "dontAsk"
+          ],
+          "setting": "claude_permission_mode",
+          "scope": "runs resume"
+        },
+        {
+          "name": "--claude-planner-tools",
+          "arity": 1,
+          "type": "array",
+          "default": [
+            "Read",
+            "Write",
+            "Edit",
+            "Glob",
+            "Grep",
+            "Skill"
+          ],
+          "allow_empty": false,
+          "repeatable": false,
+          "aliases": [],
+          "parser_path": "internal/cli.Parse",
+          "forms": [
+            "equals",
+            "space"
+          ],
+          "setting": "claude_planner_tools",
+          "scope": "runs resume"
+        },
+        {
+          "name": "--claude-critic-tools",
+          "arity": 1,
+          "type": "array",
+          "default": [
+            "Read",
+            "Glob",
+            "Grep",
+            "Skill"
+          ],
+          "allow_empty": false,
+          "repeatable": false,
+          "aliases": [],
+          "parser_path": "internal/cli.Parse",
+          "forms": [
+            "equals",
+            "space"
+          ],
+          "setting": "claude_critic_tools",
+          "scope": "runs resume"
+        },
+        {
+          "name": "--trust-folder",
+          "arity": 1,
+          "type": "boolean",
+          "default": false,
+          "allow_empty": false,
+          "repeatable": false,
+          "aliases": [],
+          "parser_path": "internal/cli.Parse",
+          "forms": [
+            "equals",
+            "space"
+          ],
+          "setting": "trust_folder",
+          "scope": "runs resume"
+        },
+        {
+          "name": "--placement",
+          "arity": 1,
+          "type": "string",
+          "default": "auto",
+          "allow_empty": false,
+          "repeatable": false,
+          "aliases": [],
+          "parser_path": "internal/cli.Parse",
+          "forms": [
+            "equals",
+            "space"
+          ],
+          "enum": [
+            "auto",
+            "normal",
+            "here"
+          ],
+          "setting": "placement",
+          "scope": "runs resume"
+        },
+        {
+          "name": "--allow-api-key",
+          "arity": 1,
+          "type": "boolean",
+          "default": false,
+          "allow_empty": false,
+          "repeatable": false,
+          "aliases": [],
+          "parser_path": "internal/cli.Parse",
+          "forms": [
+            "equals",
+            "space"
+          ],
+          "setting": "allow_api_key",
+          "scope": "runs resume"
+        },
+        {
+          "name": "--wait",
+          "arity": 0,
+          "type": "boolean",
+          "default": false,
+          "allow_empty": false,
+          "repeatable": false,
+          "aliases": [],
+          "parser_path": "internal/cli.Parse",
+          "forms": [
+            "bare"
+          ],
+          "scope": "runs resume"
+        },
+        {
+          "name": "--interactive",
+          "arity": 0,
+          "type": "boolean",
+          "default": false,
+          "allow_empty": false,
+          "repeatable": false,
+          "aliases": [],
+          "parser_path": "internal/cli.Parse",
+          "forms": [
+            "bare"
+          ],
+          "scope": "runs resume"
+        }
+      ],
+      "setting_flags": true,
+      "output_modes": [
+        "envelope"
+      ],
+      "schema": "data-runs-resume",
+      "read_only": false,
+      "stdin": null,
+      "constraints": [
+        {
+          "kind": "requires",
+          "flag": "--interactive",
+          "other": "--wait"
+        },
+        {
+          "kind": "excludes",
+          "flag": "--interactive",
+          "other": "--json"
+        }
+      ]
+    },
+    "runs stop": {
+      "path": "runs stop",
+      "parser_path": "internal/cli.Parse/runs/stop",
+      "handler_path": "internal/cli.Handle/runs/stop",
+      "advertisement": "registered_handlers_only",
+      "positionals": [
+        {
+          "name": "SELECTOR",
+          "required": true,
+          "type": "string",
+          "allow_empty": false
+        }
+      ],
+      "flags": [
+        {
+          "name": "--dry-run",
+          "arity": 0,
+          "type": "boolean",
+          "default": false,
+          "allow_empty": false,
+          "repeatable": false,
+          "aliases": [],
+          "parser_path": "internal/cli.Parse",
+          "forms": [
+            "bare"
+          ],
+          "scope": "runs stop"
+        },
+        {
+          "name": "--yes",
+          "arity": 0,
+          "type": "boolean",
+          "default": false,
+          "allow_empty": false,
+          "repeatable": false,
+          "aliases": [],
+          "parser_path": "internal/cli.Parse",
+          "forms": [
+            "bare"
+          ],
+          "scope": "runs stop"
+        }
+      ],
+      "setting_flags": false,
+      "output_modes": [
+        "envelope"
+      ],
+      "schema": "data-runs-stop",
+      "read_only": false,
+      "stdin": null,
+      "constraints": [
+        {
+          "kind": "excludes",
+          "flag": "--yes",
+          "other": "--dry-run"
+        },
+        {
+          "kind": "requires-one",
+          "flags": [
+            "--yes",
+            "--dry-run"
+          ],
+          "code": "ACK_REQUIRED"
+        }
+      ]
+    },
+    "runs resolve": {
+      "path": "runs resolve",
+      "parser_path": "internal/cli.Parse/runs/resolve",
+      "handler_path": "internal/cli.Handle/runs/resolve",
+      "advertisement": "registered_handlers_only",
+      "positionals": [
+        {
+          "name": "SELECTOR",
+          "required": true,
+          "type": "string",
+          "allow_empty": false
+        }
+      ],
+      "flags": [
+        {
+          "name": "--turn",
+          "arity": 1,
+          "type": "string",
+          "default": null,
+          "allow_empty": false,
+          "repeatable": false,
+          "aliases": [],
+          "parser_path": "internal/cli.Parse",
+          "forms": [
+            "equals",
+            "space"
+          ],
+          "scope": "runs resolve"
+        },
+        {
+          "name": "--from-stdin",
+          "arity": 0,
+          "type": "boolean",
+          "default": false,
+          "allow_empty": false,
+          "repeatable": false,
+          "aliases": [],
+          "parser_path": "internal/cli.Parse",
+          "forms": [
+            "bare"
+          ],
+          "scope": "runs resolve"
+        },
+        {
+          "name": "--yes",
+          "arity": 0,
+          "type": "boolean",
+          "default": false,
+          "allow_empty": false,
+          "repeatable": false,
+          "aliases": [],
+          "parser_path": "internal/cli.Parse",
+          "forms": [
+            "bare"
+          ],
+          "scope": "runs resolve"
+        }
+      ],
+      "setting_flags": false,
+      "output_modes": [
+        "envelope"
+      ],
+      "schema": "data-runs-resolve",
+      "read_only": false,
+      "stdin": "resolution",
+      "constraints": [
+        {
+          "kind": "required",
+          "flag": "--turn",
+          "code": "MISSING_REQUIRED"
+        },
+        {
+          "kind": "required",
+          "flag": "--from-stdin",
+          "code": "MISSING_REQUIRED"
+        },
+        {
+          "kind": "required",
+          "flag": "--yes",
+          "code": "ACK_REQUIRED"
+        }
+      ]
+    },
+    "runs events": {
+      "path": "runs events",
+      "parser_path": "internal/cli.Parse/runs/events",
+      "handler_path": "internal/cli.Handle/runs/events",
+      "advertisement": "registered_handlers_only",
+      "positionals": [
+        {
+          "name": "SELECTOR",
+          "required": true,
+          "type": "string",
+          "allow_empty": false
+        }
+      ],
+      "flags": [
+        {
+          "name": "--since-cursor",
+          "arity": 1,
+          "type": "string",
+          "default": null,
+          "allow_empty": false,
+          "repeatable": false,
+          "aliases": [],
+          "parser_path": "internal/cli.Parse",
+          "forms": [
+            "equals",
+            "space"
+          ],
+          "scope": "runs events"
+        },
+        {
+          "name": "--limit",
+          "arity": 1,
+          "type": "integer",
+          "default": 25,
+          "allow_empty": false,
+          "repeatable": false,
+          "aliases": [],
+          "parser_path": "internal/cli.Parse",
+          "forms": [
+            "equals",
+            "space"
+          ],
+          "scope": "runs events"
+        },
+        {
+          "name": "--wait",
+          "arity": 0,
+          "type": "boolean",
+          "default": false,
+          "allow_empty": false,
+          "repeatable": false,
+          "aliases": [],
+          "parser_path": "internal/cli.Parse",
+          "forms": [
+            "bare"
+          ],
+          "scope": "runs events"
+        },
+        {
+          "name": "--wait-timeout",
+          "arity": 1,
+          "type": "duration",
+          "default": "0s",
+          "allow_empty": false,
+          "repeatable": false,
+          "aliases": [],
+          "parser_path": "internal/cli.Parse",
+          "forms": [
+            "equals",
+            "space"
+          ],
+          "scope": "runs events"
+        },
+        {
+          "name": "--deliver",
+          "arity": 1,
+          "type": "string",
+          "default": "stdout",
+          "allow_empty": false,
+          "repeatable": false,
+          "aliases": [],
+          "parser_path": "internal/cli.Parse",
+          "forms": [
+            "equals",
+            "space"
+          ],
+          "scope": "runs events"
+        },
+        {
+          "name": "--force",
+          "arity": 0,
+          "type": "boolean",
+          "default": false,
+          "allow_empty": false,
+          "repeatable": false,
+          "aliases": [],
+          "parser_path": "internal/cli.Parse",
+          "forms": [
+            "bare"
+          ],
+          "scope": "runs events"
+        }
+      ],
+      "setting_flags": false,
+      "output_modes": [
+        "envelope"
+      ],
+      "schema": "data-runs-events",
+      "read_only": true,
+      "stdin": null,
+      "constraints": []
+    },
+    "runs prune": {
+      "path": "runs prune",
+      "parser_path": "internal/cli.Parse/runs/prune",
+      "handler_path": "internal/cli.Handle/runs/prune",
+      "advertisement": "registered_handlers_only",
+      "positionals": [],
+      "flags": [
+        {
+          "name": "--older-than",
+          "arity": 1,
+          "type": "duration",
+          "default": null,
+          "allow_empty": false,
+          "repeatable": false,
+          "aliases": [],
+          "parser_path": "internal/cli.Parse",
+          "forms": [
+            "equals",
+            "space"
+          ],
+          "scope": "runs prune"
+        },
+        {
+          "name": "--dry-run",
+          "arity": 0,
+          "type": "boolean",
+          "default": false,
+          "allow_empty": false,
+          "repeatable": false,
+          "aliases": [],
+          "parser_path": "internal/cli.Parse",
+          "forms": [
+            "bare"
+          ],
+          "scope": "runs prune"
+        },
+        {
+          "name": "--yes",
+          "arity": 0,
+          "type": "boolean",
+          "default": false,
+          "allow_empty": false,
+          "repeatable": false,
+          "aliases": [],
+          "parser_path": "internal/cli.Parse",
+          "forms": [
+            "bare"
+          ],
+          "scope": "runs prune"
+        }
+      ],
+      "setting_flags": false,
+      "output_modes": [
+        "envelope"
+      ],
+      "schema": "data-runs-prune",
+      "read_only": false,
+      "stdin": null,
+      "constraints": [
+        {
+          "kind": "excludes",
+          "flag": "--yes",
+          "other": "--dry-run"
+        },
+        {
+          "kind": "requires-one",
+          "flags": [
+            "--yes",
+            "--dry-run"
+          ],
+          "code": "ACK_REQUIRED"
+        },
+        {
+          "kind": "required",
+          "flag": "--older-than"
+        }
+      ]
+    },
+    "human questions": {
+      "path": "human questions",
+      "parser_path": "internal/cli.Parse/human/questions",
+      "handler_path": "internal/cli.Handle/human/questions",
+      "advertisement": "registered_handlers_only",
+      "positionals": [
+        {
+          "name": "WORKSPACE",
+          "required": true,
+          "type": "string",
+          "allow_empty": false
+        }
+      ],
+      "flags": [
+        {
+          "name": "--deliver",
+          "arity": 1,
+          "type": "string",
+          "default": "stdout",
+          "allow_empty": false,
+          "repeatable": false,
+          "aliases": [],
+          "parser_path": "internal/cli.Parse",
+          "forms": [
+            "equals",
+            "space"
+          ],
+          "scope": "human questions"
+        },
+        {
+          "name": "--force",
+          "arity": 0,
+          "type": "boolean",
+          "default": false,
+          "allow_empty": false,
+          "repeatable": false,
+          "aliases": [],
+          "parser_path": "internal/cli.Parse",
+          "forms": [
+            "bare"
+          ],
+          "scope": "human questions"
+        }
+      ],
+      "setting_flags": false,
+      "output_modes": [
+        "envelope"
+      ],
+      "schema": "data-human-questions",
+      "read_only": true,
+      "stdin": null,
+      "constraints": []
+    },
+    "human answer": {
+      "path": "human answer",
+      "parser_path": "internal/cli.Parse/human/answer",
+      "handler_path": "internal/cli.Handle/human/answer",
+      "advertisement": "registered_handlers_only",
+      "positionals": [
+        {
+          "name": "WORKSPACE",
+          "required": true,
+          "type": "string",
+          "allow_empty": false
+        }
+      ],
+      "flags": [
+        {
+          "name": "--question-id",
+          "arity": 1,
+          "type": "string",
+          "default": null,
+          "allow_empty": false,
+          "repeatable": false,
+          "aliases": [],
+          "parser_path": "internal/cli.Parse",
+          "forms": [
+            "equals",
+            "space"
+          ],
+          "scope": "human answer"
+        },
+        {
+          "name": "--from-stdin",
+          "arity": 0,
+          "type": "boolean",
+          "default": false,
+          "allow_empty": false,
+          "repeatable": false,
+          "aliases": [],
+          "parser_path": "internal/cli.Parse",
+          "forms": [
+            "bare"
+          ],
+          "scope": "human answer"
+        },
+        {
+          "name": "--file",
+          "arity": 1,
+          "type": "path",
+          "default": null,
+          "allow_empty": false,
+          "repeatable": false,
+          "aliases": [],
+          "parser_path": "internal/cli.Parse",
+          "forms": [
+            "equals",
+            "space"
+          ],
+          "scope": "human answer"
+        }
+      ],
+      "setting_flags": false,
+      "output_modes": [
+        "envelope"
+      ],
+      "schema": "data-human-answer",
+      "read_only": false,
+      "stdin": "human-input",
+      "constraints": [
+        {
+          "kind": "exactly-one",
+          "flags": [
+            "--from-stdin",
+            "--file"
+          ]
+        },
+        {
+          "kind": "required",
+          "flag": "--question-id"
+        }
+      ]
+    },
+    "human steer": {
+      "path": "human steer",
+      "parser_path": "internal/cli.Parse/human/steer",
+      "handler_path": "internal/cli.Handle/human/steer",
+      "advertisement": "registered_handlers_only",
+      "positionals": [
+        {
+          "name": "WORKSPACE",
+          "required": true,
+          "type": "string",
+          "allow_empty": false
+        }
+      ],
+      "flags": [
+        {
+          "name": "--from-stdin",
+          "arity": 0,
+          "type": "boolean",
+          "default": false,
+          "allow_empty": false,
+          "repeatable": false,
+          "aliases": [],
+          "parser_path": "internal/cli.Parse",
+          "forms": [
+            "bare"
+          ],
+          "scope": "human steer"
+        }
+      ],
+      "setting_flags": false,
+      "output_modes": [
+        "envelope"
+      ],
+      "schema": "data-human-steer",
+      "read_only": false,
+      "stdin": "human-input",
+      "constraints": [
+        {
+          "kind": "required",
+          "flag": "--from-stdin"
+        }
+      ]
+    },
+    "human skip": {
+      "path": "human skip",
+      "parser_path": "internal/cli.Parse/human/skip",
+      "handler_path": "internal/cli.Handle/human/skip",
+      "advertisement": "registered_handlers_only",
+      "positionals": [
+        {
+          "name": "WORKSPACE",
+          "required": true,
+          "type": "string",
+          "allow_empty": false
+        }
+      ],
+      "flags": [
+        {
+          "name": "--question-id",
+          "arity": 1,
+          "type": "string",
+          "default": null,
+          "allow_empty": false,
+          "repeatable": false,
+          "aliases": [],
+          "parser_path": "internal/cli.Parse",
+          "forms": [
+            "equals",
+            "space"
+          ],
+          "scope": "human skip"
+        },
+        {
+          "name": "--yes",
+          "arity": 0,
+          "type": "boolean",
+          "default": false,
+          "allow_empty": false,
+          "repeatable": false,
+          "aliases": [],
+          "parser_path": "internal/cli.Parse",
+          "forms": [
+            "bare"
+          ],
+          "scope": "human skip"
+        }
+      ],
+      "setting_flags": false,
+      "output_modes": [
+        "envelope"
+      ],
+      "schema": "data-human-skip",
+      "read_only": false,
+      "stdin": null,
+      "constraints": [
+        {
+          "kind": "required",
+          "flag": "--question-id"
+        },
+        {
+          "kind": "required",
+          "flag": "--yes",
+          "code": "ACK_REQUIRED"
+        }
+      ]
+    },
+    "workspace legacy-report": {
+      "path": "workspace legacy-report",
+      "parser_path": "internal/cli.Parse/workspace/legacy-report",
+      "handler_path": "internal/cli.Handle/workspace/legacy-report",
+      "advertisement": "registered_handlers_only",
+      "positionals": [
+        {
+          "name": "WORKSPACE",
+          "required": true,
+          "type": "string",
+          "allow_empty": false
+        }
+      ],
+      "flags": [
+        {
+          "name": "--deliver",
+          "arity": 1,
+          "type": "string",
+          "default": "stdout",
+          "allow_empty": false,
+          "repeatable": false,
+          "aliases": [],
+          "parser_path": "internal/cli.Parse",
+          "forms": [
+            "equals",
+            "space"
+          ],
+          "scope": "workspace legacy-report"
+        },
+        {
+          "name": "--force",
+          "arity": 0,
+          "type": "boolean",
+          "default": false,
+          "allow_empty": false,
+          "repeatable": false,
+          "aliases": [],
+          "parser_path": "internal/cli.Parse",
+          "forms": [
+            "bare"
+          ],
+          "scope": "workspace legacy-report"
+        }
+      ],
+      "setting_flags": false,
+      "output_modes": [
+        "envelope"
+      ],
+      "schema": "data-workspace-legacy-report",
+      "read_only": true,
+      "stdin": null,
+      "constraints": []
+    },
+    "config show": {
+      "path": "config show",
+      "parser_path": "internal/cli.Parse/config/show",
+      "handler_path": "internal/cli.Handle/config/show",
+      "advertisement": "registered_handlers_only",
+      "positionals": [],
+      "flags": [
+        {
+          "name": "--planner",
+          "arity": 1,
+          "type": "string",
+          "default": "claude",
+          "allow_empty": false,
+          "repeatable": false,
+          "aliases": [],
+          "parser_path": "internal/cli.Parse",
+          "forms": [
+            "equals",
+            "space"
+          ],
+          "enum": [
+            "claude",
+            "codex"
+          ],
+          "setting": "planner",
+          "scope": "config show"
+        },
+        {
+          "name": "--backend",
+          "arity": 1,
+          "type": "string",
+          "default": "cli",
+          "allow_empty": false,
+          "repeatable": false,
+          "aliases": [],
+          "parser_path": "internal/cli.Parse",
+          "forms": [
+            "equals",
+            "space"
+          ],
+          "enum": [
+            "cli",
+            "gashki"
+          ],
+          "setting": "backend",
+          "scope": "config show"
+        },
+        {
+          "name": "--max-rounds",
+          "arity": 1,
+          "type": "integer",
+          "default": 8,
+          "allow_empty": false,
+          "repeatable": false,
+          "aliases": [],
+          "parser_path": "internal/cli.Parse",
+          "forms": [
+            "equals",
+            "space"
+          ],
+          "setting": "max_rounds",
+          "scope": "config show"
+        },
+        {
+          "name": "--wait-timeout",
+          "arity": 1,
+          "type": "duration",
+          "default": "0s",
+          "allow_empty": false,
+          "repeatable": false,
+          "aliases": [],
+          "parser_path": "internal/cli.Parse",
+          "forms": [
+            "equals",
+            "space"
+          ],
+          "setting": "wait_timeout",
+          "scope": "config show"
+        },
+        {
+          "name": "--poll-interval",
+          "arity": 1,
+          "type": "duration",
+          "default": "2s",
+          "allow_empty": false,
+          "repeatable": false,
+          "aliases": [],
+          "parser_path": "internal/cli.Parse",
+          "forms": [
+            "equals",
+            "space"
+          ],
+          "setting": "poll_interval",
+          "scope": "config show"
+        },
+        {
+          "name": "--persistent",
+          "arity": 1,
+          "type": "boolean",
+          "default": false,
+          "allow_empty": false,
+          "repeatable": false,
+          "aliases": [],
+          "parser_path": "internal/cli.Parse",
+          "forms": [
+            "equals",
+            "space"
+          ],
+          "setting": "persistent",
+          "scope": "config show"
+        },
+        {
+          "name": "--closing-pass",
+          "arity": 1,
+          "type": "boolean",
+          "default": true,
+          "allow_empty": false,
+          "repeatable": false,
+          "aliases": [],
+          "parser_path": "internal/cli.Parse",
+          "forms": [
+            "equals",
+            "space"
+          ],
+          "setting": "closing_pass",
+          "scope": "config show"
+        },
+        {
+          "name": "--second-opinion",
+          "arity": 1,
+          "type": "boolean",
+          "default": false,
+          "allow_empty": false,
+          "repeatable": false,
+          "aliases": [],
+          "parser_path": "internal/cli.Parse",
+          "forms": [
+            "equals",
+            "space"
+          ],
+          "setting": "second_opinion",
+          "scope": "config show"
+        },
+        {
+          "name": "--rubric",
+          "arity": 1,
+          "type": "string",
+          "default": "",
+          "allow_empty": true,
+          "repeatable": false,
+          "aliases": [],
+          "parser_path": "internal/cli.Parse",
+          "forms": [
+            "equals",
+            "space"
+          ],
+          "enum": [
+            "",
+            "security",
+            "data",
+            "decision-memo",
+            "plan-spec"
+          ],
+          "setting": "rubric",
+          "scope": "config show"
+        },
+        {
+          "name": "--context-dir",
+          "arity": 1,
+          "type": "path",
+          "default": "",
+          "allow_empty": true,
+          "repeatable": false,
+          "aliases": [],
+          "parser_path": "internal/cli.Parse",
+          "forms": [
+            "equals",
+            "space"
+          ],
+          "setting": "context_dir",
+          "scope": "config show"
+        },
+        {
+          "name": "--claude-bin",
+          "arity": 1,
+          "type": "executable",
+          "default": "claude",
+          "allow_empty": false,
+          "repeatable": false,
+          "aliases": [],
+          "parser_path": "internal/cli.Parse",
+          "forms": [
+            "equals",
+            "space"
+          ],
+          "setting": "claude_bin",
+          "scope": "config show"
+        },
+        {
+          "name": "--codex-bin",
+          "arity": 1,
+          "type": "executable",
+          "default": "codex",
+          "allow_empty": false,
+          "repeatable": false,
+          "aliases": [],
+          "parser_path": "internal/cli.Parse",
+          "forms": [
+            "equals",
+            "space"
+          ],
+          "setting": "codex_bin",
+          "scope": "config show"
+        },
+        {
+          "name": "--gashki-bin",
+          "arity": 1,
+          "type": "executable",
+          "default": "gashki",
+          "allow_empty": false,
+          "repeatable": false,
+          "aliases": [],
+          "parser_path": "internal/cli.Parse",
+          "forms": [
+            "equals",
+            "space"
+          ],
+          "setting": "gashki_bin",
+          "scope": "config show"
+        },
+        {
+          "name": "--gashki-config",
+          "arity": 1,
+          "type": "path",
+          "default": "",
+          "allow_empty": true,
+          "repeatable": false,
+          "aliases": [],
+          "parser_path": "internal/cli.Parse",
+          "forms": [
+            "equals",
+            "space"
+          ],
+          "setting": "gashki_config",
+          "scope": "config show"
+        },
+        {
+          "name": "--claude-model",
+          "arity": 1,
+          "type": "string",
+          "default": "",
+          "allow_empty": true,
+          "repeatable": false,
+          "aliases": [],
+          "parser_path": "internal/cli.Parse",
+          "forms": [
+            "equals",
+            "space"
+          ],
+          "setting": "claude_model",
+          "scope": "config show"
+        },
+        {
+          "name": "--codex-model",
+          "arity": 1,
+          "type": "string",
+          "default": "",
+          "allow_empty": true,
+          "repeatable": false,
+          "aliases": [],
+          "parser_path": "internal/cli.Parse",
+          "forms": [
+            "equals",
+            "space"
+          ],
+          "setting": "codex_model",
+          "scope": "config show"
+        },
+        {
+          "name": "--claude-effort",
+          "arity": 1,
+          "type": "string",
+          "default": "",
+          "allow_empty": true,
+          "repeatable": false,
+          "aliases": [],
+          "parser_path": "internal/cli.Parse",
+          "forms": [
+            "equals",
+            "space"
+          ],
+          "enum": [
+            "",
+            "low",
+            "medium",
+            "high",
+            "xhigh",
+            "max"
+          ],
+          "setting": "claude_effort",
+          "scope": "config show"
+        },
+        {
+          "name": "--codex-effort",
+          "arity": 1,
+          "type": "string",
+          "default": "",
+          "allow_empty": true,
+          "repeatable": false,
+          "aliases": [],
+          "parser_path": "internal/cli.Parse",
+          "forms": [
+            "equals",
+            "space"
+          ],
+          "setting": "codex_effort",
+          "scope": "config show"
+        },
+        {
+          "name": "--claude-permission-mode",
+          "arity": 1,
+          "type": "string",
+          "default": "dontAsk",
+          "allow_empty": false,
+          "repeatable": false,
+          "aliases": [],
+          "parser_path": "internal/cli.Parse",
+          "forms": [
+            "equals",
+            "space"
+          ],
+          "enum": [
+            "dontAsk"
+          ],
+          "setting": "claude_permission_mode",
+          "scope": "config show"
+        },
+        {
+          "name": "--claude-planner-tools",
+          "arity": 1,
+          "type": "array",
+          "default": [
+            "Read",
+            "Write",
+            "Edit",
+            "Glob",
+            "Grep",
+            "Skill"
+          ],
+          "allow_empty": false,
+          "repeatable": false,
+          "aliases": [],
+          "parser_path": "internal/cli.Parse",
+          "forms": [
+            "equals",
+            "space"
+          ],
+          "setting": "claude_planner_tools",
+          "scope": "config show"
+        },
+        {
+          "name": "--claude-critic-tools",
+          "arity": 1,
+          "type": "array",
+          "default": [
+            "Read",
+            "Glob",
+            "Grep",
+            "Skill"
+          ],
+          "allow_empty": false,
+          "repeatable": false,
+          "aliases": [],
+          "parser_path": "internal/cli.Parse",
+          "forms": [
+            "equals",
+            "space"
+          ],
+          "setting": "claude_critic_tools",
+          "scope": "config show"
+        },
+        {
+          "name": "--trust-folder",
+          "arity": 1,
+          "type": "boolean",
+          "default": false,
+          "allow_empty": false,
+          "repeatable": false,
+          "aliases": [],
+          "parser_path": "internal/cli.Parse",
+          "forms": [
+            "equals",
+            "space"
+          ],
+          "setting": "trust_folder",
+          "scope": "config show"
+        },
+        {
+          "name": "--placement",
+          "arity": 1,
+          "type": "string",
+          "default": "auto",
+          "allow_empty": false,
+          "repeatable": false,
+          "aliases": [],
+          "parser_path": "internal/cli.Parse",
+          "forms": [
+            "equals",
+            "space"
+          ],
+          "enum": [
+            "auto",
+            "normal",
+            "here"
+          ],
+          "setting": "placement",
+          "scope": "config show"
+        },
+        {
+          "name": "--allow-api-key",
+          "arity": 1,
+          "type": "boolean",
+          "default": false,
+          "allow_empty": false,
+          "repeatable": false,
+          "aliases": [],
+          "parser_path": "internal/cli.Parse",
+          "forms": [
+            "equals",
+            "space"
+          ],
+          "setting": "allow_api_key",
+          "scope": "config show"
+        },
+        {
+          "name": "--toml",
+          "arity": 0,
+          "type": "boolean",
+          "default": false,
+          "allow_empty": false,
+          "repeatable": false,
+          "aliases": [],
+          "parser_path": "internal/cli.Parse",
+          "forms": [
+            "bare"
+          ],
+          "scope": "config show"
+        },
+        {
+          "name": "--deliver",
+          "arity": 1,
+          "type": "string",
+          "default": "stdout",
+          "allow_empty": false,
+          "repeatable": false,
+          "aliases": [],
+          "parser_path": "internal/cli.Parse",
+          "forms": [
+            "equals",
+            "space"
+          ],
+          "scope": "config show"
+        },
+        {
+          "name": "--force",
+          "arity": 0,
+          "type": "boolean",
+          "default": false,
+          "allow_empty": false,
+          "repeatable": false,
+          "aliases": [],
+          "parser_path": "internal/cli.Parse",
+          "forms": [
+            "bare"
+          ],
+          "scope": "config show"
+        }
+      ],
+      "setting_flags": true,
+      "output_modes": [
+        "envelope",
+        "raw"
+      ],
+      "schema": "data-config-show",
+      "read_only": true,
+      "stdin": null,
+      "constraints": [
+        {
+          "kind": "excludes-stdout",
+          "flag": "--toml",
+          "other": "--json"
+        }
+      ]
+    },
+    "config get": {
+      "path": "config get",
+      "parser_path": "internal/cli.Parse/config/get",
+      "handler_path": "internal/cli.Handle/config/get",
+      "advertisement": "registered_handlers_only",
+      "positionals": [
+        {
+          "name": "KEY",
+          "required": true,
+          "type": "string",
+          "allow_empty": false
+        }
+      ],
+      "flags": [
+        {
+          "name": "--planner",
+          "arity": 1,
+          "type": "string",
+          "default": "claude",
+          "allow_empty": false,
+          "repeatable": false,
+          "aliases": [],
+          "parser_path": "internal/cli.Parse",
+          "forms": [
+            "equals",
+            "space"
+          ],
+          "enum": [
+            "claude",
+            "codex"
+          ],
+          "setting": "planner",
+          "scope": "config get"
+        },
+        {
+          "name": "--backend",
+          "arity": 1,
+          "type": "string",
+          "default": "cli",
+          "allow_empty": false,
+          "repeatable": false,
+          "aliases": [],
+          "parser_path": "internal/cli.Parse",
+          "forms": [
+            "equals",
+            "space"
+          ],
+          "enum": [
+            "cli",
+            "gashki"
+          ],
+          "setting": "backend",
+          "scope": "config get"
+        },
+        {
+          "name": "--max-rounds",
+          "arity": 1,
+          "type": "integer",
+          "default": 8,
+          "allow_empty": false,
+          "repeatable": false,
+          "aliases": [],
+          "parser_path": "internal/cli.Parse",
+          "forms": [
+            "equals",
+            "space"
+          ],
+          "setting": "max_rounds",
+          "scope": "config get"
+        },
+        {
+          "name": "--wait-timeout",
+          "arity": 1,
+          "type": "duration",
+          "default": "0s",
+          "allow_empty": false,
+          "repeatable": false,
+          "aliases": [],
+          "parser_path": "internal/cli.Parse",
+          "forms": [
+            "equals",
+            "space"
+          ],
+          "setting": "wait_timeout",
+          "scope": "config get"
+        },
+        {
+          "name": "--poll-interval",
+          "arity": 1,
+          "type": "duration",
+          "default": "2s",
+          "allow_empty": false,
+          "repeatable": false,
+          "aliases": [],
+          "parser_path": "internal/cli.Parse",
+          "forms": [
+            "equals",
+            "space"
+          ],
+          "setting": "poll_interval",
+          "scope": "config get"
+        },
+        {
+          "name": "--persistent",
+          "arity": 1,
+          "type": "boolean",
+          "default": false,
+          "allow_empty": false,
+          "repeatable": false,
+          "aliases": [],
+          "parser_path": "internal/cli.Parse",
+          "forms": [
+            "equals",
+            "space"
+          ],
+          "setting": "persistent",
+          "scope": "config get"
+        },
+        {
+          "name": "--closing-pass",
+          "arity": 1,
+          "type": "boolean",
+          "default": true,
+          "allow_empty": false,
+          "repeatable": false,
+          "aliases": [],
+          "parser_path": "internal/cli.Parse",
+          "forms": [
+            "equals",
+            "space"
+          ],
+          "setting": "closing_pass",
+          "scope": "config get"
+        },
+        {
+          "name": "--second-opinion",
+          "arity": 1,
+          "type": "boolean",
+          "default": false,
+          "allow_empty": false,
+          "repeatable": false,
+          "aliases": [],
+          "parser_path": "internal/cli.Parse",
+          "forms": [
+            "equals",
+            "space"
+          ],
+          "setting": "second_opinion",
+          "scope": "config get"
+        },
+        {
+          "name": "--rubric",
+          "arity": 1,
+          "type": "string",
+          "default": "",
+          "allow_empty": true,
+          "repeatable": false,
+          "aliases": [],
+          "parser_path": "internal/cli.Parse",
+          "forms": [
+            "equals",
+            "space"
+          ],
+          "enum": [
+            "",
+            "security",
+            "data",
+            "decision-memo",
+            "plan-spec"
+          ],
+          "setting": "rubric",
+          "scope": "config get"
+        },
+        {
+          "name": "--context-dir",
+          "arity": 1,
+          "type": "path",
+          "default": "",
+          "allow_empty": true,
+          "repeatable": false,
+          "aliases": [],
+          "parser_path": "internal/cli.Parse",
+          "forms": [
+            "equals",
+            "space"
+          ],
+          "setting": "context_dir",
+          "scope": "config get"
+        },
+        {
+          "name": "--claude-bin",
+          "arity": 1,
+          "type": "executable",
+          "default": "claude",
+          "allow_empty": false,
+          "repeatable": false,
+          "aliases": [],
+          "parser_path": "internal/cli.Parse",
+          "forms": [
+            "equals",
+            "space"
+          ],
+          "setting": "claude_bin",
+          "scope": "config get"
+        },
+        {
+          "name": "--codex-bin",
+          "arity": 1,
+          "type": "executable",
+          "default": "codex",
+          "allow_empty": false,
+          "repeatable": false,
+          "aliases": [],
+          "parser_path": "internal/cli.Parse",
+          "forms": [
+            "equals",
+            "space"
+          ],
+          "setting": "codex_bin",
+          "scope": "config get"
+        },
+        {
+          "name": "--gashki-bin",
+          "arity": 1,
+          "type": "executable",
+          "default": "gashki",
+          "allow_empty": false,
+          "repeatable": false,
+          "aliases": [],
+          "parser_path": "internal/cli.Parse",
+          "forms": [
+            "equals",
+            "space"
+          ],
+          "setting": "gashki_bin",
+          "scope": "config get"
+        },
+        {
+          "name": "--gashki-config",
+          "arity": 1,
+          "type": "path",
+          "default": "",
+          "allow_empty": true,
+          "repeatable": false,
+          "aliases": [],
+          "parser_path": "internal/cli.Parse",
+          "forms": [
+            "equals",
+            "space"
+          ],
+          "setting": "gashki_config",
+          "scope": "config get"
+        },
+        {
+          "name": "--claude-model",
+          "arity": 1,
+          "type": "string",
+          "default": "",
+          "allow_empty": true,
+          "repeatable": false,
+          "aliases": [],
+          "parser_path": "internal/cli.Parse",
+          "forms": [
+            "equals",
+            "space"
+          ],
+          "setting": "claude_model",
+          "scope": "config get"
+        },
+        {
+          "name": "--codex-model",
+          "arity": 1,
+          "type": "string",
+          "default": "",
+          "allow_empty": true,
+          "repeatable": false,
+          "aliases": [],
+          "parser_path": "internal/cli.Parse",
+          "forms": [
+            "equals",
+            "space"
+          ],
+          "setting": "codex_model",
+          "scope": "config get"
+        },
+        {
+          "name": "--claude-effort",
+          "arity": 1,
+          "type": "string",
+          "default": "",
+          "allow_empty": true,
+          "repeatable": false,
+          "aliases": [],
+          "parser_path": "internal/cli.Parse",
+          "forms": [
+            "equals",
+            "space"
+          ],
+          "enum": [
+            "",
+            "low",
+            "medium",
+            "high",
+            "xhigh",
+            "max"
+          ],
+          "setting": "claude_effort",
+          "scope": "config get"
+        },
+        {
+          "name": "--codex-effort",
+          "arity": 1,
+          "type": "string",
+          "default": "",
+          "allow_empty": true,
+          "repeatable": false,
+          "aliases": [],
+          "parser_path": "internal/cli.Parse",
+          "forms": [
+            "equals",
+            "space"
+          ],
+          "setting": "codex_effort",
+          "scope": "config get"
+        },
+        {
+          "name": "--claude-permission-mode",
+          "arity": 1,
+          "type": "string",
+          "default": "dontAsk",
+          "allow_empty": false,
+          "repeatable": false,
+          "aliases": [],
+          "parser_path": "internal/cli.Parse",
+          "forms": [
+            "equals",
+            "space"
+          ],
+          "enum": [
+            "dontAsk"
+          ],
+          "setting": "claude_permission_mode",
+          "scope": "config get"
+        },
+        {
+          "name": "--claude-planner-tools",
+          "arity": 1,
+          "type": "array",
+          "default": [
+            "Read",
+            "Write",
+            "Edit",
+            "Glob",
+            "Grep",
+            "Skill"
+          ],
+          "allow_empty": false,
+          "repeatable": false,
+          "aliases": [],
+          "parser_path": "internal/cli.Parse",
+          "forms": [
+            "equals",
+            "space"
+          ],
+          "setting": "claude_planner_tools",
+          "scope": "config get"
+        },
+        {
+          "name": "--claude-critic-tools",
+          "arity": 1,
+          "type": "array",
+          "default": [
+            "Read",
+            "Glob",
+            "Grep",
+            "Skill"
+          ],
+          "allow_empty": false,
+          "repeatable": false,
+          "aliases": [],
+          "parser_path": "internal/cli.Parse",
+          "forms": [
+            "equals",
+            "space"
+          ],
+          "setting": "claude_critic_tools",
+          "scope": "config get"
+        },
+        {
+          "name": "--trust-folder",
+          "arity": 1,
+          "type": "boolean",
+          "default": false,
+          "allow_empty": false,
+          "repeatable": false,
+          "aliases": [],
+          "parser_path": "internal/cli.Parse",
+          "forms": [
+            "equals",
+            "space"
+          ],
+          "setting": "trust_folder",
+          "scope": "config get"
+        },
+        {
+          "name": "--placement",
+          "arity": 1,
+          "type": "string",
+          "default": "auto",
+          "allow_empty": false,
+          "repeatable": false,
+          "aliases": [],
+          "parser_path": "internal/cli.Parse",
+          "forms": [
+            "equals",
+            "space"
+          ],
+          "enum": [
+            "auto",
+            "normal",
+            "here"
+          ],
+          "setting": "placement",
+          "scope": "config get"
+        },
+        {
+          "name": "--allow-api-key",
+          "arity": 1,
+          "type": "boolean",
+          "default": false,
+          "allow_empty": false,
+          "repeatable": false,
+          "aliases": [],
+          "parser_path": "internal/cli.Parse",
+          "forms": [
+            "equals",
+            "space"
+          ],
+          "setting": "allow_api_key",
+          "scope": "config get"
+        },
+        {
+          "name": "--deliver",
+          "arity": 1,
+          "type": "string",
+          "default": "stdout",
+          "allow_empty": false,
+          "repeatable": false,
+          "aliases": [],
+          "parser_path": "internal/cli.Parse",
+          "forms": [
+            "equals",
+            "space"
+          ],
+          "scope": "config get"
+        },
+        {
+          "name": "--force",
+          "arity": 0,
+          "type": "boolean",
+          "default": false,
+          "allow_empty": false,
+          "repeatable": false,
+          "aliases": [],
+          "parser_path": "internal/cli.Parse",
+          "forms": [
+            "bare"
+          ],
+          "scope": "config get"
+        }
+      ],
+      "setting_flags": true,
+      "output_modes": [
+        "envelope"
+      ],
+      "schema": "data-config-get",
+      "read_only": true,
+      "stdin": null,
+      "constraints": []
+    },
+    "config validate": {
+      "path": "config validate",
+      "parser_path": "internal/cli.Parse/config/validate",
+      "handler_path": "internal/cli.Handle/config/validate",
+      "advertisement": "registered_handlers_only",
+      "positionals": [
+        {
+          "name": "PATH",
+          "required": false,
+          "type": "string",
+          "allow_empty": false
+        }
+      ],
+      "flags": [
+        {
+          "name": "--deliver",
+          "arity": 1,
+          "type": "string",
+          "default": "stdout",
+          "allow_empty": false,
+          "repeatable": false,
+          "aliases": [],
+          "parser_path": "internal/cli.Parse",
+          "forms": [
+            "equals",
+            "space"
+          ],
+          "scope": "config validate"
+        },
+        {
+          "name": "--force",
+          "arity": 0,
+          "type": "boolean",
+          "default": false,
+          "allow_empty": false,
+          "repeatable": false,
+          "aliases": [],
+          "parser_path": "internal/cli.Parse",
+          "forms": [
+            "bare"
+          ],
+          "scope": "config validate"
+        }
+      ],
+      "setting_flags": false,
+      "output_modes": [
+        "envelope"
+      ],
+      "schema": "data-config-validate",
+      "read_only": true,
+      "stdin": null,
+      "constraints": []
+    },
+    "config schema": {
+      "path": "config schema",
+      "parser_path": "internal/cli.Parse/config/schema",
+      "handler_path": "internal/cli.Handle/config/schema",
+      "advertisement": "registered_handlers_only",
+      "positionals": [],
+      "flags": [
+        {
+          "name": "--deliver",
+          "arity": 1,
+          "type": "string",
+          "default": "stdout",
+          "allow_empty": false,
+          "repeatable": false,
+          "aliases": [],
+          "parser_path": "internal/cli.Parse",
+          "forms": [
+            "equals",
+            "space"
+          ],
+          "scope": "config schema"
+        },
+        {
+          "name": "--force",
+          "arity": 0,
+          "type": "boolean",
+          "default": false,
+          "allow_empty": false,
+          "repeatable": false,
+          "aliases": [],
+          "parser_path": "internal/cli.Parse",
+          "forms": [
+            "bare"
+          ],
+          "scope": "config schema"
+        }
+      ],
+      "setting_flags": false,
+      "output_modes": [
+        "envelope"
+      ],
+      "schema": "data-config-schema",
+      "read_only": true,
+      "stdin": null,
+      "constraints": []
+    },
+    "config set": {
+      "path": "config set",
+      "parser_path": "internal/cli.Parse/config/set",
+      "handler_path": "internal/cli.Handle/config/set",
+      "advertisement": "registered_handlers_only",
+      "positionals": [
+        {
+          "name": "KEY",
+          "required": true,
+          "type": "string",
+          "allow_empty": false
+        },
+        {
+          "name": "VALUE",
+          "required": true,
+          "type": "string",
+          "allow_empty": false
+        }
+      ],
+      "flags": [],
+      "setting_flags": false,
+      "output_modes": [
+        "envelope"
+      ],
+      "schema": "data-config-set",
+      "read_only": false,
+      "stdin": null,
+      "constraints": []
+    },
+    "config patch": {
+      "path": "config patch",
+      "parser_path": "internal/cli.Parse/config/patch",
+      "handler_path": "internal/cli.Handle/config/patch",
+      "advertisement": "registered_handlers_only",
+      "positionals": [],
+      "flags": [
+        {
+          "name": "--from-stdin",
+          "arity": 0,
+          "type": "boolean",
+          "default": false,
+          "allow_empty": false,
+          "repeatable": false,
+          "aliases": [],
+          "parser_path": "internal/cli.Parse",
+          "forms": [
+            "bare"
+          ],
+          "scope": "config patch"
+        }
+      ],
+      "setting_flags": false,
+      "output_modes": [
+        "envelope"
+      ],
+      "schema": "data-config-patch",
+      "read_only": false,
+      "stdin": "settings-patch",
+      "constraints": [
+        {
+          "kind": "required",
+          "flag": "--from-stdin"
+        }
+      ]
+    },
+    "config edit": {
+      "path": "config edit",
+      "parser_path": "internal/cli.Parse/config/edit",
+      "handler_path": "internal/cli.Handle/config/edit",
+      "advertisement": "registered_handlers_only",
+      "positionals": [],
+      "flags": [],
+      "setting_flags": false,
+      "output_modes": [
+        "envelope"
+      ],
+      "schema": "data-config-edit",
+      "read_only": false,
+      "stdin": null,
+      "constraints": []
+    },
+    "doctor": {
+      "path": "doctor",
+      "parser_path": "internal/cli.Parse/doctor",
+      "handler_path": "internal/cli.Handle/doctor",
+      "advertisement": "registered_handlers_only",
+      "positionals": [],
+      "flags": [
+        {
+          "name": "--workspace",
+          "arity": 1,
+          "type": "path",
+          "default": null,
+          "allow_empty": false,
+          "repeatable": false,
+          "aliases": [],
+          "parser_path": "internal/cli.Parse",
+          "forms": [
+            "equals",
+            "space"
+          ],
+          "scope": "doctor"
+        },
+        {
+          "name": "--probe",
+          "arity": 0,
+          "type": "boolean",
+          "default": false,
+          "allow_empty": false,
+          "repeatable": false,
+          "aliases": [],
+          "parser_path": "internal/cli.Parse",
+          "forms": [
+            "bare"
+          ],
+          "scope": "doctor"
+        },
+        {
+          "name": "--deliver",
+          "arity": 1,
+          "type": "string",
+          "default": "stdout",
+          "allow_empty": false,
+          "repeatable": false,
+          "aliases": [],
+          "parser_path": "internal/cli.Parse",
+          "forms": [
+            "equals",
+            "space"
+          ],
+          "scope": "doctor"
+        },
+        {
+          "name": "--force",
+          "arity": 0,
+          "type": "boolean",
+          "default": false,
+          "allow_empty": false,
+          "repeatable": false,
+          "aliases": [],
+          "parser_path": "internal/cli.Parse",
+          "forms": [
+            "bare"
+          ],
+          "scope": "doctor"
+        }
+      ],
+      "setting_flags": false,
+      "output_modes": [
+        "envelope"
+      ],
+      "schema": "data-doctor",
+      "read_only": true,
+      "stdin": null,
+      "constraints": []
+    },
+    "capabilities": {
+      "path": "capabilities",
+      "parser_path": "internal/cli.Parse/capabilities",
+      "handler_path": "internal/cli.Handle/capabilities",
+      "advertisement": "registered_handlers_only",
+      "positionals": [],
+      "flags": [
+        {
+          "name": "--deliver",
+          "arity": 1,
+          "type": "string",
+          "default": "stdout",
+          "allow_empty": false,
+          "repeatable": false,
+          "aliases": [],
+          "parser_path": "internal/cli.Parse",
+          "forms": [
+            "equals",
+            "space"
+          ],
+          "scope": "capabilities"
+        },
+        {
+          "name": "--force",
+          "arity": 0,
+          "type": "boolean",
+          "default": false,
+          "allow_empty": false,
+          "repeatable": false,
+          "aliases": [],
+          "parser_path": "internal/cli.Parse",
+          "forms": [
+            "bare"
+          ],
+          "scope": "capabilities"
+        }
+      ],
+      "setting_flags": false,
+      "output_modes": [
+        "envelope"
+      ],
+      "schema": "data-capabilities",
+      "read_only": true,
+      "stdin": null,
+      "constraints": []
+    },
+    "schema": {
+      "path": "schema",
+      "parser_path": "internal/cli.Parse/schema",
+      "handler_path": "internal/cli.Handle/schema",
+      "advertisement": "registered_handlers_only",
+      "positionals": [
+        {
+          "name": "NAME",
+          "required": false,
+          "type": "string",
+          "allow_empty": false
+        }
+      ],
+      "flags": [
+        {
+          "name": "--deliver",
+          "arity": 1,
+          "type": "string",
+          "default": "stdout",
+          "allow_empty": false,
+          "repeatable": false,
+          "aliases": [],
+          "parser_path": "internal/cli.Parse",
+          "forms": [
+            "equals",
+            "space"
+          ],
+          "scope": "schema"
+        },
+        {
+          "name": "--force",
+          "arity": 0,
+          "type": "boolean",
+          "default": false,
+          "allow_empty": false,
+          "repeatable": false,
+          "aliases": [],
+          "parser_path": "internal/cli.Parse",
+          "forms": [
+            "bare"
+          ],
+          "scope": "schema"
+        }
+      ],
+      "setting_flags": false,
+      "output_modes": [
+        "envelope"
+      ],
+      "schema": "data-schema",
+      "read_only": true,
+      "stdin": null,
+      "constraints": []
+    },
+    "robot-docs guide": {
+      "path": "robot-docs guide",
+      "parser_path": "internal/cli.Parse/robot-docs/guide",
+      "handler_path": "internal/cli.Handle/robot-docs/guide",
+      "advertisement": "registered_handlers_only",
+      "positionals": [],
+      "flags": [
+        {
+          "name": "--deliver",
+          "arity": 1,
+          "type": "string",
+          "default": "stdout",
+          "allow_empty": false,
+          "repeatable": false,
+          "aliases": [],
+          "parser_path": "internal/cli.Parse",
+          "forms": [
+            "equals",
+            "space"
+          ],
+          "scope": "robot-docs guide"
+        },
+        {
+          "name": "--force",
+          "arity": 0,
+          "type": "boolean",
+          "default": false,
+          "allow_empty": false,
+          "repeatable": false,
+          "aliases": [],
+          "parser_path": "internal/cli.Parse",
+          "forms": [
+            "bare"
+          ],
+          "scope": "robot-docs guide"
+        }
+      ],
+      "setting_flags": false,
+      "output_modes": [
+        "envelope"
+      ],
+      "schema": "data-robot-docs-guide",
+      "read_only": true,
+      "stdin": null,
+      "constraints": []
+    },
+    "conformance": {
+      "path": "conformance",
+      "parser_path": "internal/cli.Parse/conformance",
+      "handler_path": "internal/cli.Handle/conformance",
+      "advertisement": "registered_handlers_only",
+      "positionals": [],
+      "flags": [
+        {
+          "name": "--deliver",
+          "arity": 1,
+          "type": "string",
+          "default": "stdout",
+          "allow_empty": false,
+          "repeatable": false,
+          "aliases": [],
+          "parser_path": "internal/cli.Parse",
+          "forms": [
+            "equals",
+            "space"
+          ],
+          "scope": "conformance"
+        },
+        {
+          "name": "--force",
+          "arity": 0,
+          "type": "boolean",
+          "default": false,
+          "allow_empty": false,
+          "repeatable": false,
+          "aliases": [],
+          "parser_path": "internal/cli.Parse",
+          "forms": [
+            "bare"
+          ],
+          "scope": "conformance"
+        }
+      ],
+      "setting_flags": false,
+      "output_modes": [
+        "envelope"
+      ],
+      "schema": "data-conformance",
+      "read_only": true,
+      "stdin": null,
+      "constraints": []
+    },
+    "feedback": {
+      "path": "feedback",
+      "parser_path": "internal/cli.Parse/feedback",
+      "handler_path": "internal/cli.Handle/feedback",
+      "advertisement": "registered_handlers_only",
+      "positionals": [
+        {
+          "name": "TEXT",
+          "required": true,
+          "type": "string",
+          "allow_empty": false
+        }
+      ],
+      "flags": [
+        {
+          "name": "--idempotency-key",
+          "arity": 1,
+          "type": "string",
+          "default": null,
+          "allow_empty": false,
+          "repeatable": false,
+          "aliases": [],
+          "parser_path": "internal/cli.Parse",
+          "forms": [
+            "equals",
+            "space"
+          ],
+          "scope": "feedback"
+        }
+      ],
+      "setting_flags": false,
+      "output_modes": [
+        "envelope"
+      ],
+      "schema": "data-feedback",
+      "read_only": false,
+      "stdin": null,
+      "constraints": []
+    }
+  },
+  "settings": [
+    {
+      "key": "planner",
+      "type": "string",
+      "default": "claude",
+      "flag": "--planner",
+      "schema": "settings",
+      "order": 0,
+      "allow_empty": false,
+      "validation": {
+        "enum": [
+          "claude",
+          "codex"
+        ]
+      },
+      "parser_path": "internal/config.Validate"
+    },
+    {
+      "key": "backend",
+      "type": "string",
+      "default": "cli",
+      "flag": "--backend",
+      "schema": "settings",
+      "order": 1,
+      "allow_empty": false,
+      "validation": {
+        "enum": [
+          "cli",
+          "gashki"
+        ]
+      },
+      "parser_path": "internal/config.Validate"
+    },
+    {
+      "key": "max_rounds",
+      "type": "integer",
+      "default": 8,
+      "flag": "--max-rounds",
+      "schema": "settings",
+      "order": 2,
+      "allow_empty": false,
+      "validation": {
+        "minimum": 1,
+        "maximum": 9999
+      },
+      "parser_path": "internal/config.Validate"
+    },
+    {
+      "key": "wait_timeout",
+      "type": "duration",
+      "default": "0s",
+      "flag": "--wait-timeout",
+      "schema": "settings",
+      "order": 3,
+      "allow_empty": false,
+      "validation": {
+        "minimum": "0s"
+      },
+      "parser_path": "internal/config.Validate"
+    },
+    {
+      "key": "poll_interval",
+      "type": "duration",
+      "default": "2s",
+      "flag": "--poll-interval",
+      "schema": "settings",
+      "order": 4,
+      "allow_empty": false,
+      "validation": {
+        "minimum": "10ms",
+        "maximum": "1m"
+      },
+      "parser_path": "internal/config.Validate"
+    },
+    {
+      "key": "persistent",
+      "type": "boolean",
+      "default": false,
+      "flag": "--persistent",
+      "schema": "settings",
+      "order": 5,
+      "allow_empty": false,
+      "validation": {},
+      "parser_path": "internal/config.Validate"
+    },
+    {
+      "key": "closing_pass",
+      "type": "boolean",
+      "default": true,
+      "flag": "--closing-pass",
+      "schema": "settings",
+      "order": 6,
+      "allow_empty": false,
+      "validation": {},
+      "parser_path": "internal/config.Validate"
+    },
+    {
+      "key": "second_opinion",
+      "type": "boolean",
+      "default": false,
+      "flag": "--second-opinion",
+      "schema": "settings",
+      "order": 7,
+      "allow_empty": false,
+      "validation": {},
+      "parser_path": "internal/config.Validate"
+    },
+    {
+      "key": "rubric",
+      "type": "string",
+      "default": "",
+      "flag": "--rubric",
+      "schema": "settings",
+      "order": 8,
+      "allow_empty": true,
+      "validation": {
+        "enum": [
+          "",
+          "security",
+          "data",
+          "decision-memo",
+          "plan-spec"
+        ]
+      },
+      "parser_path": "internal/config.Validate"
+    },
+    {
+      "key": "context_dir",
+      "type": "path",
+      "default": "",
+      "flag": "--context-dir",
+      "schema": "settings",
+      "order": 9,
+      "allow_empty": true,
+      "validation": {
+        "outside_workspace": true
+      },
+      "parser_path": "internal/config.Validate"
+    },
+    {
+      "key": "claude_bin",
+      "type": "executable",
+      "default": "claude",
+      "flag": "--claude-bin",
+      "schema": "settings",
+      "order": 10,
+      "allow_empty": false,
+      "validation": {},
+      "parser_path": "internal/config.Validate"
+    },
+    {
+      "key": "codex_bin",
+      "type": "executable",
+      "default": "codex",
+      "flag": "--codex-bin",
+      "schema": "settings",
+      "order": 11,
+      "allow_empty": false,
+      "validation": {},
+      "parser_path": "internal/config.Validate"
+    },
+    {
+      "key": "gashki_bin",
+      "type": "executable",
+      "default": "gashki",
+      "flag": "--gashki-bin",
+      "schema": "settings",
+      "order": 12,
+      "allow_empty": false,
+      "validation": {},
+      "parser_path": "internal/config.Validate"
+    },
+    {
+      "key": "gashki_config",
+      "type": "path",
+      "default": "",
+      "flag": "--gashki-config",
+      "schema": "settings",
+      "order": 13,
+      "allow_empty": true,
+      "validation": {},
+      "parser_path": "internal/config.Validate"
+    },
+    {
+      "key": "claude_model",
+      "type": "string",
+      "default": "",
+      "flag": "--claude-model",
+      "schema": "settings",
+      "order": 14,
+      "allow_empty": true,
+      "validation": {
+        "identifier": true
+      },
+      "parser_path": "internal/config.Validate"
+    },
+    {
+      "key": "codex_model",
+      "type": "string",
+      "default": "",
+      "flag": "--codex-model",
+      "schema": "settings",
+      "order": 15,
+      "allow_empty": true,
+      "validation": {
+        "identifier": true
+      },
+      "parser_path": "internal/config.Validate"
+    },
+    {
+      "key": "claude_effort",
+      "type": "string",
+      "default": "",
+      "flag": "--claude-effort",
+      "schema": "settings",
+      "order": 16,
+      "allow_empty": true,
+      "validation": {
+        "enum": [
+          "",
+          "low",
+          "medium",
+          "high",
+          "xhigh",
+          "max"
+        ]
+      },
+      "parser_path": "internal/config.Validate"
+    },
+    {
+      "key": "codex_effort",
+      "type": "string",
+      "default": "",
+      "flag": "--codex-effort",
+      "schema": "settings",
+      "order": 17,
+      "allow_empty": true,
+      "validation": {
+        "identifier": true
+      },
+      "parser_path": "internal/config.Validate"
+    },
+    {
+      "key": "claude_permission_mode",
+      "type": "string",
+      "default": "dontAsk",
+      "flag": "--claude-permission-mode",
+      "schema": "settings",
+      "order": 18,
+      "allow_empty": false,
+      "validation": {
+        "enum": [
+          "dontAsk"
+        ]
+      },
+      "parser_path": "internal/config.Validate"
+    },
+    {
+      "key": "claude_planner_tools",
+      "type": "array",
+      "default": [
+        "Read",
+        "Write",
+        "Edit",
+        "Glob",
+        "Grep",
+        "Skill"
+      ],
+      "flag": "--claude-planner-tools",
+      "schema": "settings",
+      "order": 19,
+      "allow_empty": false,
+      "validation": {
+        "items": [
+          "Read",
+          "Write",
+          "Edit",
+          "Glob",
+          "Grep",
+          "Skill"
+        ]
+      },
+      "parser_path": "internal/config.Validate"
+    },
+    {
+      "key": "claude_critic_tools",
+      "type": "array",
+      "default": [
+        "Read",
+        "Glob",
+        "Grep",
+        "Skill"
+      ],
+      "flag": "--claude-critic-tools",
+      "schema": "settings",
+      "order": 20,
+      "allow_empty": false,
+      "validation": {
+        "items": [
+          "Read",
+          "Glob",
+          "Grep",
+          "Skill"
+        ]
+      },
+      "parser_path": "internal/config.Validate"
+    },
+    {
+      "key": "trust_folder",
+      "type": "boolean",
+      "default": false,
+      "flag": "--trust-folder",
+      "schema": "settings",
+      "order": 21,
+      "allow_empty": false,
+      "validation": {},
+      "parser_path": "internal/config.Validate"
+    },
+    {
+      "key": "placement",
+      "type": "string",
+      "default": "auto",
+      "flag": "--placement",
+      "schema": "settings",
+      "order": 22,
+      "allow_empty": false,
+      "validation": {
+        "enum": [
+          "auto",
+          "normal",
+          "here"
+        ]
+      },
+      "parser_path": "internal/config.Validate"
+    },
+    {
+      "key": "allow_api_key",
+      "type": "boolean",
+      "default": false,
+      "flag": "--allow-api-key",
+      "schema": "settings",
+      "order": 23,
+      "allow_empty": false,
+      "validation": {},
+      "parser_path": "internal/config.Validate"
+    }
+  ],
+  "environment_reads": [
+    {
+      "name": "HOME",
+      "purpose": "OS default identity and paths",
+      "scope": "resolution"
+    },
+    {
+      "name": "PATH",
+      "purpose": "active executable lookup",
+      "scope": "preparation"
+    },
+    {
+      "name": "XDG_CONFIG_HOME",
+      "purpose": "default config path",
+      "scope": "resolution"
+    },
+    {
+      "name": "XDG_STATE_HOME",
+      "purpose": "derived index and feedback root",
+      "scope": "inspection and execution"
+    },
+    {
+      "name": "SOURCE_DATE_EPOCH",
+      "purpose": "response metadata only",
+      "scope": "rendering"
+    },
+    {
+      "name": "EDITOR",
+      "purpose": "argument-vector editor",
+      "scope": "config edit"
+    },
+    {
+      "name": "TERM",
+      "purpose": "terminal rendering",
+      "scope": "rendering"
+    },
+    {
+      "name": "NO_COLOR",
+      "purpose": "disable ANSI",
+      "scope": "rendering"
+    },
+    {
+      "name": "CI",
+      "purpose": "disable interactive editor",
+      "scope": "config edit"
+    },
+    {
+      "name": "GITHUB_ACTIONS",
+      "purpose": "disable interactive editor",
+      "scope": "config edit"
+    },
+    {
+      "name": "GITLAB_CI",
+      "purpose": "disable interactive editor",
+      "scope": "config edit"
+    },
+    {
+      "name": "CIRCLECI",
+      "purpose": "disable interactive editor",
+      "scope": "config edit"
+    },
+    {
+      "name": "TMUX",
+      "purpose": "caller server identity",
+      "scope": "gashki preparation"
+    },
+    {
+      "name": "TMUX_PANE",
+      "purpose": "caller pane identity",
+      "scope": "gashki preparation"
+    },
+    {
+      "name": "CLAUDE_CONFIG_DIR",
+      "purpose": "presence and literal vendor identity root",
+      "scope": "preparation and attachment"
+    },
+    {
+      "name": "CODEX_HOME",
+      "purpose": "presence and literal vendor identity root",
+      "scope": "preparation and attachment"
+    },
+    {
+      "name": "ANTHROPIC_API_KEY",
+      "purpose": "billing indicator; no value persisted",
+      "scope": "billing guard"
+    },
+    {
+      "name": "OPENAI_API_KEY",
+      "purpose": "billing indicator; no value persisted",
+      "scope": "billing guard"
+    },
+    {
+      "name": "CLAUDECODE",
+      "purpose": "nested marker and narrow environment removal",
+      "scope": "direct child environment"
+    },
+    {
+      "name": "ANTHROPIC_BASE_URL",
+      "purpose": "remove only for nested direct launch",
+      "scope": "direct child environment"
+    },
+    {
+      "name": "CLAUDE_CODE_ENTRYPOINT",
+      "purpose": "remove only for nested direct launch",
+      "scope": "direct child environment"
+    },
+    {
+      "name": "VOLLEY_PLANNER",
+      "purpose": "retired setting warning only; never a setting source",
+      "scope": "doctor"
+    },
+    {
+      "name": "MAX_ROUNDS",
+      "purpose": "retired setting warning only; never a setting source",
+      "scope": "doctor"
+    },
+    {
+      "name": "CALL_TIMEOUT",
+      "purpose": "retired setting warning only; never a setting source",
+      "scope": "doctor"
+    },
+    {
+      "name": "CLAUDE_BIN",
+      "purpose": "retired setting warning only; never a setting source",
+      "scope": "doctor"
+    },
+    {
+      "name": "CODEX_BIN",
+      "purpose": "retired setting warning only; never a setting source",
+      "scope": "doctor"
+    },
+    {
+      "name": "GASHKI_BIN",
+      "purpose": "retired setting warning only; never a setting source",
+      "scope": "doctor"
+    },
+    {
+      "name": "VOLLEY_BACKEND",
+      "purpose": "retired setting warning only; never a setting source",
+      "scope": "doctor"
+    },
+    {
+      "name": "VOLLEY_PERSISTENT",
+      "purpose": "retired setting warning only; never a setting source",
+      "scope": "doctor"
+    },
+    {
+      "name": "VOLLEY_CLOSING_PASS",
+      "purpose": "retired setting warning only; never a setting source",
+      "scope": "doctor"
+    },
+    {
+      "name": "VOLLEY_SECOND_OPINION",
+      "purpose": "retired setting warning only; never a setting source",
+      "scope": "doctor"
+    },
+    {
+      "name": "VOLLEY_CONTEXT_DIR",
+      "purpose": "retired setting warning only; never a setting source",
+      "scope": "doctor"
+    },
+    {
+      "name": "VOLLEY_PROFILE",
+      "purpose": "retired setting warning only; never a setting source",
+      "scope": "doctor"
+    },
+    {
+      "name": "VOLLEY_POLL",
+      "purpose": "retired setting warning only; never a setting source",
+      "scope": "doctor"
+    },
+    {
+      "name": "VOLLEY_TRUST_FOLDER",
+      "purpose": "retired setting warning only; never a setting source",
+      "scope": "doctor"
+    },
+    {
+      "name": "VOLLEY_ALLOW_API_KEY",
+      "purpose": "retired setting warning only; never a setting source",
+      "scope": "doctor"
+    },
+    {
+      "name": "VOLLEY_CLAUDE_MODEL",
+      "purpose": "retired setting warning only; never a setting source",
+      "scope": "doctor"
+    },
+    {
+      "name": "VOLLEY_CODEX_MODEL",
+      "purpose": "retired setting warning only; never a setting source",
+      "scope": "doctor"
+    },
+    {
+      "name": "VOLLEY_CLAUDE_EFFORT",
+      "purpose": "retired setting warning only; never a setting source",
+      "scope": "doctor"
+    },
+    {
+      "name": "VOLLEY_CODEX_EFFORT",
+      "purpose": "retired setting warning only; never a setting source",
+      "scope": "doctor"
+    }
+  ],
+  "retired_setting_variables": [
+    "VOLLEY_PLANNER",
+    "MAX_ROUNDS",
+    "CALL_TIMEOUT",
+    "CLAUDE_BIN",
+    "CODEX_BIN",
+    "GASHKI_BIN",
+    "VOLLEY_BACKEND",
+    "VOLLEY_PERSISTENT",
+    "VOLLEY_CLOSING_PASS",
+    "VOLLEY_SECOND_OPINION",
+    "VOLLEY_CONTEXT_DIR",
+    "VOLLEY_PROFILE",
+    "VOLLEY_POLL",
+    "VOLLEY_TRUST_FOLDER",
+    "VOLLEY_ALLOW_API_KEY",
+    "VOLLEY_CLAUDE_MODEL",
+    "VOLLEY_CODEX_MODEL",
+    "VOLLEY_CLAUDE_EFFORT",
+    "VOLLEY_CODEX_EFFORT"
+  ],
+  "error_codes": [
+    {
+      "code": "INVALID_INPUT",
+      "exit": 1,
+      "retryable": false,
+      "stage": "types_enums",
+      "allowed_stages": [
+        "bootstrap_mode",
+        "global_flags",
+        "local_flags",
+        "types_enums",
+        "semantic_checks"
+      ],
+      "arrays": [
+        "errors"
+      ],
+      "evidence_fields": [
+        "path",
+        "run_id",
+        "turn_id",
+        "actor",
+        "expected",
+        "observed",
+        "upstream",
+        "artifact_paths"
+      ],
+      "fixture": "A-CONTRACT-R01",
+      "precondition": "Bad planner enum or --json=false.",
+      "summary": "invalid input"
+    },
+    {
+      "code": "UNKNOWN_FLAG",
+      "exit": 1,
+      "retryable": false,
+      "stage": "global_flags",
+      "allowed_stages": [
+        "global_flags",
+        "local_flags"
+      ],
+      "arrays": [
+        "errors"
+      ],
+      "evidence_fields": [
+        "path",
+        "run_id",
+        "turn_id",
+        "actor",
+        "expected",
+        "observed",
+        "upstream",
+        "artifact_paths"
+      ],
+      "fixture": "A-CONTRACT-R02",
+      "precondition": "--unknown on a declared command.",
+      "summary": "unknown flag"
+    },
+    {
+      "code": "UNKNOWN_COMMAND",
+      "exit": 1,
+      "retryable": false,
+      "stage": "command_path",
+      "allowed_stages": [
+        "command_path",
+        "execution"
+      ],
+      "arrays": [
+        "errors"
+      ],
+      "evidence_fields": [
+        "path",
+        "run_id",
+        "turn_id",
+        "actor",
+        "expected",
+        "observed",
+        "upstream",
+        "artifact_paths"
+      ],
+      "fixture": "A-CONTRACT-R03",
+      "precondition": "Unknown runs subcommand; absent distance-1 top-level path.",
+      "summary": "unknown command"
+    },
+    {
+      "code": "MISSING_REQUIRED",
+      "exit": 1,
+      "retryable": false,
+      "stage": "required_arguments",
+      "allowed_stages": [
+        "types_enums",
+        "required_arguments",
+        "semantic_checks"
+      ],
+      "arrays": [
+        "errors"
+      ],
+      "evidence_fields": [
+        "path",
+        "run_id",
+        "turn_id",
+        "actor",
+        "expected",
+        "observed",
+        "upstream",
+        "artifact_paths"
+      ],
+      "fixture": "A-CONTRACT-R04",
+      "precondition": "Missing selector/value; fresh run with neither brief nor non-empty spec.",
+      "summary": "missing required"
+    },
+    {
+      "code": "INVALID_CONFIG",
+      "exit": 3,
+      "retryable": null,
+      "stage": "semantic_checks",
+      "allowed_stages": [
+        "semantic_checks",
+        "execution"
+      ],
+      "arrays": [
+        "errors"
+      ],
+      "evidence_fields": [
+        "path",
+        "run_id",
+        "turn_id",
+        "actor",
+        "expected",
+        "observed",
+        "upstream",
+        "artifact_paths"
+      ],
+      "fixture": "A-CONTRACT-R05",
+      "precondition": "Bad typed TOML value or missing explicitly named config.",
+      "summary": "invalid config"
+    },
+    {
+      "code": "CONFIG_READ_FAILED",
+      "exit": 3,
+      "retryable": null,
+      "stage": "semantic_checks",
+      "allowed_stages": [
+        "semantic_checks",
+        "execution"
+      ],
+      "arrays": [
+        "errors"
+      ],
+      "evidence_fields": [
+        "path",
+        "run_id",
+        "turn_id",
+        "actor",
+        "expected",
+        "observed",
+        "upstream",
+        "artifact_paths"
+      ],
+      "fixture": "A-CONTRACT-R06",
+      "precondition": "Inject file read failure for selected config.",
+      "summary": "config read failed"
+    },
+    {
+      "code": "DEPENDENCY_MISSING",
+      "exit": 3,
+      "retryable": null,
+      "stage": "semantic_checks",
+      "allowed_stages": [
+        "semantic_checks",
+        "execution"
+      ],
+      "arrays": [
+        "errors"
+      ],
+      "evidence_fields": [
+        "path",
+        "run_id",
+        "turn_id",
+        "actor",
+        "expected",
+        "observed",
+        "upstream",
+        "artifact_paths"
+      ],
+      "fixture": "A-CONTRACT-R07",
+      "precondition": "Active configured executable cannot be resolved.",
+      "summary": "dependency missing"
+    },
+    {
+      "code": "UNSUPPORTED_PLATFORM",
+      "exit": 3,
+      "retryable": null,
+      "stage": "semantic_checks",
+      "allowed_stages": [
+        "semantic_checks",
+        "execution"
+      ],
+      "arrays": [
+        "errors"
+      ],
+      "evidence_fields": [
+        "path",
+        "run_id",
+        "turn_id",
+        "actor",
+        "expected",
+        "observed",
+        "upstream",
+        "artifact_paths"
+      ],
+      "fixture": "A-CONTRACT-R08",
+      "precondition": "Inject unsupported process-control platform before execution.",
+      "summary": "unsupported platform"
+    },
+    {
+      "code": "BILLING_REFUSED",
+      "exit": 2,
+      "retryable": false,
+      "stage": "semantic_checks",
+      "allowed_stages": [
+        "semantic_checks",
+        "execution"
+      ],
+      "arrays": [
+        "errors"
+      ],
+      "evidence_fields": [
+        "path",
+        "run_id",
+        "turn_id",
+        "actor",
+        "expected",
+        "observed",
+        "upstream",
+        "artifact_paths"
+      ],
+      "fixture": "A-CONTRACT-R09",
+      "precondition": "Effective guard root has API key indicator and no override.",
+      "summary": "billing refused"
+    },
+    {
+      "code": "ACK_REQUIRED",
+      "exit": 2,
+      "retryable": false,
+      "stage": "semantic_checks",
+      "allowed_stages": [
+        "semantic_checks",
+        "execution"
+      ],
+      "arrays": [
+        "errors"
+      ],
+      "evidence_fields": [
+        "path",
+        "run_id",
+        "turn_id",
+        "actor",
+        "expected",
+        "observed",
+        "upstream",
+        "artifact_paths"
+      ],
+      "fixture": "A-CONTRACT-R10",
+      "precondition": "Stop/prune/resolve mutation without required acknowledgment.",
+      "summary": "ack required"
+    },
+    {
+      "code": "LOCKED",
+      "exit": 4,
+      "retryable": true,
+      "stage": "execution",
+      "allowed_stages": [
+        "execution"
+      ],
+      "arrays": [
+        "errors"
+      ],
+      "evidence_fields": [
+        "path",
+        "run_id",
+        "turn_id",
+        "actor",
+        "expected",
+        "observed",
+        "upstream",
+        "artifact_paths"
+      ],
+      "fixture": "A-CONTRACT-R11",
+      "precondition": "Another process holds canonical owner/file lock past bounded acquisition.",
+      "summary": "locked"
+    },
+    {
+      "code": "WAIT_TIMEOUT",
+      "exit": 4,
+      "retryable": true,
+      "stage": "execution",
+      "allowed_stages": [
+        "execution"
+      ],
+      "arrays": [
+        "errors"
+      ],
+      "evidence_fields": [
+        "path",
+        "run_id",
+        "turn_id",
+        "actor",
+        "expected",
+        "observed",
+        "upstream",
+        "artifact_paths"
+      ],
+      "fixture": "A-CONTRACT-R12",
+      "precondition": "runs get wait expires with unchanged owner; events quiet timeout is the separate success case.",
+      "summary": "wait timeout"
+    },
+    {
+      "code": "NOT_FOUND",
+      "exit": 1,
+      "retryable": false,
+      "stage": "semantic_checks",
+      "allowed_stages": [
+        "semantic_checks",
+        "execution"
+      ],
+      "arrays": [
+        "errors"
+      ],
+      "evidence_fields": [
+        "path",
+        "run_id",
+        "turn_id",
+        "actor",
+        "expected",
+        "observed",
+        "upstream",
+        "artifact_paths"
+      ],
+      "fixture": "A-CONTRACT-R13",
+      "precondition": "Unknown run selector or absent requested read artifact.",
+      "summary": "not found"
+    },
+    {
+      "code": "CONFIG_CONFLICT",
+      "exit": 5,
+      "retryable": false,
+      "stage": "semantic_checks",
+      "allowed_stages": [
+        "semantic_checks",
+        "execution"
+      ],
+      "arrays": [
+        "errors"
+      ],
+      "evidence_fields": [
+        "path",
+        "run_id",
+        "turn_id",
+        "actor",
+        "expected",
+        "observed",
+        "upstream",
+        "artifact_paths"
+      ],
+      "fixture": "A-CONTRACT-R14",
+      "precondition": "Attach with different settings and no bound conflicting key; attach to stopped run.",
+      "summary": "config conflict"
+    },
+    {
+      "code": "IDEMPOTENCY_CONFLICT",
+      "exit": 5,
+      "retryable": false,
+      "stage": "semantic_checks",
+      "allowed_stages": [
+        "semantic_checks",
+        "execution"
+      ],
+      "arrays": [
+        "errors"
+      ],
+      "evidence_fields": [
+        "path",
+        "run_id",
+        "turn_id",
+        "actor",
+        "expected",
+        "observed",
+        "upstream",
+        "artifact_paths"
+      ],
+      "fixture": "A-CONTRACT-R15",
+      "precondition": "Reuse bound key with different creation/answer/payload hash.",
+      "summary": "idempotency conflict"
+    },
+    {
+      "code": "STATE_VERSION_UNSUPPORTED",
+      "exit": 5,
+      "retryable": false,
+      "stage": "semantic_checks",
+      "allowed_stages": [
+        "semantic_checks",
+        "execution"
+      ],
+      "arrays": [
+        "errors"
+      ],
+      "evidence_fields": [
+        "path",
+        "run_id",
+        "turn_id",
+        "actor",
+        "expected",
+        "observed",
+        "upstream",
+        "artifact_paths"
+      ],
+      "fixture": "A-CONTRACT-R16",
+      "precondition": "Read manifest with unsupported record version.",
+      "summary": "state version unsupported"
+    },
+    {
+      "code": "OUTPUT_CONFLICT",
+      "exit": 5,
+      "retryable": false,
+      "stage": "semantic_checks",
+      "allowed_stages": [
+        "semantic_checks",
+        "execution"
+      ],
+      "arrays": [
+        "errors"
+      ],
+      "evidence_fields": [
+        "path",
+        "run_id",
+        "turn_id",
+        "actor",
+        "expected",
+        "observed",
+        "upstream",
+        "artifact_paths"
+      ],
+      "fixture": "A-CONTRACT-R17",
+      "precondition": "Deliver to differing existing file without force or detect concurrent config edit.",
+      "summary": "output conflict"
+    },
+    {
+      "code": "ARTIFACT_CHANGED",
+      "exit": 5,
+      "retryable": false,
+      "stage": "semantic_checks",
+      "allowed_stages": [
+        "semantic_checks",
+        "execution"
+      ],
+      "arrays": [
+        "errors"
+      ],
+      "evidence_fields": [
+        "path",
+        "run_id",
+        "turn_id",
+        "actor",
+        "expected",
+        "observed",
+        "upstream",
+        "artifact_paths"
+      ],
+      "fixture": "A-CONTRACT-R18",
+      "precondition": "External spec write during active turn.",
+      "summary": "artifact changed"
+    },
+    {
+      "code": "CONTEXT_CHANGED",
+      "exit": 5,
+      "retryable": false,
+      "stage": "semantic_checks",
+      "allowed_stages": [
+        "semantic_checks",
+        "execution"
+      ],
+      "arrays": [
+        "errors"
+      ],
+      "evidence_fields": [
+        "path",
+        "run_id",
+        "turn_id",
+        "actor",
+        "expected",
+        "observed",
+        "upstream",
+        "artifact_paths"
+      ],
+      "fixture": "A-CONTRACT-R19",
+      "precondition": "Recorded canonical context identity no longer matches.",
+      "summary": "context changed"
+    },
+    {
+      "code": "IDENTITY_CONFLICT",
+      "exit": 5,
+      "retryable": false,
+      "stage": "semantic_checks",
+      "allowed_stages": [
+        "semantic_checks",
+        "execution"
+      ],
+      "arrays": [
+        "errors"
+      ],
+      "evidence_fields": [
+        "path",
+        "run_id",
+        "turn_id",
+        "actor",
+        "expected",
+        "observed",
+        "upstream",
+        "artifact_paths"
+      ],
+      "fixture": "A-CONTRACT-R20",
+      "precondition": "Actual vendor root presence/value differs on resume.",
+      "summary": "identity conflict"
+    },
+    {
+      "code": "SERVER_CONFLICT",
+      "exit": 5,
+      "retryable": false,
+      "stage": "semantic_checks",
+      "allowed_stages": [
+        "semantic_checks",
+        "execution"
+      ],
+      "arrays": [
+        "errors"
+      ],
+      "evidence_fields": [
+        "path",
+        "run_id",
+        "turn_id",
+        "actor",
+        "expected",
+        "observed",
+        "upstream",
+        "artifact_paths"
+      ],
+      "fixture": "A-CONTRACT-R21",
+      "precondition": "Selected actual tmux server differs from saved server.",
+      "summary": "server conflict"
+    },
+    {
+      "code": "PANE_CONFLICT",
+      "exit": 5,
+      "retryable": false,
+      "stage": "semantic_checks",
+      "allowed_stages": [
+        "semantic_checks",
+        "execution"
+      ],
+      "arrays": [
+        "errors"
+      ],
+      "evidence_fields": [
+        "path",
+        "run_id",
+        "turn_id",
+        "actor",
+        "expected",
+        "observed",
+        "upstream",
+        "artifact_paths"
+      ],
+      "fixture": "A-CONTRACT-R22",
+      "precondition": "Reconciliation returns foreign UUID/provider/window.",
+      "summary": "pane conflict"
+    },
+    {
+      "code": "REVIEW_IMPASSE",
+      "exit": 7,
+      "retryable": false,
+      "stage": "execution",
+      "allowed_stages": [
+        "execution"
+      ],
+      "arrays": [
+        "errors"
+      ],
+      "evidence_fields": [
+        "path",
+        "run_id",
+        "turn_id",
+        "actor",
+        "expected",
+        "observed",
+        "upstream",
+        "artifact_paths"
+      ],
+      "fixture": "A-CONTRACT-R23",
+      "precondition": "Last ordinary critique REVISE, with no available next round.",
+      "summary": "review impasse"
+    },
+    {
+      "code": "ANSWER_REQUIRED",
+      "exit": 8,
+      "retryable": false,
+      "stage": "execution",
+      "allowed_stages": [
+        "execution"
+      ],
+      "arrays": [
+        "errors"
+      ],
+      "evidence_fields": [
+        "path",
+        "run_id",
+        "turn_id",
+        "actor",
+        "expected",
+        "observed",
+        "upstream",
+        "artifact_paths"
+      ],
+      "fixture": "A-CONTRACT-R24",
+      "precondition": "Native default run reaches unanswered question.",
+      "summary": "answer required"
+    },
+    {
+      "code": "ANSWER_CONFLICT",
+      "exit": 8,
+      "retryable": false,
+      "stage": "execution",
+      "allowed_stages": [
+        "execution"
+      ],
+      "arrays": [
+        "errors"
+      ],
+      "evidence_fields": [
+        "path",
+        "run_id",
+        "turn_id",
+        "actor",
+        "expected",
+        "observed",
+        "upstream",
+        "artifact_paths"
+      ],
+      "fixture": "A-CONTRACT-R25",
+      "precondition": "Submit stale question ID or unstable/invalid answer file.",
+      "summary": "answer conflict"
+    },
+    {
+      "code": "SEND_UNCERTAIN",
+      "exit": 8,
+      "retryable": false,
+      "stage": "execution",
+      "allowed_stages": [
+        "execution"
+      ],
+      "arrays": [
+        "errors"
+      ],
+      "evidence_fields": [
+        "path",
+        "run_id",
+        "turn_id",
+        "actor",
+        "expected",
+        "observed",
+        "upstream",
+        "artifact_paths"
+      ],
+      "fixture": "A-CONTRACT-R26",
+      "precondition": "Malformed/empty-cursor/unverified send or replayed post-barrier interruption.",
+      "summary": "send uncertain"
+    },
+    {
+      "code": "TURN_UNCERTAIN",
+      "exit": 8,
+      "retryable": false,
+      "stage": "execution",
+      "allowed_stages": [
+        "execution"
+      ],
+      "arrays": [
+        "errors"
+      ],
+      "evidence_fields": [
+        "path",
+        "run_id",
+        "turn_id",
+        "actor",
+        "expected",
+        "observed",
+        "upstream",
+        "artifact_paths"
+      ],
+      "fixture": "A-CONTRACT-R27",
+      "precondition": "Saved active direct turn has no trustworthy completion or process identity.",
+      "summary": "turn uncertain"
+    },
+    {
+      "code": "SESSION_LOST",
+      "exit": 8,
+      "retryable": false,
+      "stage": "execution",
+      "allowed_stages": [
+        "execution"
+      ],
+      "arrays": [
+        "errors"
+      ],
+      "evidence_fields": [
+        "path",
+        "run_id",
+        "turn_id",
+        "actor",
+        "expected",
+        "observed",
+        "upstream",
+        "artifact_paths"
+      ],
+      "fixture": "A-CONTRACT-R28",
+      "precondition": "Required persistent vendor session or saved pane is absent.",
+      "summary": "session lost"
+    },
+    {
+      "code": "LEGACY_BOUNDARY_UNVERIFIED",
+      "exit": 8,
+      "retryable": false,
+      "stage": "execution",
+      "allowed_stages": [
+        "execution"
+      ],
+      "arrays": [
+        "errors"
+      ],
+      "evidence_fields": [
+        "path",
+        "run_id",
+        "turn_id",
+        "actor",
+        "expected",
+        "observed",
+        "upstream",
+        "artifact_paths"
+      ],
+      "fixture": "A-CONTRACT-R29",
+      "precondition": "Run on legacy-only workspace.",
+      "summary": "legacy boundary unverified"
+    },
+    {
+      "code": "UPSTREAM_FAILURE",
+      "exit": 8,
+      "retryable": false,
+      "stage": "execution",
+      "allowed_stages": [
+        "execution"
+      ],
+      "arrays": [
+        "errors"
+      ],
+      "evidence_fields": [
+        "path",
+        "run_id",
+        "turn_id",
+        "actor",
+        "expected",
+        "observed",
+        "upstream",
+        "artifact_paths"
+      ],
+      "fixture": "A-CONTRACT-R30",
+      "precondition": "Vendor/Gashki non-send protocol is invalid after turn intent.",
+      "summary": "upstream failure"
+    },
+    {
+      "code": "TURN_FAILED",
+      "exit": 8,
+      "retryable": false,
+      "stage": "execution",
+      "allowed_stages": [
+        "execution"
+      ],
+      "arrays": [
+        "errors"
+      ],
+      "evidence_fields": [
+        "path",
+        "run_id",
+        "turn_id",
+        "actor",
+        "expected",
+        "observed",
+        "upstream",
+        "artifact_paths"
+      ],
+      "fixture": "A-CONTRACT-R31",
+      "precondition": "Owned agent returns checked failure and retained evidence.",
+      "summary": "turn failed"
+    },
+    {
+      "code": "TURN_TIMEOUT",
+      "exit": 8,
+      "retryable": false,
+      "stage": "execution",
+      "allowed_stages": [
+        "execution"
+      ],
+      "arrays": [
+        "errors"
+      ],
+      "evidence_fields": [
+        "path",
+        "run_id",
+        "turn_id",
+        "actor",
+        "expected",
+        "observed",
+        "upstream",
+        "artifact_paths"
+      ],
+      "fixture": "A-CONTRACT-R32",
+      "precondition": "Finite mutation budget expires; include sub-1s Gashki residual.",
+      "summary": "turn timeout"
+    },
+    {
+      "code": "ARTIFACT_MISSING",
+      "exit": 8,
+      "retryable": false,
+      "stage": "execution",
+      "allowed_stages": [
+        "execution"
+      ],
+      "arrays": [
+        "errors"
+      ],
+      "evidence_fields": [
+        "path",
+        "run_id",
+        "turn_id",
+        "actor",
+        "expected",
+        "observed",
+        "upstream",
+        "artifact_paths"
+      ],
+      "fixture": "A-CONTRACT-R33",
+      "precondition": "Completed turn lacks required valid spec/critique artifact.",
+      "summary": "artifact missing"
+    },
+    {
+      "code": "CRITIC_MUTATION",
+      "exit": 8,
+      "retryable": false,
+      "stage": "execution",
+      "allowed_stages": [
+        "execution"
+      ],
+      "arrays": [
+        "errors"
+      ],
+      "evidence_fields": [
+        "path",
+        "run_id",
+        "turn_id",
+        "actor",
+        "expected",
+        "observed",
+        "upstream",
+        "artifact_paths"
+      ],
+      "fixture": "A-CONTRACT-R34",
+      "precondition": "Expected critic writes protected spec/input.",
+      "summary": "critic mutation"
+    },
+    {
+      "code": "INTERNAL",
+      "exit": 6,
+      "retryable": false,
+      "stage": "execution",
+      "allowed_stages": [
+        "execution"
+      ],
+      "arrays": [
+        "errors"
+      ],
+      "evidence_fields": [
+        "path",
+        "run_id",
+        "turn_id",
+        "actor",
+        "expected",
+        "observed",
+        "upstream",
+        "artifact_paths"
+      ],
+      "fixture": "A-CONTRACT-R35",
+      "precondition": "Inject recoverable handler defect in test build.",
+      "summary": "internal"
+    },
+    {
+      "code": "CONFORMANCE_FAILED",
+      "exit": 6,
+      "retryable": false,
+      "stage": "execution",
+      "allowed_stages": [
+        "execution"
+      ],
+      "arrays": [
+        "errors"
+      ],
+      "evidence_fields": [
+        "path",
+        "run_id",
+        "turn_id",
+        "actor",
+        "expected",
+        "observed",
+        "upstream",
+        "artifact_paths"
+      ],
+      "fixture": "A-CONTRACT-R36",
+      "precondition": "Inject failing conformance verdict.",
+      "summary": "conformance failed"
+    },
+    {
+      "code": "UNKNOWN_DELIVERY_SCHEME",
+      "exit": 1,
+      "retryable": false,
+      "stage": "semantic_checks",
+      "allowed_stages": [
+        "semantic_checks",
+        "execution"
+      ],
+      "arrays": [
+        "errors"
+      ],
+      "evidence_fields": [
+        "path",
+        "run_id",
+        "turn_id",
+        "actor",
+        "expected",
+        "observed",
+        "upstream",
+        "artifact_paths"
+      ],
+      "fixture": "A-CONTRACT-R37",
+      "precondition": "--deliver=webhook:URL before any sink write.",
+      "summary": "unknown delivery scheme"
+    },
+    {
+      "code": "CONTROLLER_INTERRUPTED",
+      "exit": 130,
+      "retryable": false,
+      "stage": "execution",
+      "allowed_stages": [
+        "execution"
+      ],
+      "arrays": [
+        "errors"
+      ],
+      "evidence_fields": [
+        "path",
+        "run_id",
+        "turn_id",
+        "actor",
+        "expected",
+        "observed",
+        "upstream",
+        "artifact_paths"
+      ],
+      "fixture": "A-CONTRACT-R39",
+      "precondition": "SIGINT foreground owner; checkpoint/evidence and failure envelope retained when runtime permits.",
+      "summary": "controller interrupted"
+    },
+    {
+      "code": "CONTROLLER_STOPPED",
+      "exit": 143,
+      "retryable": false,
+      "stage": "execution",
+      "allowed_stages": [
+        "execution"
+      ],
+      "arrays": [
+        "errors"
+      ],
+      "evidence_fields": [
+        "path",
+        "run_id",
+        "turn_id",
+        "actor",
+        "expected",
+        "observed",
+        "upstream",
+        "artifact_paths"
+      ],
+      "fixture": "A-CONTRACT-R40",
+      "precondition": "SIGTERM foreground owner; same best-effort boundary.",
+      "summary": "controller stopped"
+    },
+    {
+      "code": "PLANNER_MUTATION",
+      "exit": 8,
+      "retryable": false,
+      "stage": "execution",
+      "allowed_stages": [
+        "execution"
+      ],
+      "arrays": [
+        "errors"
+      ],
+      "evidence_fields": [
+        "path",
+        "run_id",
+        "turn_id",
+        "actor",
+        "expected",
+        "observed",
+        "upstream",
+        "artifact_paths"
+      ],
+      "fixture": "A-CONTRACT-R41",
+      "precondition": "Expected planner changes state, frozen config, brief/constraints, or a committed earlier rounds artifact.",
+      "summary": "planner mutation"
+    },
+    {
+      "code": "EXECUTION_ENVIRONMENT_FAILED",
+      "exit": 3,
+      "retryable": null,
+      "stage": "semantic_checks",
+      "allowed_stages": [
+        "semantic_checks",
+        "execution"
+      ],
+      "arrays": [
+        "errors"
+      ],
+      "evidence_fields": [
+        "path",
+        "run_id",
+        "turn_id",
+        "actor",
+        "expected",
+        "observed",
+        "upstream",
+        "artifact_paths"
+      ],
+      "fixture": "A-CONTRACT-R42",
+      "precondition": "Gashki returns checked TMUX_SPLIT_FAILED with stderr and a too-small owned window before a new turn.",
+      "summary": "execution environment failed"
+    },
+    {
+      "code": "STATE_INVALID",
+      "exit": 3,
+      "retryable": null,
+      "stage": "semantic_checks",
+      "allowed_stages": [
+        "semantic_checks",
+        "execution"
+      ],
+      "arrays": [
+        "errors"
+      ],
+      "evidence_fields": [
+        "path",
+        "run_id",
+        "turn_id",
+        "actor",
+        "expected",
+        "observed",
+        "upstream",
+        "artifact_paths"
+      ],
+      "fixture": "A-CONTRACT-R43",
+      "precondition": "Malformed/schema-invalid native manifest exists with or without legacy markers; no fallback creation or agent call.",
+      "summary": "state invalid"
+    }
+  ],
+  "warning_codes": [
+    {
+      "code": "ENV_SETTING_IGNORED",
+      "arrays": [
+        "warnings"
+      ],
+      "exit_effect": "none",
+      "scope": "doctor",
+      "fixture": "A-CONTRACT-01",
+      "evidence_fields": [
+        "path",
+        "reason",
+        "setting",
+        "replacement_flag",
+        "turn_id"
+      ]
+    },
+    {
+      "code": "REPLY_UNAVAILABLE",
+      "arrays": [
+        "warnings"
+      ],
+      "exit_effect": "none",
+      "scope": "run and inspection",
+      "fixture": "A-CONTRACT-01",
+      "evidence_fields": [
+        "path",
+        "reason",
+        "setting",
+        "replacement_flag",
+        "turn_id"
+      ]
+    },
+    {
+      "code": "MODEL_UNRECORDED",
+      "arrays": [
+        "warnings"
+      ],
+      "exit_effect": "none",
+      "scope": "run and inspection",
+      "fixture": "A-CONTRACT-01",
+      "evidence_fields": [
+        "path",
+        "reason",
+        "setting",
+        "replacement_flag",
+        "turn_id"
+      ]
+    },
+    {
+      "code": "INDEX_UNAVAILABLE",
+      "arrays": [
+        "warnings"
+      ],
+      "exit_effect": "none",
+      "scope": "run and inspection",
+      "fixture": "A-CONTRACT-01",
+      "evidence_fields": [
+        "path",
+        "reason",
+        "setting",
+        "replacement_flag",
+        "turn_id"
+      ]
+    },
+    {
+      "code": "CLEANUP_PENDING",
+      "arrays": [
+        "warnings"
+      ],
+      "exit_effect": "none",
+      "scope": "run and inspection",
+      "fixture": "A-CONTRACT-01",
+      "evidence_fields": [
+        "path",
+        "reason",
+        "setting",
+        "replacement_flag",
+        "turn_id"
+      ]
+    },
+    {
+      "code": "INACTIVE_SETTING",
+      "arrays": [
+        "warnings"
+      ],
+      "exit_effect": "none",
+      "scope": "run and inspection",
+      "fixture": "A-CONTRACT-01",
+      "evidence_fields": [
+        "path",
+        "reason",
+        "setting",
+        "replacement_flag",
+        "turn_id"
+      ]
+    }
+  ],
+  "exit_codes": {
+    "0": {
+      "meaning": "success",
+      "retryable": null
+    },
+    "1": {
+      "meaning": "input",
+      "retryable": false
+    },
+    "2": {
+      "meaning": "safety",
+      "retryable": false
+    },
+    "3": {
+      "meaning": "environment",
+      "retryable": null
+    },
+    "4": {
+      "meaning": "safe-transient",
+      "retryable": true
+    },
+    "5": {
+      "meaning": "conflict",
+      "retryable": false
+    },
+    "6": {
+      "meaning": "internal",
+      "retryable": false
+    },
+    "7": {
+      "meaning": "impasse",
+      "retryable": false
+    },
+    "8": {
+      "meaning": "handover",
+      "retryable": false
+    },
+    "130": {
+      "meaning": "interrupted",
+      "retryable": false
+    },
+    "143": {
+      "meaning": "stopped",
+      "retryable": false
+    }
+  },
+  "legacy_exit_mapping": {
+    "0": 0,
+    "7": 2,
+    "130": 130,
+    "143": 143,
+    "other": 1
+  },
+  "departures": {
+    "D01": "flag > file > default; no profiles or setting env",
+    "D02": "foreground creation",
+    "D03": "OS ownership locks",
+    "D04": "runs names durable reviews",
+    "D05": "stdout, file and null delivery",
+    "D06": "boolean settings take true/false; selectors take no value"
+  },
+  "parser_rules": {
+    "setting_precedence": [
+      "flag",
+      "file",
+      "default"
+    ],
+    "mode_scan": "lexical before first --; malformed --json=value selects machine mode",
+    "flag_forms": [
+      "--name=value",
+      "--name value"
+    ],
+    "duplicate_scalar": "reject including aliases",
+    "shorthand": "non-command first positional or explicit --; existing near-command path wins after syntax validation",
+    "near_match": "Levenshtein distance 1; unknown subcommands always UNKNOWN_COMMAND",
+    "selector": "full 26-character base32 ID or canonical workspace path",
+    "manifest_parity": "one parser declaration for each command, flag, alias and positional; reject missing/extra declarations"
+  },
+  "data_hash": {
+    "algorithm": "SHA-256 compact UTF-8 JSON, recursively sorted keys",
+    "excluded": [
+      "meta",
+      "trailing newline"
+    ],
+    "array_order": "preserved"
+  },
+  "wait_timeout_scopes": {
+    "run": "total monotonic agent-turn budget",
+    "runs resume": "remaining agent-turn budget",
+    "runs get": "read observation budget",
+    "runs events": "long-poll read budget"
+  },
+  "deferred": [
+    "native import",
+    "legacy session reuse",
+    "follow",
+    "NDJSON streams",
+    "profiles",
+    "webhook delivery"
+  ],
+  "registry_probes": [
+    {
+      "id": "A-CONTRACT-R01",
+      "code": "INVALID_INPUT",
+      "exit": 1,
+      "fixture": "Bad planner enum or --json=false."
+    },
+    {
+      "id": "A-CONTRACT-R02",
+      "code": "UNKNOWN_FLAG",
+      "exit": 1,
+      "fixture": "--unknown on a declared command."
+    },
+    {
+      "id": "A-CONTRACT-R03",
+      "code": "UNKNOWN_COMMAND",
+      "exit": 1,
+      "fixture": "Unknown runs subcommand; absent distance-1 top-level path."
+    },
+    {
+      "id": "A-CONTRACT-R04",
+      "code": "MISSING_REQUIRED",
+      "exit": 1,
+      "fixture": "Missing selector/value; fresh run with neither brief nor non-empty spec."
+    },
+    {
+      "id": "A-CONTRACT-R05",
+      "code": "INVALID_CONFIG",
+      "exit": 3,
+      "fixture": "Bad typed TOML value or missing explicitly named config."
+    },
+    {
+      "id": "A-CONTRACT-R06",
+      "code": "CONFIG_READ_FAILED",
+      "exit": 3,
+      "fixture": "Inject file read failure for selected config."
+    },
+    {
+      "id": "A-CONTRACT-R07",
+      "code": "DEPENDENCY_MISSING",
+      "exit": 3,
+      "fixture": "Active configured executable cannot be resolved."
+    },
+    {
+      "id": "A-CONTRACT-R08",
+      "code": "UNSUPPORTED_PLATFORM",
+      "exit": 3,
+      "fixture": "Inject unsupported process-control platform before execution."
+    },
+    {
+      "id": "A-CONTRACT-R09",
+      "code": "BILLING_REFUSED",
+      "exit": 2,
+      "fixture": "Effective guard root has API key indicator and no override."
+    },
+    {
+      "id": "A-CONTRACT-R10",
+      "code": "ACK_REQUIRED",
+      "exit": 2,
+      "fixture": "Stop/prune/resolve mutation without required acknowledgment."
+    },
+    {
+      "id": "A-CONTRACT-R11",
+      "code": "LOCKED",
+      "exit": 4,
+      "fixture": "Another process holds canonical owner/file lock past bounded acquisition."
+    },
+    {
+      "id": "A-CONTRACT-R12",
+      "code": "WAIT_TIMEOUT",
+      "exit": 4,
+      "fixture": "runs get wait expires with unchanged owner; events quiet timeout is the separate success case."
+    },
+    {
+      "id": "A-CONTRACT-R13",
+      "code": "NOT_FOUND",
+      "exit": 1,
+      "fixture": "Unknown run selector or absent requested read artifact."
+    },
+    {
+      "id": "A-CONTRACT-R14",
+      "code": "CONFIG_CONFLICT",
+      "exit": 5,
+      "fixture": "Attach with different settings and no bound conflicting key; attach to stopped run."
+    },
+    {
+      "id": "A-CONTRACT-R15",
+      "code": "IDEMPOTENCY_CONFLICT",
+      "exit": 5,
+      "fixture": "Reuse bound key with different creation/answer/payload hash."
+    },
+    {
+      "id": "A-CONTRACT-R16",
+      "code": "STATE_VERSION_UNSUPPORTED",
+      "exit": 5,
+      "fixture": "Read manifest with unsupported record version."
+    },
+    {
+      "id": "A-CONTRACT-R17",
+      "code": "OUTPUT_CONFLICT",
+      "exit": 5,
+      "fixture": "Deliver to differing existing file without force or detect concurrent config edit."
+    },
+    {
+      "id": "A-CONTRACT-R18",
+      "code": "ARTIFACT_CHANGED",
+      "exit": 5,
+      "fixture": "External spec write during active turn."
+    },
+    {
+      "id": "A-CONTRACT-R19",
+      "code": "CONTEXT_CHANGED",
+      "exit": 5,
+      "fixture": "Recorded canonical context identity no longer matches."
+    },
+    {
+      "id": "A-CONTRACT-R20",
+      "code": "IDENTITY_CONFLICT",
+      "exit": 5,
+      "fixture": "Actual vendor root presence/value differs on resume."
+    },
+    {
+      "id": "A-CONTRACT-R21",
+      "code": "SERVER_CONFLICT",
+      "exit": 5,
+      "fixture": "Selected actual tmux server differs from saved server."
+    },
+    {
+      "id": "A-CONTRACT-R22",
+      "code": "PANE_CONFLICT",
+      "exit": 5,
+      "fixture": "Reconciliation returns foreign UUID/provider/window."
+    },
+    {
+      "id": "A-CONTRACT-R23",
+      "code": "REVIEW_IMPASSE",
+      "exit": 7,
+      "fixture": "Last ordinary critique REVISE, with no available next round."
+    },
+    {
+      "id": "A-CONTRACT-R24",
+      "code": "ANSWER_REQUIRED",
+      "exit": 8,
+      "fixture": "Native default run reaches unanswered question."
+    },
+    {
+      "id": "A-CONTRACT-R25",
+      "code": "ANSWER_CONFLICT",
+      "exit": 8,
+      "fixture": "Submit stale question ID or unstable/invalid answer file."
+    },
+    {
+      "id": "A-CONTRACT-R26",
+      "code": "SEND_UNCERTAIN",
+      "exit": 8,
+      "fixture": "Malformed/empty-cursor/unverified send or replayed post-barrier interruption."
+    },
+    {
+      "id": "A-CONTRACT-R27",
+      "code": "TURN_UNCERTAIN",
+      "exit": 8,
+      "fixture": "Saved active direct turn has no trustworthy completion or process identity."
+    },
+    {
+      "id": "A-CONTRACT-R28",
+      "code": "SESSION_LOST",
+      "exit": 8,
+      "fixture": "Required persistent vendor session or saved pane is absent."
+    },
+    {
+      "id": "A-CONTRACT-R29",
+      "code": "LEGACY_BOUNDARY_UNVERIFIED",
+      "exit": 8,
+      "fixture": "Run on legacy-only workspace."
+    },
+    {
+      "id": "A-CONTRACT-R30",
+      "code": "UPSTREAM_FAILURE",
+      "exit": 8,
+      "fixture": "Vendor/Gashki non-send protocol is invalid after turn intent."
+    },
+    {
+      "id": "A-CONTRACT-R31",
+      "code": "TURN_FAILED",
+      "exit": 8,
+      "fixture": "Owned agent returns checked failure and retained evidence."
+    },
+    {
+      "id": "A-CONTRACT-R32",
+      "code": "TURN_TIMEOUT",
+      "exit": 8,
+      "fixture": "Finite mutation budget expires; include sub-1s Gashki residual."
+    },
+    {
+      "id": "A-CONTRACT-R33",
+      "code": "ARTIFACT_MISSING",
+      "exit": 8,
+      "fixture": "Completed turn lacks required valid spec/critique artifact."
+    },
+    {
+      "id": "A-CONTRACT-R34",
+      "code": "CRITIC_MUTATION",
+      "exit": 8,
+      "fixture": "Expected critic writes protected spec/input."
+    },
+    {
+      "id": "A-CONTRACT-R35",
+      "code": "INTERNAL",
+      "exit": 6,
+      "fixture": "Inject recoverable handler defect in test build."
+    },
+    {
+      "id": "A-CONTRACT-R36",
+      "code": "CONFORMANCE_FAILED",
+      "exit": 6,
+      "fixture": "Inject failing conformance verdict."
+    },
+    {
+      "id": "A-CONTRACT-R37",
+      "code": "UNKNOWN_DELIVERY_SCHEME",
+      "exit": 1,
+      "fixture": "--deliver=webhook:URL before any sink write."
+    },
+    {
+      "id": "A-CONTRACT-R38",
+      "code": null,
+      "exit": 0,
+      "fixture": "Approved run or successful inspection/empty list. ok=true and errors empty."
+    },
+    {
+      "id": "A-CONTRACT-R39",
+      "code": "CONTROLLER_INTERRUPTED",
+      "exit": 130,
+      "fixture": "SIGINT foreground owner; checkpoint/evidence and failure envelope retained when runtime permits."
+    },
+    {
+      "id": "A-CONTRACT-R40",
+      "code": "CONTROLLER_STOPPED",
+      "exit": 143,
+      "fixture": "SIGTERM foreground owner; same best-effort boundary."
+    },
+    {
+      "id": "A-CONTRACT-R41",
+      "code": "PLANNER_MUTATION",
+      "exit": 8,
+      "fixture": "Expected planner changes state, frozen config, brief/constraints, or a committed earlier rounds artifact."
+    },
+    {
+      "id": "A-CONTRACT-R42",
+      "code": "EXECUTION_ENVIRONMENT_FAILED",
+      "exit": 3,
+      "fixture": "Gashki returns checked TMUX_SPLIT_FAILED with stderr and a too-small owned window before a new turn."
+    },
+    {
+      "id": "A-CONTRACT-R43",
+      "code": "STATE_INVALID",
+      "exit": 3,
+      "fixture": "Malformed/schema-invalid native manifest exists with or without legacy markers; no fallback creation or agent call."
+    }
+  ]
+}

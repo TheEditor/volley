@@ -1,0 +1,46 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://volley.invalid/schema/1/event",
+  "type": "object",
+  "additionalProperties": false,
+  "properties": {
+    "record_version": {
+      "type": "integer"
+    },
+    "run_id": {
+      "type": "string"
+    },
+    "transaction_id": {
+      "type": "string"
+    },
+    "sequence": {
+      "type": "integer"
+    },
+    "at": {
+      "type": "string"
+    },
+    "kind": {
+      "type": "string"
+    },
+    "revision": {
+      "type": "integer"
+    },
+    "status": {
+      "type": "string"
+    },
+    "phase": {
+      "type": "string"
+    }
+  },
+  "required": [
+    "record_version",
+    "run_id",
+    "transaction_id",
+    "sequence",
+    "at",
+    "kind",
+    "revision",
+    "status",
+    "phase"
+  ]
+}

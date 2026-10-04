@@ -1,0 +1,78 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://volley.invalid/schema/1/data-runs-prune",
+  "type": "object",
+  "additionalProperties": false,
+  "properties": {
+    "removed": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "run_id": {
+            "type": "string"
+          },
+          "workspace": {
+            "type": "string"
+          },
+          "created_at": {
+            "type": "string"
+          },
+          "status": {
+            "type": "string"
+          },
+          "revision": {
+            "type": "integer"
+          }
+        },
+        "required": [
+          "run_id",
+          "workspace",
+          "created_at",
+          "status",
+          "revision"
+        ]
+      }
+    },
+    "effects": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "run_id": {
+            "type": "string"
+          },
+          "workspace": {
+            "type": "string"
+          },
+          "created_at": {
+            "type": "string"
+          },
+          "status": {
+            "type": "string"
+          },
+          "revision": {
+            "type": "integer"
+          }
+        },
+        "required": [
+          "run_id",
+          "workspace",
+          "created_at",
+          "status",
+          "revision"
+        ]
+      }
+    },
+    "dry_run": {
+      "type": "boolean"
+    }
+  },
+  "required": [
+    "removed",
+    "effects",
+    "dry_run"
+  ]
+}

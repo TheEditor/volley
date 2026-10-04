@@ -1,0 +1,204 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://volley.invalid/schema/1/envelope",
+  "type": "object",
+  "additionalProperties": false,
+  "properties": {
+    "ok": {
+      "type": "boolean"
+    },
+    "tool_version": {
+      "type": "string"
+    },
+    "data": {
+      "anyOf": [
+        {
+          "$ref": "data-run.json"
+        },
+        {
+          "$ref": "data-plan.json"
+        },
+        {
+          "$ref": "data-status.json"
+        },
+        {
+          "$ref": "data-runs-list.json"
+        },
+        {
+          "$ref": "data-runs-get.json"
+        },
+        {
+          "$ref": "data-runs-resume.json"
+        },
+        {
+          "$ref": "data-runs-stop.json"
+        },
+        {
+          "$ref": "data-runs-resolve.json"
+        },
+        {
+          "$ref": "data-runs-events.json"
+        },
+        {
+          "$ref": "data-runs-prune.json"
+        },
+        {
+          "$ref": "data-human-questions.json"
+        },
+        {
+          "$ref": "data-human-answer.json"
+        },
+        {
+          "$ref": "data-human-steer.json"
+        },
+        {
+          "$ref": "data-human-skip.json"
+        },
+        {
+          "$ref": "data-workspace-legacy-report.json"
+        },
+        {
+          "$ref": "data-config-show.json"
+        },
+        {
+          "$ref": "data-config-get.json"
+        },
+        {
+          "$ref": "data-config-validate.json"
+        },
+        {
+          "$ref": "data-config-schema.json"
+        },
+        {
+          "$ref": "data-config-set.json"
+        },
+        {
+          "$ref": "data-config-patch.json"
+        },
+        {
+          "$ref": "data-config-edit.json"
+        },
+        {
+          "$ref": "data-doctor.json"
+        },
+        {
+          "$ref": "data-capabilities.json"
+        },
+        {
+          "$ref": "data-schema.json"
+        },
+        {
+          "$ref": "data-robot-docs-guide.json"
+        },
+        {
+          "$ref": "data-conformance.json"
+        },
+        {
+          "$ref": "data-feedback.json"
+        },
+        {
+          "$ref": "help.json"
+        },
+        {
+          "$ref": "version.json"
+        },
+        {
+          "type": "null"
+        }
+      ]
+    },
+    "meta": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "request_id": {
+          "type": "string"
+        },
+        "ts_iso": {
+          "type": "string"
+        },
+        "elapsed_ms": {
+          "type": "integer"
+        },
+        "contract_version": {
+          "const": "1"
+        },
+        "schema_version": {
+          "const": "1"
+        },
+        "data_hash": {
+          "type": "string"
+        },
+        "entrypoint": {
+          "type": "string"
+        },
+        "exit_semantics": {
+          "enum": [
+            "native",
+            "legacy"
+          ]
+        }
+      },
+      "required": [
+        "request_id",
+        "ts_iso",
+        "elapsed_ms",
+        "contract_version",
+        "schema_version",
+        "data_hash"
+      ]
+    },
+    "warnings": {
+      "type": "array",
+      "items": {
+        "$ref": "warning.json"
+      }
+    },
+    "commands": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "errors": {
+      "type": "array",
+      "items": {
+        "$ref": "error.json"
+      }
+    }
+  },
+  "required": [
+    "ok",
+    "tool_version",
+    "data",
+    "meta",
+    "warnings",
+    "commands",
+    "errors"
+  ],
+  "allOf": [
+    {
+      "if": {
+        "properties": {
+          "ok": {
+            "const": true
+          }
+        }
+      },
+      "then": {
+        "properties": {
+          "errors": {
+            "maxItems": 0
+          }
+        }
+      },
+      "else": {
+        "properties": {
+          "errors": {
+            "minItems": 1
+          }
+        }
+      }
+    }
+  ]
+}

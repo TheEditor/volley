@@ -1,0 +1,83 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://volley.invalid/schema/1/data-human-questions",
+  "type": "object",
+  "additionalProperties": false,
+  "properties": {
+    "run_id": {
+      "type": "string"
+    },
+    "workspace": {
+      "type": "string"
+    },
+    "question": {
+      "anyOf": [
+        {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "id": {
+              "type": "string"
+            },
+            "sha256": {
+              "type": "string"
+            },
+            "text": {
+              "type": "string"
+            },
+            "observed": {
+              "type": "object",
+              "additionalProperties": false,
+              "properties": {
+                "path": {
+                  "type": "string"
+                },
+                "sha256": {
+                  "type": "string"
+                },
+                "bytes": {
+                  "type": "integer"
+                },
+                "type": {
+                  "type": "string"
+                },
+                "device": {
+                  "type": "integer"
+                },
+                "inode": {
+                  "type": "integer"
+                }
+              },
+              "required": [
+                "path",
+                "sha256",
+                "bytes",
+                "type",
+                "device",
+                "inode"
+              ]
+            },
+            "answered": {
+              "type": "boolean"
+            }
+          },
+          "required": [
+            "id",
+            "sha256",
+            "text",
+            "observed",
+            "answered"
+          ]
+        },
+        {
+          "type": "null"
+        }
+      ]
+    }
+  },
+  "required": [
+    "run_id",
+    "workspace",
+    "question"
+  ]
+}
