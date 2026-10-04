@@ -1,0 +1,1 @@
+Write the specification and open-question channel in the workspace. State files, frozen settings, BRIEF.md, CONSTRAINTS.md, and committed round history are protected. Do not create controller-reserved round files. The controller captures your final reply; do not write a separate response file. Reference code and skill roots are read-only.

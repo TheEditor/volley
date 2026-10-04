@@ -1,0 +1,1 @@
+Review the exact specification and binding inputs. Do not change SPEC.md, QUESTIONS.md, HUMAN.md, state files, frozen settings, or committed history. Reference code and skill roots are read-only. Only the planner writes open questions. Put objections in your critique; a demand for a user answer is not binding by itself.
