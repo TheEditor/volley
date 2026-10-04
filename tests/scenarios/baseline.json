@@ -1,0 +1,9024 @@
+{
+  "assertions": [
+    {
+      "assertion": "[claude] approve-first: exit 0",
+      "corrections": [
+        "C01"
+      ],
+      "id": "BASE-001",
+      "observed": "pass",
+      "scenario": 0,
+      "target_cases": [
+        "A-LOOP-01",
+        "A-LOOP-02",
+        "A-DIRECT-01"
+      ]
+    },
+    {
+      "assertion": "[claude] approve-first: SPEC.md written",
+      "corrections": [
+        "C01"
+      ],
+      "id": "BASE-002",
+      "observed": "pass",
+      "scenario": 0,
+      "target_cases": [
+        "A-LOOP-01",
+        "A-LOOP-02",
+        "A-DIRECT-01"
+      ]
+    },
+    {
+      "assertion": "[claude] approve-first: r01 critique has verdict",
+      "corrections": [
+        "C04",
+        "C05"
+      ],
+      "id": "BASE-003",
+      "observed": "pass",
+      "scenario": 0,
+      "target_cases": [
+        "A-LOOP-02",
+        "A-FINAL-04"
+      ]
+    },
+    {
+      "assertion": "[claude] approve-first: critic was codex",
+      "corrections": [
+        "C01"
+      ],
+      "id": "BASE-004",
+      "observed": "pass",
+      "scenario": 0,
+      "target_cases": [
+        "A-LOOP-01",
+        "A-LOOP-02",
+        "A-DIRECT-01"
+      ]
+    },
+    {
+      "assertion": "[claude] approve-first: planner was claude",
+      "corrections": [
+        "C01"
+      ],
+      "id": "BASE-005",
+      "observed": "pass",
+      "scenario": 0,
+      "target_cases": [
+        "A-LOOP-01",
+        "A-LOOP-02",
+        "A-DIRECT-01"
+      ]
+    },
+    {
+      "assertion": "[claude] approve-first: clean approval skips closing pass",
+      "corrections": [
+        "C06",
+        "C07"
+      ],
+      "id": "BASE-006",
+      "observed": "pass",
+      "scenario": 0,
+      "target_cases": [
+        "A-FINAL-01",
+        "A-FINAL-02",
+        "A-FINAL-05"
+      ]
+    },
+    {
+      "assertion": "[claude] approve-first: no second opinion by default",
+      "corrections": [
+        "C06",
+        "C07"
+      ],
+      "id": "BASE-007",
+      "observed": "pass",
+      "scenario": 0,
+      "target_cases": [
+        "A-FINAL-01",
+        "A-FINAL-02",
+        "A-FINAL-05"
+      ]
+    },
+    {
+      "assertion": "[claude] approve-first: provenance written",
+      "corrections": [
+        "C12"
+      ],
+      "id": "BASE-008",
+      "observed": "pass",
+      "scenario": 0,
+      "target_cases": [
+        "A-REC-01",
+        "A-DIRECT-01",
+        "A-GK-01"
+      ]
+    },
+    {
+      "assertion": "[claude] approve-first: provenance records role assignment",
+      "corrections": [
+        "C12"
+      ],
+      "id": "BASE-009",
+      "observed": "pass",
+      "scenario": 0,
+      "target_cases": [
+        "A-REC-01",
+        "A-DIRECT-01",
+        "A-GK-01"
+      ]
+    },
+    {
+      "assertion": "[claude] approve-first: provenance records claude version",
+      "corrections": [
+        "C12"
+      ],
+      "id": "BASE-010",
+      "observed": "pass",
+      "scenario": 0,
+      "target_cases": [
+        "A-REC-01",
+        "A-DIRECT-01",
+        "A-GK-01"
+      ]
+    },
+    {
+      "assertion": "[claude] approve-first: provenance records codex version",
+      "corrections": [
+        "C12"
+      ],
+      "id": "BASE-011",
+      "observed": "pass",
+      "scenario": 0,
+      "target_cases": [
+        "A-REC-01",
+        "A-DIRECT-01",
+        "A-GK-01"
+      ]
+    },
+    {
+      "assertion": "[claude] approve-first: provenance records unpinned models",
+      "corrections": [
+        "C12"
+      ],
+      "id": "BASE-012",
+      "observed": "pass",
+      "scenario": 0,
+      "target_cases": [
+        "A-REC-01",
+        "A-DIRECT-01",
+        "A-GK-01"
+      ]
+    },
+    {
+      "assertion": "[claude] approve-first: planner prompt stays free of loop framing",
+      "corrections": [
+        "C01"
+      ],
+      "id": "BASE-013",
+      "observed": "pass",
+      "scenario": 0,
+      "target_cases": [
+        "A-LOOP-01",
+        "A-LOOP-02",
+        "A-DIRECT-01"
+      ]
+    },
+    {
+      "assertion": "[claude] review rule: initial planner receives it",
+      "corrections": [],
+      "id": "BASE-014",
+      "observed": "pass",
+      "scenario": 0,
+      "target_cases": [
+        "A-PROMPT-01",
+        "A-PROMPT-02"
+      ]
+    },
+    {
+      "assertion": "[claude] review rule: critic receives it",
+      "corrections": [],
+      "id": "BASE-015",
+      "observed": "pass",
+      "scenario": 0,
+      "target_cases": [
+        "A-PROMPT-01",
+        "A-PROMPT-02"
+      ]
+    },
+    {
+      "assertion": "[claude] revise-approve: exit 0",
+      "corrections": [
+        "C01"
+      ],
+      "id": "BASE-016",
+      "observed": "pass",
+      "scenario": 1,
+      "target_cases": [
+        "A-LOOP-01",
+        "A-LOOP-02",
+        "A-DIRECT-01"
+      ]
+    },
+    {
+      "assertion": "[claude] revise-approve: r01 spec snapshot kept",
+      "corrections": [
+        "C01"
+      ],
+      "id": "BASE-017",
+      "observed": "pass",
+      "scenario": 1,
+      "target_cases": [
+        "A-LOOP-01",
+        "A-LOOP-02",
+        "A-DIRECT-01"
+      ]
+    },
+    {
+      "assertion": "[claude] revise-approve: spec revised",
+      "corrections": [
+        "C01"
+      ],
+      "id": "BASE-018",
+      "observed": "pass",
+      "scenario": 1,
+      "target_cases": [
+        "A-LOOP-01",
+        "A-LOOP-02",
+        "A-DIRECT-01"
+      ]
+    },
+    {
+      "assertion": "[claude] revise-approve: revise prompt asks for no response file",
+      "corrections": [
+        "C01"
+      ],
+      "id": "BASE-019",
+      "observed": "pass",
+      "scenario": 1,
+      "target_cases": [
+        "A-LOOP-01",
+        "A-LOOP-02",
+        "A-DIRECT-01"
+      ]
+    },
+    {
+      "assertion": "[claude] revise-approve: volley saved the init reply",
+      "corrections": [
+        "C01"
+      ],
+      "id": "BASE-020",
+      "observed": "pass",
+      "scenario": 1,
+      "target_cases": [
+        "A-LOOP-01",
+        "A-LOOP-02",
+        "A-DIRECT-01"
+      ]
+    },
+    {
+      "assertion": "[claude] revise-approve: volley saved the revise reply",
+      "corrections": [
+        "C01"
+      ],
+      "id": "BASE-021",
+      "observed": "pass",
+      "scenario": 1,
+      "target_cases": [
+        "A-LOOP-01",
+        "A-LOOP-02",
+        "A-DIRECT-01"
+      ]
+    },
+    {
+      "assertion": "[claude] revise-approve: planner log keeps the replies",
+      "corrections": [
+        "C01"
+      ],
+      "id": "BASE-022",
+      "observed": "pass",
+      "scenario": 1,
+      "target_cases": [
+        "A-LOOP-01",
+        "A-LOOP-02",
+        "A-DIRECT-01"
+      ]
+    },
+    {
+      "assertion": "[claude] revise-approve: two critiques",
+      "corrections": [
+        "C01"
+      ],
+      "id": "BASE-023",
+      "observed": "pass",
+      "scenario": 1,
+      "target_cases": [
+        "A-LOOP-01",
+        "A-LOOP-02",
+        "A-DIRECT-01"
+      ]
+    },
+    {
+      "assertion": "[claude] revise-approve: no closing pass on clean approve",
+      "corrections": [
+        "C06",
+        "C07"
+      ],
+      "id": "BASE-024",
+      "observed": "pass",
+      "scenario": 1,
+      "target_cases": [
+        "A-FINAL-01",
+        "A-FINAL-02",
+        "A-FINAL-05"
+      ]
+    },
+    {
+      "assertion": "[claude] review rule: revision planner receives it",
+      "corrections": [],
+      "id": "BASE-025",
+      "observed": "pass",
+      "scenario": 1,
+      "target_cases": [
+        "A-PROMPT-01",
+        "A-PROMPT-02"
+      ]
+    },
+    {
+      "assertion": "[claude] closing-pass: exit 0",
+      "corrections": [
+        "C06",
+        "C07"
+      ],
+      "id": "BASE-026",
+      "observed": "pass",
+      "scenario": 2,
+      "target_cases": [
+        "A-FINAL-01",
+        "A-FINAL-02",
+        "A-FINAL-05"
+      ]
+    },
+    {
+      "assertion": "[claude] closing-pass: one extra planner call",
+      "corrections": [
+        "C06",
+        "C07"
+      ],
+      "id": "BASE-027",
+      "observed": "pass",
+      "scenario": 2,
+      "target_cases": [
+        "A-FINAL-01",
+        "A-FINAL-02",
+        "A-FINAL-05"
+      ]
+    },
+    {
+      "assertion": "[claude] closing-pass: prompt asks for no response file",
+      "corrections": [
+        "C06",
+        "C07"
+      ],
+      "id": "BASE-028",
+      "observed": "pass",
+      "scenario": 2,
+      "target_cases": [
+        "A-FINAL-01",
+        "A-FINAL-02",
+        "A-FINAL-05"
+      ]
+    },
+    {
+      "assertion": "[claude] closing-pass: volley saved the closing reply",
+      "corrections": [
+        "C06",
+        "C07"
+      ],
+      "id": "BASE-029",
+      "observed": "pass",
+      "scenario": 2,
+      "target_cases": [
+        "A-FINAL-01",
+        "A-FINAL-02",
+        "A-FINAL-05"
+      ]
+    },
+    {
+      "assertion": "[claude] closing-pass: prompt points at approving critique",
+      "corrections": [
+        "C06",
+        "C07"
+      ],
+      "id": "BASE-030",
+      "observed": "pass",
+      "scenario": 2,
+      "target_cases": [
+        "A-FINAL-01",
+        "A-FINAL-02",
+        "A-FINAL-05"
+      ]
+    },
+    {
+      "assertion": "[claude] closing-pass: spec got a disposition edit",
+      "corrections": [
+        "C06",
+        "C07"
+      ],
+      "id": "BASE-031",
+      "observed": "pass",
+      "scenario": 2,
+      "target_cases": [
+        "A-FINAL-01",
+        "A-FINAL-02",
+        "A-FINAL-05"
+      ]
+    },
+    {
+      "assertion": "[claude] closing-pass: critic not re-run",
+      "corrections": [
+        "C06",
+        "C07"
+      ],
+      "id": "BASE-032",
+      "observed": "pass",
+      "scenario": 2,
+      "target_cases": [
+        "A-FINAL-01",
+        "A-FINAL-02",
+        "A-FINAL-05"
+      ]
+    },
+    {
+      "assertion": "[claude] review rule: closing planner receives it",
+      "corrections": [
+        "C06",
+        "C07"
+      ],
+      "id": "BASE-033",
+      "observed": "pass",
+      "scenario": 2,
+      "target_cases": [
+        "A-FINAL-01",
+        "A-FINAL-02",
+        "A-FINAL-05"
+      ]
+    },
+    {
+      "assertion": "[claude] closing-pass-off: exit 0",
+      "corrections": [
+        "C06",
+        "C07"
+      ],
+      "id": "BASE-034",
+      "observed": "pass",
+      "scenario": 3,
+      "target_cases": [
+        "A-FINAL-01",
+        "A-FINAL-02",
+        "A-FINAL-05"
+      ]
+    },
+    {
+      "assertion": "[claude] closing-pass-off: no extra planner call",
+      "corrections": [
+        "C06",
+        "C07"
+      ],
+      "id": "BASE-035",
+      "observed": "pass",
+      "scenario": 3,
+      "target_cases": [
+        "A-FINAL-01",
+        "A-FINAL-02",
+        "A-FINAL-05"
+      ]
+    },
+    {
+      "assertion": "[claude] second-opinion: exit 0",
+      "corrections": [
+        "C01",
+        "C09",
+        "C10",
+        "C11",
+        "C12"
+      ],
+      "id": "BASE-036",
+      "observed": "pass",
+      "scenario": 4,
+      "target_cases": [
+        "A-LOOP-06",
+        "A-GK-10",
+        "A-GK-11",
+        "A-REC-02"
+      ]
+    },
+    {
+      "assertion": "[claude] second-opinion: review written",
+      "corrections": [
+        "C01",
+        "C09",
+        "C10",
+        "C11",
+        "C12"
+      ],
+      "id": "BASE-037",
+      "observed": "pass",
+      "scenario": 4,
+      "target_cases": [
+        "A-LOOP-06",
+        "A-GK-10",
+        "A-GK-11",
+        "A-REC-02"
+      ]
+    },
+    {
+      "assertion": "[claude] second-opinion: reviewer is the non-incumbent (claude)",
+      "corrections": [
+        "C01",
+        "C09",
+        "C10",
+        "C11",
+        "C12"
+      ],
+      "id": "BASE-038",
+      "observed": "pass",
+      "scenario": 4,
+      "target_cases": [
+        "A-LOOP-06",
+        "A-GK-10",
+        "A-GK-11",
+        "A-REC-02"
+      ]
+    },
+    {
+      "assertion": "[claude] second-opinion: exactly two critic calls",
+      "corrections": [
+        "C01",
+        "C09",
+        "C10",
+        "C11",
+        "C12"
+      ],
+      "id": "BASE-039",
+      "observed": "pass",
+      "scenario": 4,
+      "target_cases": [
+        "A-LOOP-06",
+        "A-GK-10",
+        "A-GK-11",
+        "A-REC-02"
+      ]
+    },
+    {
+      "assertion": "[claude] second-opinion: one closing pass covers both",
+      "corrections": [
+        "C06",
+        "C07"
+      ],
+      "id": "BASE-040",
+      "observed": "pass",
+      "scenario": 4,
+      "target_cases": [
+        "A-FINAL-01",
+        "A-FINAL-02",
+        "A-FINAL-05"
+      ]
+    },
+    {
+      "assertion": "[claude] second-opinion: closing prompt points at it",
+      "corrections": [
+        "C06",
+        "C07"
+      ],
+      "id": "BASE-041",
+      "observed": "pass",
+      "scenario": 4,
+      "target_cases": [
+        "A-FINAL-01",
+        "A-FINAL-02",
+        "A-FINAL-05"
+      ]
+    },
+    {
+      "assertion": "[claude] second-opinion: no placeholder residue in its prompt",
+      "corrections": [
+        "C01",
+        "C09",
+        "C10",
+        "C11",
+        "C12"
+      ],
+      "id": "BASE-042",
+      "observed": "pass",
+      "scenario": 4,
+      "target_cases": [
+        "A-LOOP-06",
+        "A-GK-10",
+        "A-GK-11",
+        "A-REC-02"
+      ]
+    },
+    {
+      "assertion": "[claude] review rule: second opinion receives it",
+      "corrections": [
+        "C06",
+        "C07"
+      ],
+      "id": "BASE-043",
+      "observed": "pass",
+      "scenario": 4,
+      "target_cases": [
+        "A-FINAL-01",
+        "A-FINAL-02",
+        "A-FINAL-05"
+      ]
+    },
+    {
+      "assertion": "[claude] second-opinion-clean: exit 0",
+      "corrections": [
+        "C01",
+        "C09",
+        "C10",
+        "C11",
+        "C12"
+      ],
+      "id": "BASE-044",
+      "observed": "pass",
+      "scenario": 5,
+      "target_cases": [
+        "A-LOOP-06",
+        "A-GK-10",
+        "A-GK-11",
+        "A-REC-02"
+      ]
+    },
+    {
+      "assertion": "[claude] second-opinion-clean: two critic calls",
+      "corrections": [
+        "C01",
+        "C09",
+        "C10",
+        "C11",
+        "C12"
+      ],
+      "id": "BASE-045",
+      "observed": "pass",
+      "scenario": 5,
+      "target_cases": [
+        "A-LOOP-06",
+        "A-GK-10",
+        "A-GK-11",
+        "A-REC-02"
+      ]
+    },
+    {
+      "assertion": "[claude] second-opinion-clean: closing pass skipped",
+      "corrections": [
+        "C06",
+        "C07"
+      ],
+      "id": "BASE-046",
+      "observed": "pass",
+      "scenario": 5,
+      "target_cases": [
+        "A-FINAL-01",
+        "A-FINAL-02",
+        "A-FINAL-05"
+      ]
+    },
+    {
+      "assertion": "[claude] steering: exit 0",
+      "corrections": [
+        "C01"
+      ],
+      "id": "BASE-047",
+      "observed": "pass",
+      "scenario": 6,
+      "target_cases": [
+        "A-LOOP-01",
+        "A-LOOP-02",
+        "A-DIRECT-01"
+      ]
+    },
+    {
+      "assertion": "[claude] steering: HUMAN.md consumed",
+      "corrections": [
+        "C02",
+        "C08"
+      ],
+      "id": "BASE-048",
+      "observed": "pass",
+      "scenario": 6,
+      "target_cases": [
+        "A-HUMAN-01",
+        "A-HUMAN-02",
+        "A-HUMAN-03",
+        "A-LOOP-03"
+      ]
+    },
+    {
+      "assertion": "[claude] steering: archived to rounds/r01.human.md",
+      "corrections": [
+        "C02",
+        "C08"
+      ],
+      "id": "BASE-049",
+      "observed": "pass",
+      "scenario": 6,
+      "target_cases": [
+        "A-HUMAN-01",
+        "A-HUMAN-02",
+        "A-HUMAN-03",
+        "A-LOOP-03"
+      ]
+    },
+    {
+      "assertion": "[claude] steering: critic r1 got the directive",
+      "corrections": [
+        "C01"
+      ],
+      "id": "BASE-050",
+      "observed": "pass",
+      "scenario": 6,
+      "target_cases": [
+        "A-LOOP-01",
+        "A-LOOP-02",
+        "A-DIRECT-01"
+      ]
+    },
+    {
+      "assertion": "[claude] steering: critic r1 got the directive body",
+      "corrections": [
+        "C01"
+      ],
+      "id": "BASE-051",
+      "observed": "pass",
+      "scenario": 6,
+      "target_cases": [
+        "A-LOOP-01",
+        "A-LOOP-02",
+        "A-DIRECT-01"
+      ]
+    },
+    {
+      "assertion": "[claude] steering: planner revise got the directive",
+      "corrections": [
+        "C01"
+      ],
+      "id": "BASE-052",
+      "observed": "pass",
+      "scenario": 6,
+      "target_cases": [
+        "A-LOOP-01",
+        "A-LOOP-02",
+        "A-DIRECT-01"
+      ]
+    },
+    {
+      "assertion": "[claude] steering: round 2 prompt clean",
+      "corrections": [
+        "C01"
+      ],
+      "id": "BASE-053",
+      "observed": "pass",
+      "scenario": 6,
+      "target_cases": [
+        "A-LOOP-01",
+        "A-LOOP-02",
+        "A-DIRECT-01"
+      ]
+    },
+    {
+      "assertion": "[claude] steering: no placeholder residue",
+      "corrections": [
+        "C01"
+      ],
+      "id": "BASE-054",
+      "observed": "pass",
+      "scenario": 6,
+      "target_cases": [
+        "A-LOOP-01",
+        "A-LOOP-02",
+        "A-DIRECT-01"
+      ]
+    },
+    {
+      "assertion": "[claude] questions: waits after the revision",
+      "corrections": [
+        "C02",
+        "C08"
+      ],
+      "id": "BASE-055",
+      "observed": "pass",
+      "scenario": 7,
+      "target_cases": [
+        "A-HUMAN-01",
+        "A-HUMAN-02",
+        "A-HUMAN-03",
+        "A-LOOP-03"
+      ]
+    },
+    {
+      "assertion": "[claude] questions: no agent call while it waits",
+      "corrections": [
+        "C02",
+        "C08"
+      ],
+      "id": "BASE-056",
+      "observed": "pass",
+      "scenario": 7,
+      "target_cases": [
+        "A-HUMAN-01",
+        "A-HUMAN-02",
+        "A-HUMAN-03",
+        "A-LOOP-03"
+      ]
+    },
+    {
+      "assertion": "[claude] questions: QUESTIONS.md kept for the user",
+      "corrections": [
+        "C02",
+        "C08"
+      ],
+      "id": "BASE-057",
+      "observed": "pass",
+      "scenario": 7,
+      "target_cases": [
+        "A-HUMAN-01",
+        "A-HUMAN-02",
+        "A-HUMAN-03",
+        "A-LOOP-03"
+      ]
+    },
+    {
+      "assertion": "[claude] questions: questions printed",
+      "corrections": [
+        "C02",
+        "C08"
+      ],
+      "id": "BASE-058",
+      "observed": "pass",
+      "scenario": 7,
+      "target_cases": [
+        "A-HUMAN-01",
+        "A-HUMAN-02",
+        "A-HUMAN-03",
+        "A-LOOP-03"
+      ]
+    },
+    {
+      "assertion": "[claude] questions: user told to write HUMAN.md",
+      "corrections": [
+        "C02",
+        "C08"
+      ],
+      "id": "BASE-059",
+      "observed": "pass",
+      "scenario": 7,
+      "target_cases": [
+        "A-HUMAN-01",
+        "A-HUMAN-02",
+        "A-HUMAN-03",
+        "A-LOOP-03"
+      ]
+    },
+    {
+      "assertion": "[claude] questions: no typing hint without a terminal",
+      "corrections": [
+        "C02",
+        "C08"
+      ],
+      "id": "BASE-060",
+      "observed": "pass",
+      "scenario": 7,
+      "target_cases": [
+        "A-HUMAN-01",
+        "A-HUMAN-02",
+        "A-HUMAN-03",
+        "A-LOOP-03"
+      ]
+    },
+    {
+      "assertion": "[claude] questions: no pane hint without gashki",
+      "corrections": [
+        "C02",
+        "C08"
+      ],
+      "id": "BASE-061",
+      "observed": "pass",
+      "scenario": 7,
+      "target_cases": [
+        "A-HUMAN-01",
+        "A-HUMAN-02",
+        "A-HUMAN-03",
+        "A-LOOP-03"
+      ]
+    },
+    {
+      "assertion": "[claude] questions: revision snapshot written before the wait",
+      "corrections": [
+        "C02",
+        "C08"
+      ],
+      "id": "BASE-062",
+      "observed": "pass",
+      "scenario": 7,
+      "target_cases": [
+        "A-HUMAN-01",
+        "A-HUMAN-02",
+        "A-HUMAN-03",
+        "A-LOOP-03"
+      ]
+    },
+    {
+      "assertion": "[claude] questions: no round 2 critique",
+      "corrections": [
+        "C02",
+        "C08"
+      ],
+      "id": "BASE-063",
+      "observed": "pass",
+      "scenario": 7,
+      "target_cases": [
+        "A-HUMAN-01",
+        "A-HUMAN-02",
+        "A-HUMAN-03",
+        "A-LOOP-03"
+      ]
+    },
+    {
+      "assertion": "[claude] questions: init prompt names QUESTIONS.md",
+      "corrections": [
+        "C02",
+        "C08"
+      ],
+      "id": "BASE-064",
+      "observed": "pass",
+      "scenario": 7,
+      "target_cases": [
+        "A-HUMAN-01",
+        "A-HUMAN-02",
+        "A-HUMAN-03",
+        "A-LOOP-03"
+      ]
+    },
+    {
+      "assertion": "[claude] questions: revise prompt names QUESTIONS.md",
+      "corrections": [
+        "C02",
+        "C08"
+      ],
+      "id": "BASE-065",
+      "observed": "pass",
+      "scenario": 7,
+      "target_cases": [
+        "A-HUMAN-01",
+        "A-HUMAN-02",
+        "A-HUMAN-03",
+        "A-LOOP-03"
+      ]
+    },
+    {
+      "assertion": "[claude] questions: cli prompt says the loop waits",
+      "corrections": [
+        "C02",
+        "C08"
+      ],
+      "id": "BASE-066",
+      "observed": "pass",
+      "scenario": 7,
+      "target_cases": [
+        "A-HUMAN-01",
+        "A-HUMAN-02",
+        "A-HUMAN-03",
+        "A-LOOP-03"
+      ]
+    },
+    {
+      "assertion": "[claude] questions: cli prompt has no pane answer rule",
+      "corrections": [
+        "C02",
+        "C08"
+      ],
+      "id": "BASE-067",
+      "observed": "pass",
+      "scenario": 7,
+      "target_cases": [
+        "A-HUMAN-01",
+        "A-HUMAN-02",
+        "A-HUMAN-03",
+        "A-LOOP-03"
+      ]
+    },
+    {
+      "assertion": "[claude] questions: critic prompt does not",
+      "corrections": [
+        "C02",
+        "C08"
+      ],
+      "id": "BASE-068",
+      "observed": "pass",
+      "scenario": 7,
+      "target_cases": [
+        "A-HUMAN-01",
+        "A-HUMAN-02",
+        "A-HUMAN-03",
+        "A-LOOP-03"
+      ]
+    },
+    {
+      "assertion": "[claude] questions: a HUMAN.md older than QUESTIONS.md is no answer",
+      "corrections": [
+        "C02",
+        "C08"
+      ],
+      "id": "BASE-069",
+      "observed": "pass",
+      "scenario": 7,
+      "target_cases": [
+        "A-HUMAN-01",
+        "A-HUMAN-02",
+        "A-HUMAN-03",
+        "A-LOOP-03"
+      ]
+    },
+    {
+      "assertion": "[claude] questions: answer ends the wait and the loop converges",
+      "corrections": [
+        "C02",
+        "C08"
+      ],
+      "id": "BASE-070",
+      "observed": "pass",
+      "scenario": 7,
+      "target_cases": [
+        "A-HUMAN-01",
+        "A-HUMAN-02",
+        "A-HUMAN-03",
+        "A-LOOP-03"
+      ]
+    },
+    {
+      "assertion": "[claude] questions: answer logged",
+      "corrections": [
+        "C02",
+        "C08"
+      ],
+      "id": "BASE-071",
+      "observed": "pass",
+      "scenario": 7,
+      "target_cases": [
+        "A-HUMAN-01",
+        "A-HUMAN-02",
+        "A-HUMAN-03",
+        "A-LOOP-03"
+      ]
+    },
+    {
+      "assertion": "[claude] questions: QUESTIONS.md consumed",
+      "corrections": [
+        "C02",
+        "C08"
+      ],
+      "id": "BASE-072",
+      "observed": "pass",
+      "scenario": 7,
+      "target_cases": [
+        "A-HUMAN-01",
+        "A-HUMAN-02",
+        "A-HUMAN-03",
+        "A-LOOP-03"
+      ]
+    },
+    {
+      "assertion": "[claude] questions: wait marker removed",
+      "corrections": [
+        "C02",
+        "C08"
+      ],
+      "id": "BASE-073",
+      "observed": "pass",
+      "scenario": 7,
+      "target_cases": [
+        "A-HUMAN-01",
+        "A-HUMAN-02",
+        "A-HUMAN-03",
+        "A-LOOP-03"
+      ]
+    },
+    {
+      "assertion": "[claude] questions: archived beside the answer",
+      "corrections": [
+        "C02",
+        "C08"
+      ],
+      "id": "BASE-074",
+      "observed": "pass",
+      "scenario": 7,
+      "target_cases": [
+        "A-HUMAN-01",
+        "A-HUMAN-02",
+        "A-HUMAN-03",
+        "A-LOOP-03"
+      ]
+    },
+    {
+      "assertion": "[claude] questions: critic gets the questions",
+      "corrections": [
+        "C02",
+        "C08"
+      ],
+      "id": "BASE-075",
+      "observed": "pass",
+      "scenario": 7,
+      "target_cases": [
+        "A-HUMAN-01",
+        "A-HUMAN-02",
+        "A-HUMAN-03",
+        "A-LOOP-03"
+      ]
+    },
+    {
+      "assertion": "[claude] questions: critic gets the answer",
+      "corrections": [
+        "C02",
+        "C08"
+      ],
+      "id": "BASE-076",
+      "observed": "pass",
+      "scenario": 7,
+      "target_cases": [
+        "A-HUMAN-01",
+        "A-HUMAN-02",
+        "A-HUMAN-03",
+        "A-LOOP-03"
+      ]
+    },
+    {
+      "assertion": "[claude] questions: answer label on its own line",
+      "corrections": [
+        "C02",
+        "C08"
+      ],
+      "id": "BASE-077",
+      "observed": "pass",
+      "scenario": 7,
+      "target_cases": [
+        "A-HUMAN-01",
+        "A-HUMAN-02",
+        "A-HUMAN-03",
+        "A-LOOP-03"
+      ]
+    },
+    {
+      "assertion": "[claude] questions: answer starts its own line",
+      "corrections": [
+        "C02",
+        "C08"
+      ],
+      "id": "BASE-078",
+      "observed": "pass",
+      "scenario": 7,
+      "target_cases": [
+        "A-HUMAN-01",
+        "A-HUMAN-02",
+        "A-HUMAN-03",
+        "A-LOOP-03"
+      ]
+    },
+    {
+      "assertion": "[claude] questions-tty: typed answer ends the wait",
+      "corrections": [
+        "C02",
+        "C08"
+      ],
+      "id": "BASE-079",
+      "observed": "pass",
+      "scenario": 8,
+      "target_cases": [
+        "A-HUMAN-01",
+        "A-HUMAN-02",
+        "A-HUMAN-03",
+        "A-LOOP-03"
+      ]
+    },
+    {
+      "assertion": "[claude] questions-tty: typing hint shown",
+      "corrections": [
+        "C02",
+        "C08"
+      ],
+      "id": "BASE-080",
+      "observed": "pass",
+      "scenario": 8,
+      "target_cases": [
+        "A-HUMAN-01",
+        "A-HUMAN-02",
+        "A-HUMAN-03",
+        "A-LOOP-03"
+      ]
+    },
+    {
+      "assertion": "[claude] questions-tty: blank line before text is skipped",
+      "corrections": [
+        "C02",
+        "C08"
+      ],
+      "id": "BASE-081",
+      "observed": "pass",
+      "scenario": 8,
+      "target_cases": [
+        "A-HUMAN-01",
+        "A-HUMAN-02",
+        "A-HUMAN-03",
+        "A-LOOP-03"
+      ]
+    },
+    {
+      "assertion": "[claude] questions-tty: older directive kept above the answer",
+      "corrections": [
+        "C02",
+        "C08"
+      ],
+      "id": "BASE-082",
+      "observed": "pass",
+      "scenario": 8,
+      "target_cases": [
+        "A-HUMAN-01",
+        "A-HUMAN-02",
+        "A-HUMAN-03",
+        "A-LOOP-03"
+      ]
+    },
+    {
+      "assertion": "[claude] questions-tty: first typed line kept",
+      "corrections": [
+        "C02",
+        "C08"
+      ],
+      "id": "BASE-083",
+      "observed": "pass",
+      "scenario": 8,
+      "target_cases": [
+        "A-HUMAN-01",
+        "A-HUMAN-02",
+        "A-HUMAN-03",
+        "A-LOOP-03"
+      ]
+    },
+    {
+      "assertion": "[claude] questions-tty: second typed line kept",
+      "corrections": [
+        "C02",
+        "C08"
+      ],
+      "id": "BASE-084",
+      "observed": "pass",
+      "scenario": 8,
+      "target_cases": [
+        "A-HUMAN-01",
+        "A-HUMAN-02",
+        "A-HUMAN-03",
+        "A-LOOP-03"
+      ]
+    },
+    {
+      "assertion": "[claude] questions-tty: critic gets the typed answer",
+      "corrections": [
+        "C02",
+        "C08"
+      ],
+      "id": "BASE-085",
+      "observed": "pass",
+      "scenario": 8,
+      "target_cases": [
+        "A-HUMAN-01",
+        "A-HUMAN-02",
+        "A-HUMAN-03",
+        "A-LOOP-03"
+      ]
+    },
+    {
+      "assertion": "[claude] questions-tty: no temp file left",
+      "corrections": [
+        "C02",
+        "C08"
+      ],
+      "id": "BASE-086",
+      "observed": "pass",
+      "scenario": 8,
+      "target_cases": [
+        "A-HUMAN-01",
+        "A-HUMAN-02",
+        "A-HUMAN-03",
+        "A-LOOP-03"
+      ]
+    },
+    {
+      "assertion": "[claude] questions-touched: HUMAN.md newer than the wait start answers",
+      "corrections": [
+        "C02",
+        "C08"
+      ],
+      "id": "BASE-087",
+      "observed": "pass",
+      "scenario": 9,
+      "target_cases": [
+        "A-HUMAN-01",
+        "A-HUMAN-02",
+        "A-HUMAN-03",
+        "A-LOOP-03"
+      ]
+    },
+    {
+      "assertion": "[claude] questions-touched: critic gets the answer",
+      "corrections": [
+        "C02",
+        "C08"
+      ],
+      "id": "BASE-088",
+      "observed": "pass",
+      "scenario": 9,
+      "target_cases": [
+        "A-HUMAN-01",
+        "A-HUMAN-02",
+        "A-HUMAN-03",
+        "A-LOOP-03"
+      ]
+    },
+    {
+      "assertion": "[claude] questions-deleted: loop goes on and converges",
+      "corrections": [
+        "C02",
+        "C08"
+      ],
+      "id": "BASE-089",
+      "observed": "pass",
+      "scenario": 10,
+      "target_cases": [
+        "A-HUMAN-01",
+        "A-HUMAN-02",
+        "A-HUMAN-03",
+        "A-LOOP-03"
+      ]
+    },
+    {
+      "assertion": "[claude] questions-deleted: logged",
+      "corrections": [
+        "C02",
+        "C08"
+      ],
+      "id": "BASE-090",
+      "observed": "pass",
+      "scenario": 10,
+      "target_cases": [
+        "A-HUMAN-01",
+        "A-HUMAN-02",
+        "A-HUMAN-03",
+        "A-LOOP-03"
+      ]
+    },
+    {
+      "assertion": "[claude] questions-deleted: no directive in round 2",
+      "corrections": [
+        "C02",
+        "C08"
+      ],
+      "id": "BASE-091",
+      "observed": "pass",
+      "scenario": 10,
+      "target_cases": [
+        "A-HUMAN-01",
+        "A-HUMAN-02",
+        "A-HUMAN-03",
+        "A-LOOP-03"
+      ]
+    },
+    {
+      "assertion": "[claude] questions-empty: waits for an answer",
+      "corrections": [
+        "C02",
+        "C08"
+      ],
+      "id": "BASE-092",
+      "observed": "pass",
+      "scenario": 11,
+      "target_cases": [
+        "A-HUMAN-01",
+        "A-HUMAN-02",
+        "A-HUMAN-03",
+        "A-LOOP-03"
+      ]
+    },
+    {
+      "assertion": "[claude] questions-empty: loop goes on and converges",
+      "corrections": [
+        "C02",
+        "C08"
+      ],
+      "id": "BASE-093",
+      "observed": "pass",
+      "scenario": 11,
+      "target_cases": [
+        "A-HUMAN-01",
+        "A-HUMAN-02",
+        "A-HUMAN-03",
+        "A-LOOP-03"
+      ]
+    },
+    {
+      "assertion": "[claude] questions-empty: no answer is invented",
+      "corrections": [
+        "C02",
+        "C08"
+      ],
+      "id": "BASE-094",
+      "observed": "pass",
+      "scenario": 11,
+      "target_cases": [
+        "A-HUMAN-01",
+        "A-HUMAN-02",
+        "A-HUMAN-03",
+        "A-LOOP-03"
+      ]
+    },
+    {
+      "assertion": "[claude] questions-empty: next critique runs",
+      "corrections": [
+        "C02",
+        "C08"
+      ],
+      "id": "BASE-095",
+      "observed": "pass",
+      "scenario": 11,
+      "target_cases": [
+        "A-HUMAN-01",
+        "A-HUMAN-02",
+        "A-HUMAN-03",
+        "A-LOOP-03"
+      ]
+    },
+    {
+      "assertion": "[claude] questions-init: waits after the draft",
+      "corrections": [
+        "C02",
+        "C08"
+      ],
+      "id": "BASE-096",
+      "observed": "pass",
+      "scenario": 12,
+      "target_cases": [
+        "A-HUMAN-01",
+        "A-HUMAN-02",
+        "A-HUMAN-03",
+        "A-LOOP-03"
+      ]
+    },
+    {
+      "assertion": "[claude] questions-init: no critique yet",
+      "corrections": [
+        "C02",
+        "C08"
+      ],
+      "id": "BASE-097",
+      "observed": "pass",
+      "scenario": 12,
+      "target_cases": [
+        "A-HUMAN-01",
+        "A-HUMAN-02",
+        "A-HUMAN-03",
+        "A-LOOP-03"
+      ]
+    },
+    {
+      "assertion": "[claude] questions-init: answer ends the wait and the loop converges",
+      "corrections": [
+        "C02",
+        "C08"
+      ],
+      "id": "BASE-098",
+      "observed": "pass",
+      "scenario": 12,
+      "target_cases": [
+        "A-HUMAN-01",
+        "A-HUMAN-02",
+        "A-HUMAN-03",
+        "A-LOOP-03"
+      ]
+    },
+    {
+      "assertion": "[claude] questions-init: archived with round 1",
+      "corrections": [
+        "C02",
+        "C08"
+      ],
+      "id": "BASE-099",
+      "observed": "pass",
+      "scenario": 12,
+      "target_cases": [
+        "A-HUMAN-01",
+        "A-HUMAN-02",
+        "A-HUMAN-03",
+        "A-LOOP-03"
+      ]
+    },
+    {
+      "assertion": "[claude] questions-rerun: rerun waits at the start",
+      "corrections": [
+        "C02",
+        "C08"
+      ],
+      "id": "BASE-100",
+      "observed": "pass",
+      "scenario": 13,
+      "target_cases": [
+        "A-HUMAN-01",
+        "A-HUMAN-02",
+        "A-HUMAN-03",
+        "A-LOOP-03"
+      ]
+    },
+    {
+      "assertion": "[claude] questions-rerun: no agent call before the answer",
+      "corrections": [
+        "C02",
+        "C08"
+      ],
+      "id": "BASE-101",
+      "observed": "pass",
+      "scenario": 13,
+      "target_cases": [
+        "A-HUMAN-01",
+        "A-HUMAN-02",
+        "A-HUMAN-03",
+        "A-LOOP-03"
+      ]
+    },
+    {
+      "assertion": "[claude] questions-rerun: answered rerun converges",
+      "corrections": [
+        "C02",
+        "C08"
+      ],
+      "id": "BASE-102",
+      "observed": "pass",
+      "scenario": 13,
+      "target_cases": [
+        "A-HUMAN-01",
+        "A-HUMAN-02",
+        "A-HUMAN-03",
+        "A-LOOP-03"
+      ]
+    },
+    {
+      "assertion": "[claude] questions-rerun: critic gets the answer",
+      "corrections": [
+        "C02",
+        "C08"
+      ],
+      "id": "BASE-103",
+      "observed": "pass",
+      "scenario": 13,
+      "target_cases": [
+        "A-HUMAN-01",
+        "A-HUMAN-02",
+        "A-HUMAN-03",
+        "A-LOOP-03"
+      ]
+    },
+    {
+      "assertion": "[claude] questions-closing: waits after the closing pass",
+      "corrections": [
+        "C06",
+        "C07"
+      ],
+      "id": "BASE-104",
+      "observed": "pass",
+      "scenario": 14,
+      "target_cases": [
+        "A-FINAL-01",
+        "A-FINAL-02",
+        "A-FINAL-05"
+      ]
+    },
+    {
+      "assertion": "[claude] questions-closing: not logged as converged",
+      "corrections": [
+        "C06",
+        "C07"
+      ],
+      "id": "BASE-105",
+      "observed": "pass",
+      "scenario": 14,
+      "target_cases": [
+        "A-FINAL-01",
+        "A-FINAL-02",
+        "A-FINAL-05"
+      ]
+    },
+    {
+      "assertion": "[claude] questions-closing: answer gets another review, then converges",
+      "corrections": [
+        "C06",
+        "C07"
+      ],
+      "id": "BASE-106",
+      "observed": "pass",
+      "scenario": 14,
+      "target_cases": [
+        "A-FINAL-01",
+        "A-FINAL-02",
+        "A-FINAL-05"
+      ]
+    },
+    {
+      "assertion": "[claude] questions-closing: critic gets the answer",
+      "corrections": [
+        "C06",
+        "C07"
+      ],
+      "id": "BASE-107",
+      "observed": "pass",
+      "scenario": 14,
+      "target_cases": [
+        "A-FINAL-01",
+        "A-FINAL-02",
+        "A-FINAL-05"
+      ]
+    },
+    {
+      "assertion": "[claude] questions-closing-deleted: converges with no new round",
+      "corrections": [
+        "C06",
+        "C07"
+      ],
+      "id": "BASE-108",
+      "observed": "pass",
+      "scenario": 15,
+      "target_cases": [
+        "A-FINAL-01",
+        "A-FINAL-02",
+        "A-FINAL-05"
+      ]
+    },
+    {
+      "assertion": "[claude] questions-cap: last round does not wait; exits 2",
+      "corrections": [
+        "C02",
+        "C08"
+      ],
+      "id": "BASE-109",
+      "observed": "pass",
+      "scenario": 16,
+      "target_cases": [
+        "A-HUMAN-01",
+        "A-HUMAN-02",
+        "A-HUMAN-03",
+        "A-LOOP-03"
+      ]
+    },
+    {
+      "assertion": "[claude] questions-cap: logged",
+      "corrections": [
+        "C02",
+        "C08"
+      ],
+      "id": "BASE-110",
+      "observed": "pass",
+      "scenario": 16,
+      "target_cases": [
+        "A-HUMAN-01",
+        "A-HUMAN-02",
+        "A-HUMAN-03",
+        "A-LOOP-03"
+      ]
+    },
+    {
+      "assertion": "[claude] questions-cap: impasse report has the last critique",
+      "corrections": [
+        "C02",
+        "C08"
+      ],
+      "id": "BASE-111",
+      "observed": "pass",
+      "scenario": 16,
+      "target_cases": [
+        "A-HUMAN-01",
+        "A-HUMAN-02",
+        "A-HUMAN-03",
+        "A-LOOP-03"
+      ]
+    },
+    {
+      "assertion": "[claude] questions-cap: impasse report lists the open questions",
+      "corrections": [
+        "C02",
+        "C08"
+      ],
+      "id": "BASE-112",
+      "observed": "pass",
+      "scenario": 16,
+      "target_cases": [
+        "A-HUMAN-01",
+        "A-HUMAN-02",
+        "A-HUMAN-03",
+        "A-LOOP-03"
+      ]
+    },
+    {
+      "assertion": "[claude] questions-cap: rerun at the cap does not wait; exits 2",
+      "corrections": [
+        "C02",
+        "C08"
+      ],
+      "id": "BASE-113",
+      "observed": "pass",
+      "scenario": 16,
+      "target_cases": [
+        "A-HUMAN-01",
+        "A-HUMAN-02",
+        "A-HUMAN-03",
+        "A-LOOP-03"
+      ]
+    },
+    {
+      "assertion": "[claude] questions-cap: rerun with a higher cap waits",
+      "corrections": [
+        "C02",
+        "C08"
+      ],
+      "id": "BASE-114",
+      "observed": "pass",
+      "scenario": 16,
+      "target_cases": [
+        "A-HUMAN-01",
+        "A-HUMAN-02",
+        "A-HUMAN-03",
+        "A-LOOP-03"
+      ]
+    },
+    {
+      "assertion": "[claude] questions-cap: answered rerun converges in round 2",
+      "corrections": [
+        "C02",
+        "C08"
+      ],
+      "id": "BASE-115",
+      "observed": "pass",
+      "scenario": 16,
+      "target_cases": [
+        "A-HUMAN-01",
+        "A-HUMAN-02",
+        "A-HUMAN-03",
+        "A-LOOP-03"
+      ]
+    },
+    {
+      "assertion": "[claude] questions-closing-cap: approval with open questions at the cap exits 2",
+      "corrections": [
+        "C06",
+        "C07"
+      ],
+      "id": "BASE-116",
+      "observed": "pass",
+      "scenario": 17,
+      "target_cases": [
+        "A-FINAL-01",
+        "A-FINAL-02",
+        "A-FINAL-05"
+      ]
+    },
+    {
+      "assertion": "[claude] questions-closing-cap: report says the critic approved",
+      "corrections": [
+        "C06",
+        "C07"
+      ],
+      "id": "BASE-117",
+      "observed": "pass",
+      "scenario": 17,
+      "target_cases": [
+        "A-FINAL-01",
+        "A-FINAL-02",
+        "A-FINAL-05"
+      ]
+    },
+    {
+      "assertion": "[claude] questions-closing-cap: not logged as converged",
+      "corrections": [
+        "C06",
+        "C07"
+      ],
+      "id": "BASE-118",
+      "observed": "pass",
+      "scenario": 17,
+      "target_cases": [
+        "A-FINAL-01",
+        "A-FINAL-02",
+        "A-FINAL-05"
+      ]
+    },
+    {
+      "assertion": "[claude] constraints: exit 0",
+      "corrections": [],
+      "id": "BASE-119",
+      "observed": "pass",
+      "scenario": 18,
+      "target_cases": [
+        "A-PROMPT-01",
+        "A-PROMPT-02"
+      ]
+    },
+    {
+      "assertion": "[claude] constraints: initial planner got binding block",
+      "corrections": [],
+      "id": "BASE-120",
+      "observed": "pass",
+      "scenario": 18,
+      "target_cases": [
+        "A-PROMPT-01",
+        "A-PROMPT-02"
+      ]
+    },
+    {
+      "assertion": "[claude] constraints: critic got constraint body",
+      "corrections": [],
+      "id": "BASE-121",
+      "observed": "pass",
+      "scenario": 18,
+      "target_cases": [
+        "A-PROMPT-01",
+        "A-PROMPT-02"
+      ]
+    },
+    {
+      "assertion": "[claude] constraints: revision planner got constraint body",
+      "corrections": [],
+      "id": "BASE-122",
+      "observed": "pass",
+      "scenario": 18,
+      "target_cases": [
+        "A-PROMPT-01",
+        "A-PROMPT-02"
+      ]
+    },
+    {
+      "assertion": "[claude] constraints: no placeholder residue",
+      "corrections": [],
+      "id": "BASE-123",
+      "observed": "pass",
+      "scenario": 18,
+      "target_cases": [
+        "A-PROMPT-01",
+        "A-PROMPT-02"
+      ]
+    },
+    {
+      "assertion": "[claude] second-opinion-impasse: exit 2",
+      "corrections": [
+        "C01",
+        "C09",
+        "C10",
+        "C11",
+        "C12"
+      ],
+      "id": "BASE-124",
+      "observed": "pass",
+      "scenario": 19,
+      "target_cases": [
+        "A-LOOP-06",
+        "A-GK-10",
+        "A-GK-11",
+        "A-REC-02"
+      ]
+    },
+    {
+      "assertion": "[claude] second-opinion-impasse: no second opinion",
+      "corrections": [
+        "C06",
+        "C07"
+      ],
+      "id": "BASE-125",
+      "observed": "pass",
+      "scenario": 19,
+      "target_cases": [
+        "A-FINAL-01",
+        "A-FINAL-02",
+        "A-FINAL-05"
+      ]
+    },
+    {
+      "assertion": "[claude] impasse: exit 2",
+      "corrections": [
+        "C01"
+      ],
+      "id": "BASE-126",
+      "observed": "pass",
+      "scenario": 20,
+      "target_cases": [
+        "A-LOOP-05"
+      ]
+    },
+    {
+      "assertion": "[claude] impasse: IMPASSE.md written",
+      "corrections": [
+        "C01"
+      ],
+      "id": "BASE-127",
+      "observed": "pass",
+      "scenario": 20,
+      "target_cases": [
+        "A-LOOP-05"
+      ]
+    },
+    {
+      "assertion": "[claude] verdict-retry: exit 0",
+      "corrections": [
+        "C04",
+        "C05"
+      ],
+      "id": "BASE-128",
+      "observed": "pass",
+      "scenario": 21,
+      "target_cases": [
+        "A-LOOP-02",
+        "A-FINAL-04"
+      ]
+    },
+    {
+      "assertion": "[claude] verdict-retry: critic asked twice",
+      "corrections": [
+        "C04",
+        "C05"
+      ],
+      "id": "BASE-129",
+      "observed": "pass",
+      "scenario": 21,
+      "target_cases": [
+        "A-LOOP-02",
+        "A-FINAL-04"
+      ]
+    },
+    {
+      "assertion": "[claude] verdict-retry: still round 1",
+      "corrections": [
+        "C04",
+        "C05"
+      ],
+      "id": "BASE-130",
+      "observed": "pass",
+      "scenario": 21,
+      "target_cases": [
+        "A-LOOP-02",
+        "A-FINAL-04"
+      ]
+    },
+    {
+      "assertion": "[claude] review rule: re-asked critic receives it",
+      "corrections": [],
+      "id": "BASE-131",
+      "observed": "pass",
+      "scenario": 21,
+      "target_cases": [
+        "A-PROMPT-01",
+        "A-PROMPT-02"
+      ]
+    },
+    {
+      "assertion": "[claude] context: exit 0",
+      "corrections": [
+        "C15"
+      ],
+      "id": "BASE-132",
+      "observed": "pass",
+      "scenario": 22,
+      "target_cases": [
+        "A-CFG-05",
+        "A-REC-02",
+        "A-LOOP-07"
+      ]
+    },
+    {
+      "assertion": "[claude] context: planner prompt names the dir",
+      "corrections": [
+        "C15"
+      ],
+      "id": "BASE-133",
+      "observed": "pass",
+      "scenario": 22,
+      "target_cases": [
+        "A-CFG-05",
+        "A-REC-02",
+        "A-LOOP-07"
+      ]
+    },
+    {
+      "assertion": "[claude] context: critic prompt names the dir",
+      "corrections": [
+        "C15"
+      ],
+      "id": "BASE-134",
+      "observed": "pass",
+      "scenario": 22,
+      "target_cases": [
+        "A-CFG-05",
+        "A-REC-02",
+        "A-LOOP-07"
+      ]
+    },
+    {
+      "assertion": "[claude] context: claude invoked with --add-dir",
+      "corrections": [
+        "C15"
+      ],
+      "id": "BASE-135",
+      "observed": "pass",
+      "scenario": 22,
+      "target_cases": [
+        "A-CFG-05",
+        "A-REC-02",
+        "A-LOOP-07"
+      ]
+    },
+    {
+      "assertion": "[claude] context: --add-dir points at the dir",
+      "corrections": [
+        "C15"
+      ],
+      "id": "BASE-136",
+      "observed": "pass",
+      "scenario": 22,
+      "target_cases": [
+        "A-CFG-05",
+        "A-REC-02",
+        "A-LOOP-07"
+      ]
+    },
+    {
+      "assertion": "[claude] context-guard: relative path refused",
+      "corrections": [
+        "C15"
+      ],
+      "id": "BASE-137",
+      "observed": "pass",
+      "scenario": 23,
+      "target_cases": [
+        "A-CFG-05",
+        "A-REC-02",
+        "A-LOOP-07"
+      ]
+    },
+    {
+      "assertion": "[claude] context-guard: unreadable path refused",
+      "corrections": [
+        "C15"
+      ],
+      "id": "BASE-138",
+      "observed": "pass",
+      "scenario": 24,
+      "target_cases": [
+        "A-CFG-05",
+        "A-REC-02",
+        "A-LOOP-07"
+      ]
+    },
+    {
+      "assertion": "[claude] context-guard: dir inside workspace refused",
+      "corrections": [
+        "C15"
+      ],
+      "id": "BASE-139",
+      "observed": "pass",
+      "scenario": 25,
+      "target_cases": [
+        "A-CFG-05",
+        "A-REC-02",
+        "A-LOOP-07"
+      ]
+    },
+    {
+      "assertion": "[claude] context-guard: workspace itself refused",
+      "corrections": [
+        "C15"
+      ],
+      "id": "BASE-140",
+      "observed": "pass",
+      "scenario": 26,
+      "target_cases": [
+        "A-CFG-05",
+        "A-REC-02",
+        "A-LOOP-07"
+      ]
+    },
+    {
+      "assertion": "[claude] profile: exit 0",
+      "corrections": [],
+      "id": "BASE-141",
+      "observed": "pass",
+      "scenario": 27,
+      "target_cases": [
+        "A-PROMPT-01",
+        "A-PROMPT-02"
+      ]
+    },
+    {
+      "assertion": "[claude] profile: critic prompt carries the rubric",
+      "corrections": [],
+      "id": "BASE-142",
+      "observed": "pass",
+      "scenario": 27,
+      "target_cases": [
+        "A-PROMPT-01",
+        "A-PROMPT-02"
+      ]
+    },
+    {
+      "assertion": "[claude] profile: planner prompt does not",
+      "corrections": [],
+      "id": "BASE-143",
+      "observed": "pass",
+      "scenario": 27,
+      "target_cases": [
+        "A-PROMPT-01",
+        "A-PROMPT-02"
+      ]
+    },
+    {
+      "assertion": "[claude] profile-guard: unknown profile refused",
+      "corrections": [],
+      "id": "BASE-144",
+      "observed": "pass",
+      "scenario": 28,
+      "target_cases": [
+        "A-PROMPT-01",
+        "A-PROMPT-02"
+      ]
+    },
+    {
+      "assertion": "[claude] profile-off: unprofiled critic prompt clean",
+      "corrections": [],
+      "id": "BASE-145",
+      "observed": "pass",
+      "scenario": 29,
+      "target_cases": [
+        "A-PROMPT-01",
+        "A-PROMPT-02"
+      ]
+    },
+    {
+      "assertion": "[claude] models: exit 0",
+      "corrections": [
+        "C12"
+      ],
+      "id": "BASE-146",
+      "observed": "pass",
+      "scenario": 30,
+      "target_cases": [
+        "A-REC-01",
+        "A-DIRECT-01",
+        "A-GK-01"
+      ]
+    },
+    {
+      "assertion": "[claude] models: provenance records claude model",
+      "corrections": [
+        "C12"
+      ],
+      "id": "BASE-147",
+      "observed": "pass",
+      "scenario": 30,
+      "target_cases": [
+        "A-REC-01",
+        "A-DIRECT-01",
+        "A-GK-01"
+      ]
+    },
+    {
+      "assertion": "[claude] models: provenance records codex model",
+      "corrections": [
+        "C12"
+      ],
+      "id": "BASE-148",
+      "observed": "pass",
+      "scenario": 30,
+      "target_cases": [
+        "A-REC-01",
+        "A-DIRECT-01",
+        "A-GK-01"
+      ]
+    },
+    {
+      "assertion": "[claude] models: claude invoked with --model",
+      "corrections": [
+        "C12"
+      ],
+      "id": "BASE-149",
+      "observed": "pass",
+      "scenario": 30,
+      "target_cases": [
+        "A-REC-01",
+        "A-DIRECT-01",
+        "A-GK-01"
+      ]
+    },
+    {
+      "assertion": "[claude] models: claude model value passed",
+      "corrections": [
+        "C12"
+      ],
+      "id": "BASE-150",
+      "observed": "pass",
+      "scenario": 30,
+      "target_cases": [
+        "A-REC-01",
+        "A-DIRECT-01",
+        "A-GK-01"
+      ]
+    },
+    {
+      "assertion": "[claude] models: codex invoked with --model",
+      "corrections": [
+        "C12"
+      ],
+      "id": "BASE-151",
+      "observed": "pass",
+      "scenario": 30,
+      "target_cases": [
+        "A-REC-01",
+        "A-DIRECT-01",
+        "A-GK-01"
+      ]
+    },
+    {
+      "assertion": "[claude] models: codex model value passed",
+      "corrections": [
+        "C12"
+      ],
+      "id": "BASE-152",
+      "observed": "pass",
+      "scenario": 30,
+      "target_cases": [
+        "A-REC-01",
+        "A-DIRECT-01",
+        "A-GK-01"
+      ]
+    },
+    {
+      "assertion": "[claude] effort: exit 0",
+      "corrections": [
+        "C12"
+      ],
+      "id": "BASE-153",
+      "observed": "pass",
+      "scenario": 31,
+      "target_cases": [
+        "A-REC-01",
+        "A-DIRECT-01",
+        "A-GK-01"
+      ]
+    },
+    {
+      "assertion": "[claude] effort: provenance records claude effort",
+      "corrections": [
+        "C12"
+      ],
+      "id": "BASE-154",
+      "observed": "pass",
+      "scenario": 31,
+      "target_cases": [
+        "A-REC-01",
+        "A-DIRECT-01",
+        "A-GK-01"
+      ]
+    },
+    {
+      "assertion": "[claude] effort: provenance records codex effort",
+      "corrections": [
+        "C12"
+      ],
+      "id": "BASE-155",
+      "observed": "pass",
+      "scenario": 31,
+      "target_cases": [
+        "A-REC-01",
+        "A-DIRECT-01",
+        "A-GK-01"
+      ]
+    },
+    {
+      "assertion": "[claude] effort: claude invoked with --effort",
+      "corrections": [
+        "C12"
+      ],
+      "id": "BASE-156",
+      "observed": "pass",
+      "scenario": 31,
+      "target_cases": [
+        "A-REC-01",
+        "A-DIRECT-01",
+        "A-GK-01"
+      ]
+    },
+    {
+      "assertion": "[claude] effort: claude effort value passed",
+      "corrections": [
+        "C12"
+      ],
+      "id": "BASE-157",
+      "observed": "pass",
+      "scenario": 31,
+      "target_cases": [
+        "A-REC-01",
+        "A-DIRECT-01",
+        "A-GK-01"
+      ]
+    },
+    {
+      "assertion": "[claude] effort: codex gets model_reasoning_effort override",
+      "corrections": [
+        "C12"
+      ],
+      "id": "BASE-158",
+      "observed": "pass",
+      "scenario": 31,
+      "target_cases": [
+        "A-REC-01",
+        "A-DIRECT-01",
+        "A-GK-01"
+      ]
+    },
+    {
+      "assertion": "[claude] effort-persistent: exit 0",
+      "corrections": [
+        "C12"
+      ],
+      "id": "BASE-159",
+      "observed": "pass",
+      "scenario": 32,
+      "target_cases": [
+        "A-REC-01",
+        "A-DIRECT-01",
+        "A-GK-01"
+      ]
+    },
+    {
+      "assertion": "[claude] effort-persistent: claude resume keeps --effort",
+      "corrections": [
+        "C12"
+      ],
+      "id": "BASE-160",
+      "observed": "pass",
+      "scenario": 32,
+      "target_cases": [
+        "A-REC-01",
+        "A-DIRECT-01",
+        "A-GK-01"
+      ]
+    },
+    {
+      "assertion": "[claude] effort-persistent: codex resume re-receives the override",
+      "corrections": [
+        "C12"
+      ],
+      "id": "BASE-161",
+      "observed": "pass",
+      "scenario": 32,
+      "target_cases": [
+        "A-REC-01",
+        "A-DIRECT-01",
+        "A-GK-01"
+      ]
+    },
+    {
+      "assertion": "[claude] effort-guard: bad claude effort refused",
+      "corrections": [
+        "C12"
+      ],
+      "id": "BASE-162",
+      "observed": "pass",
+      "scenario": 33,
+      "target_cases": [
+        "A-REC-01",
+        "A-DIRECT-01",
+        "A-GK-01"
+      ]
+    },
+    {
+      "assertion": "[claude] effort-guard: message names the variable",
+      "corrections": [
+        "C12"
+      ],
+      "id": "BASE-163",
+      "observed": "pass",
+      "scenario": 33,
+      "target_cases": [
+        "A-REC-01",
+        "A-DIRECT-01",
+        "A-GK-01"
+      ]
+    },
+    {
+      "assertion": "[claude] effort-off: claude argv carries no --effort",
+      "corrections": [
+        "C12"
+      ],
+      "id": "BASE-164",
+      "observed": "pass",
+      "scenario": 34,
+      "target_cases": [
+        "A-REC-01",
+        "A-DIRECT-01",
+        "A-GK-01"
+      ]
+    },
+    {
+      "assertion": "[claude] effort-off: codex argv carries no effort override",
+      "corrections": [
+        "C12"
+      ],
+      "id": "BASE-165",
+      "observed": "pass",
+      "scenario": 34,
+      "target_cases": [
+        "A-REC-01",
+        "A-DIRECT-01",
+        "A-GK-01"
+      ]
+    },
+    {
+      "assertion": "[claude] role-pin: swapped rerun refused",
+      "corrections": [
+        "C01",
+        "C09",
+        "C10",
+        "C11",
+        "C12"
+      ],
+      "id": "BASE-166",
+      "observed": "pass",
+      "scenario": 35,
+      "target_cases": [
+        "A-LOOP-06",
+        "A-GK-10",
+        "A-GK-11",
+        "A-REC-02"
+      ]
+    },
+    {
+      "assertion": "[claude] role-pin: message names original role",
+      "corrections": [
+        "C01",
+        "C09",
+        "C10",
+        "C11",
+        "C12"
+      ],
+      "id": "BASE-167",
+      "observed": "pass",
+      "scenario": 35,
+      "target_cases": [
+        "A-LOOP-06",
+        "A-GK-10",
+        "A-GK-11",
+        "A-REC-02"
+      ]
+    },
+    {
+      "assertion": "[claude] persistent: exit 0",
+      "corrections": [
+        "C10"
+      ],
+      "id": "BASE-168",
+      "observed": "pass",
+      "scenario": 36,
+      "target_cases": [
+        "A-DIRECT-02",
+        "A-DIRECT-03",
+        "A-DIRECT-04"
+      ]
+    },
+    {
+      "assertion": "[claude] persistent: planner session recorded",
+      "corrections": [
+        "C10"
+      ],
+      "id": "BASE-169",
+      "observed": "pass",
+      "scenario": 36,
+      "target_cases": [
+        "A-DIRECT-02",
+        "A-DIRECT-03",
+        "A-DIRECT-04"
+      ]
+    },
+    {
+      "assertion": "[claude] persistent: critic session recorded",
+      "corrections": [
+        "C10"
+      ],
+      "id": "BASE-170",
+      "observed": "pass",
+      "scenario": 36,
+      "target_cases": [
+        "A-DIRECT-02",
+        "A-DIRECT-03",
+        "A-DIRECT-04"
+      ]
+    },
+    {
+      "assertion": "[claude] persistent: provenance records mode",
+      "corrections": [
+        "C12"
+      ],
+      "id": "BASE-171",
+      "observed": "pass",
+      "scenario": 36,
+      "target_cases": [
+        "A-REC-01",
+        "A-DIRECT-01",
+        "A-GK-01"
+      ]
+    },
+    {
+      "assertion": "[claude] persistent: claude planner opens with --session-id",
+      "corrections": [
+        "C10"
+      ],
+      "id": "BASE-172",
+      "observed": "pass",
+      "scenario": 36,
+      "target_cases": [
+        "A-DIRECT-02",
+        "A-DIRECT-03",
+        "A-DIRECT-04"
+      ]
+    },
+    {
+      "assertion": "[claude] persistent: recorded id matches the opener",
+      "corrections": [
+        "C10"
+      ],
+      "id": "BASE-173",
+      "observed": "pass",
+      "scenario": 36,
+      "target_cases": [
+        "A-DIRECT-02",
+        "A-DIRECT-03",
+        "A-DIRECT-04"
+      ]
+    },
+    {
+      "assertion": "[claude] persistent: claude planner resumes on revision",
+      "corrections": [
+        "C10"
+      ],
+      "id": "BASE-174",
+      "observed": "pass",
+      "scenario": 36,
+      "target_cases": [
+        "A-DIRECT-02",
+        "A-DIRECT-03",
+        "A-DIRECT-04"
+      ]
+    },
+    {
+      "assertion": "[claude] persistent: revision resumes the recorded id",
+      "corrections": [
+        "C10"
+      ],
+      "id": "BASE-175",
+      "observed": "pass",
+      "scenario": 36,
+      "target_cases": [
+        "A-DIRECT-02",
+        "A-DIRECT-03",
+        "A-DIRECT-04"
+      ]
+    },
+    {
+      "assertion": "[claude] persistent: codex critic round 1 is a fresh exec",
+      "corrections": [
+        "C10"
+      ],
+      "id": "BASE-176",
+      "observed": "pass",
+      "scenario": 36,
+      "target_cases": [
+        "A-DIRECT-02",
+        "A-DIRECT-03",
+        "A-DIRECT-04"
+      ]
+    },
+    {
+      "assertion": "[claude] persistent: codex critic round 2 resumes",
+      "corrections": [
+        "C10"
+      ],
+      "id": "BASE-177",
+      "observed": "pass",
+      "scenario": 36,
+      "target_cases": [
+        "A-DIRECT-02",
+        "A-DIRECT-03",
+        "A-DIRECT-04"
+      ]
+    },
+    {
+      "assertion": "[claude] persistent: codex resume names the recorded id",
+      "corrections": [
+        "C10"
+      ],
+      "id": "BASE-178",
+      "observed": "pass",
+      "scenario": 36,
+      "target_cases": [
+        "A-DIRECT-02",
+        "A-DIRECT-03",
+        "A-DIRECT-04"
+      ]
+    },
+    {
+      "assertion": "[claude] persistent: codex resume re-imposes read-only sandbox",
+      "corrections": [
+        "C10"
+      ],
+      "id": "BASE-179",
+      "observed": "pass",
+      "scenario": 36,
+      "target_cases": [
+        "A-DIRECT-02",
+        "A-DIRECT-03",
+        "A-DIRECT-04"
+      ]
+    },
+    {
+      "assertion": "[claude] persistent-retry: exit 0",
+      "corrections": [
+        "C10"
+      ],
+      "id": "BASE-180",
+      "observed": "pass",
+      "scenario": 37,
+      "target_cases": [
+        "A-DIRECT-02",
+        "A-DIRECT-03",
+        "A-DIRECT-04"
+      ]
+    },
+    {
+      "assertion": "[claude] persistent-retry: re-ask resumes the critic session",
+      "corrections": [
+        "C10"
+      ],
+      "id": "BASE-181",
+      "observed": "pass",
+      "scenario": 37,
+      "target_cases": [
+        "A-DIRECT-02",
+        "A-DIRECT-03",
+        "A-DIRECT-04"
+      ]
+    },
+    {
+      "assertion": "[claude] persistent-second: exit 0",
+      "corrections": [
+        "C10"
+      ],
+      "id": "BASE-182",
+      "observed": "pass",
+      "scenario": 38,
+      "target_cases": [
+        "A-DIRECT-02",
+        "A-DIRECT-03",
+        "A-DIRECT-04"
+      ]
+    },
+    {
+      "assertion": "[claude] persistent-second: second opinion stays one-shot",
+      "corrections": [
+        "C06",
+        "C07"
+      ],
+      "id": "BASE-183",
+      "observed": "pass",
+      "scenario": 38,
+      "target_cases": [
+        "A-FINAL-01",
+        "A-FINAL-02",
+        "A-FINAL-05"
+      ]
+    },
+    {
+      "assertion": "[claude] persistent-second: closing pass resumes the planner session",
+      "corrections": [
+        "C06",
+        "C07"
+      ],
+      "id": "BASE-184",
+      "observed": "pass",
+      "scenario": 38,
+      "target_cases": [
+        "A-FINAL-01",
+        "A-FINAL-02",
+        "A-FINAL-05"
+      ]
+    },
+    {
+      "assertion": "[claude] persistent-pin: mode flip on rerun refused",
+      "corrections": [
+        "C10"
+      ],
+      "id": "BASE-185",
+      "observed": "pass",
+      "scenario": 39,
+      "target_cases": [
+        "A-DIRECT-02",
+        "A-DIRECT-03",
+        "A-DIRECT-04"
+      ]
+    },
+    {
+      "assertion": "[claude] persistent-pin: message names VOLLEY_PERSISTENT",
+      "corrections": [
+        "C10"
+      ],
+      "id": "BASE-186",
+      "observed": "pass",
+      "scenario": 39,
+      "target_cases": [
+        "A-DIRECT-02",
+        "A-DIRECT-03",
+        "A-DIRECT-04"
+      ]
+    },
+    {
+      "assertion": "[claude] resume-revision: exit 0",
+      "corrections": [
+        "C01",
+        "C09",
+        "C10",
+        "C11",
+        "C12"
+      ],
+      "id": "BASE-187",
+      "observed": "pass",
+      "scenario": 40,
+      "target_cases": [
+        "A-LOOP-06",
+        "A-GK-10",
+        "A-GK-11",
+        "A-REC-02"
+      ]
+    },
+    {
+      "assertion": "[claude] resume-revision: log names the catch-up",
+      "corrections": [
+        "C01",
+        "C09",
+        "C10",
+        "C11",
+        "C12"
+      ],
+      "id": "BASE-188",
+      "observed": "pass",
+      "scenario": 40,
+      "target_cases": [
+        "A-LOOP-06",
+        "A-GK-10",
+        "A-GK-11",
+        "A-REC-02"
+      ]
+    },
+    {
+      "assertion": "[claude] resume-revision: r01 spec snapshot recreated",
+      "corrections": [
+        "C01",
+        "C09",
+        "C10",
+        "C11",
+        "C12"
+      ],
+      "id": "BASE-189",
+      "observed": "pass",
+      "scenario": 40,
+      "target_cases": [
+        "A-LOOP-06",
+        "A-GK-10",
+        "A-GK-11",
+        "A-REC-02"
+      ]
+    },
+    {
+      "assertion": "[claude] resume-revision: critic then reviews the revised spec",
+      "corrections": [
+        "C01",
+        "C09",
+        "C10",
+        "C11",
+        "C12"
+      ],
+      "id": "BASE-190",
+      "observed": "pass",
+      "scenario": 40,
+      "target_cases": [
+        "A-LOOP-06",
+        "A-GK-10",
+        "A-GK-11",
+        "A-REC-02"
+      ]
+    },
+    {
+      "assertion": "[claude] resume-revision: no wasted critic call",
+      "corrections": [
+        "C01",
+        "C09",
+        "C10",
+        "C11",
+        "C12"
+      ],
+      "id": "BASE-191",
+      "observed": "pass",
+      "scenario": 40,
+      "target_cases": [
+        "A-LOOP-06",
+        "A-GK-10",
+        "A-GK-11",
+        "A-REC-02"
+      ]
+    },
+    {
+      "assertion": "[claude] persistent-off: no planner session file",
+      "corrections": [
+        "C10"
+      ],
+      "id": "BASE-192",
+      "observed": "pass",
+      "scenario": 41,
+      "target_cases": [
+        "A-DIRECT-02",
+        "A-DIRECT-03",
+        "A-DIRECT-04"
+      ]
+    },
+    {
+      "assertion": "[claude] persistent-off: no critic session file",
+      "corrections": [
+        "C10"
+      ],
+      "id": "BASE-193",
+      "observed": "pass",
+      "scenario": 41,
+      "target_cases": [
+        "A-DIRECT-02",
+        "A-DIRECT-03",
+        "A-DIRECT-04"
+      ]
+    },
+    {
+      "assertion": "[claude] persistent-off: provenance records mode off",
+      "corrections": [
+        "C12"
+      ],
+      "id": "BASE-194",
+      "observed": "pass",
+      "scenario": 41,
+      "target_cases": [
+        "A-REC-01",
+        "A-DIRECT-01",
+        "A-GK-01"
+      ]
+    },
+    {
+      "assertion": "[codex] approve-first: exit 0",
+      "corrections": [
+        "C01"
+      ],
+      "id": "BASE-195",
+      "observed": "pass",
+      "scenario": 42,
+      "target_cases": [
+        "A-LOOP-01",
+        "A-LOOP-02",
+        "A-DIRECT-01"
+      ]
+    },
+    {
+      "assertion": "[codex] approve-first: SPEC.md written",
+      "corrections": [
+        "C01"
+      ],
+      "id": "BASE-196",
+      "observed": "pass",
+      "scenario": 42,
+      "target_cases": [
+        "A-LOOP-01",
+        "A-LOOP-02",
+        "A-DIRECT-01"
+      ]
+    },
+    {
+      "assertion": "[codex] approve-first: r01 critique has verdict",
+      "corrections": [
+        "C04",
+        "C05"
+      ],
+      "id": "BASE-197",
+      "observed": "pass",
+      "scenario": 42,
+      "target_cases": [
+        "A-LOOP-02",
+        "A-FINAL-04"
+      ]
+    },
+    {
+      "assertion": "[codex] approve-first: critic was claude",
+      "corrections": [
+        "C01"
+      ],
+      "id": "BASE-198",
+      "observed": "pass",
+      "scenario": 42,
+      "target_cases": [
+        "A-LOOP-01",
+        "A-LOOP-02",
+        "A-DIRECT-01"
+      ]
+    },
+    {
+      "assertion": "[codex] approve-first: planner was codex",
+      "corrections": [
+        "C01"
+      ],
+      "id": "BASE-199",
+      "observed": "pass",
+      "scenario": 42,
+      "target_cases": [
+        "A-LOOP-01",
+        "A-LOOP-02",
+        "A-DIRECT-01"
+      ]
+    },
+    {
+      "assertion": "[codex] approve-first: clean approval skips closing pass",
+      "corrections": [
+        "C06",
+        "C07"
+      ],
+      "id": "BASE-200",
+      "observed": "pass",
+      "scenario": 42,
+      "target_cases": [
+        "A-FINAL-01",
+        "A-FINAL-02",
+        "A-FINAL-05"
+      ]
+    },
+    {
+      "assertion": "[codex] approve-first: no second opinion by default",
+      "corrections": [
+        "C06",
+        "C07"
+      ],
+      "id": "BASE-201",
+      "observed": "pass",
+      "scenario": 42,
+      "target_cases": [
+        "A-FINAL-01",
+        "A-FINAL-02",
+        "A-FINAL-05"
+      ]
+    },
+    {
+      "assertion": "[codex] approve-first: provenance written",
+      "corrections": [
+        "C12"
+      ],
+      "id": "BASE-202",
+      "observed": "pass",
+      "scenario": 42,
+      "target_cases": [
+        "A-REC-01",
+        "A-DIRECT-01",
+        "A-GK-01"
+      ]
+    },
+    {
+      "assertion": "[codex] approve-first: provenance records role assignment",
+      "corrections": [
+        "C12"
+      ],
+      "id": "BASE-203",
+      "observed": "pass",
+      "scenario": 42,
+      "target_cases": [
+        "A-REC-01",
+        "A-DIRECT-01",
+        "A-GK-01"
+      ]
+    },
+    {
+      "assertion": "[codex] approve-first: provenance records claude version",
+      "corrections": [
+        "C12"
+      ],
+      "id": "BASE-204",
+      "observed": "pass",
+      "scenario": 42,
+      "target_cases": [
+        "A-REC-01",
+        "A-DIRECT-01",
+        "A-GK-01"
+      ]
+    },
+    {
+      "assertion": "[codex] approve-first: provenance records codex version",
+      "corrections": [
+        "C12"
+      ],
+      "id": "BASE-205",
+      "observed": "pass",
+      "scenario": 42,
+      "target_cases": [
+        "A-REC-01",
+        "A-DIRECT-01",
+        "A-GK-01"
+      ]
+    },
+    {
+      "assertion": "[codex] approve-first: provenance records unpinned models",
+      "corrections": [
+        "C12"
+      ],
+      "id": "BASE-206",
+      "observed": "pass",
+      "scenario": 42,
+      "target_cases": [
+        "A-REC-01",
+        "A-DIRECT-01",
+        "A-GK-01"
+      ]
+    },
+    {
+      "assertion": "[codex] approve-first: planner prompt stays free of loop framing",
+      "corrections": [
+        "C01"
+      ],
+      "id": "BASE-207",
+      "observed": "pass",
+      "scenario": 42,
+      "target_cases": [
+        "A-LOOP-01",
+        "A-LOOP-02",
+        "A-DIRECT-01"
+      ]
+    },
+    {
+      "assertion": "[codex] review rule: initial planner receives it",
+      "corrections": [],
+      "id": "BASE-208",
+      "observed": "pass",
+      "scenario": 42,
+      "target_cases": [
+        "A-PROMPT-01",
+        "A-PROMPT-02"
+      ]
+    },
+    {
+      "assertion": "[codex] review rule: critic receives it",
+      "corrections": [],
+      "id": "BASE-209",
+      "observed": "pass",
+      "scenario": 42,
+      "target_cases": [
+        "A-PROMPT-01",
+        "A-PROMPT-02"
+      ]
+    },
+    {
+      "assertion": "[codex] revise-approve: exit 0",
+      "corrections": [
+        "C01"
+      ],
+      "id": "BASE-210",
+      "observed": "pass",
+      "scenario": 43,
+      "target_cases": [
+        "A-LOOP-01",
+        "A-LOOP-02",
+        "A-DIRECT-01"
+      ]
+    },
+    {
+      "assertion": "[codex] revise-approve: r01 spec snapshot kept",
+      "corrections": [
+        "C01"
+      ],
+      "id": "BASE-211",
+      "observed": "pass",
+      "scenario": 43,
+      "target_cases": [
+        "A-LOOP-01",
+        "A-LOOP-02",
+        "A-DIRECT-01"
+      ]
+    },
+    {
+      "assertion": "[codex] revise-approve: spec revised",
+      "corrections": [
+        "C01"
+      ],
+      "id": "BASE-212",
+      "observed": "pass",
+      "scenario": 43,
+      "target_cases": [
+        "A-LOOP-01",
+        "A-LOOP-02",
+        "A-DIRECT-01"
+      ]
+    },
+    {
+      "assertion": "[codex] revise-approve: revise prompt asks for no response file",
+      "corrections": [
+        "C01"
+      ],
+      "id": "BASE-213",
+      "observed": "pass",
+      "scenario": 43,
+      "target_cases": [
+        "A-LOOP-01",
+        "A-LOOP-02",
+        "A-DIRECT-01"
+      ]
+    },
+    {
+      "assertion": "[codex] revise-approve: volley saved the init reply",
+      "corrections": [
+        "C01"
+      ],
+      "id": "BASE-214",
+      "observed": "pass",
+      "scenario": 43,
+      "target_cases": [
+        "A-LOOP-01",
+        "A-LOOP-02",
+        "A-DIRECT-01"
+      ]
+    },
+    {
+      "assertion": "[codex] revise-approve: volley saved the revise reply",
+      "corrections": [
+        "C01"
+      ],
+      "id": "BASE-215",
+      "observed": "pass",
+      "scenario": 43,
+      "target_cases": [
+        "A-LOOP-01",
+        "A-LOOP-02",
+        "A-DIRECT-01"
+      ]
+    },
+    {
+      "assertion": "[codex] revise-approve: planner log keeps the replies",
+      "corrections": [
+        "C01"
+      ],
+      "id": "BASE-216",
+      "observed": "pass",
+      "scenario": 43,
+      "target_cases": [
+        "A-LOOP-01",
+        "A-LOOP-02",
+        "A-DIRECT-01"
+      ]
+    },
+    {
+      "assertion": "[codex] revise-approve: two critiques",
+      "corrections": [
+        "C01"
+      ],
+      "id": "BASE-217",
+      "observed": "pass",
+      "scenario": 43,
+      "target_cases": [
+        "A-LOOP-01",
+        "A-LOOP-02",
+        "A-DIRECT-01"
+      ]
+    },
+    {
+      "assertion": "[codex] revise-approve: no closing pass on clean approve",
+      "corrections": [
+        "C06",
+        "C07"
+      ],
+      "id": "BASE-218",
+      "observed": "pass",
+      "scenario": 43,
+      "target_cases": [
+        "A-FINAL-01",
+        "A-FINAL-02",
+        "A-FINAL-05"
+      ]
+    },
+    {
+      "assertion": "[codex] review rule: revision planner receives it",
+      "corrections": [],
+      "id": "BASE-219",
+      "observed": "pass",
+      "scenario": 43,
+      "target_cases": [
+        "A-PROMPT-01",
+        "A-PROMPT-02"
+      ]
+    },
+    {
+      "assertion": "[codex] closing-pass: exit 0",
+      "corrections": [
+        "C06",
+        "C07"
+      ],
+      "id": "BASE-220",
+      "observed": "pass",
+      "scenario": 44,
+      "target_cases": [
+        "A-FINAL-01",
+        "A-FINAL-02",
+        "A-FINAL-05"
+      ]
+    },
+    {
+      "assertion": "[codex] closing-pass: one extra planner call",
+      "corrections": [
+        "C06",
+        "C07"
+      ],
+      "id": "BASE-221",
+      "observed": "pass",
+      "scenario": 44,
+      "target_cases": [
+        "A-FINAL-01",
+        "A-FINAL-02",
+        "A-FINAL-05"
+      ]
+    },
+    {
+      "assertion": "[codex] closing-pass: prompt asks for no response file",
+      "corrections": [
+        "C06",
+        "C07"
+      ],
+      "id": "BASE-222",
+      "observed": "pass",
+      "scenario": 44,
+      "target_cases": [
+        "A-FINAL-01",
+        "A-FINAL-02",
+        "A-FINAL-05"
+      ]
+    },
+    {
+      "assertion": "[codex] closing-pass: volley saved the closing reply",
+      "corrections": [
+        "C06",
+        "C07"
+      ],
+      "id": "BASE-223",
+      "observed": "pass",
+      "scenario": 44,
+      "target_cases": [
+        "A-FINAL-01",
+        "A-FINAL-02",
+        "A-FINAL-05"
+      ]
+    },
+    {
+      "assertion": "[codex] closing-pass: prompt points at approving critique",
+      "corrections": [
+        "C06",
+        "C07"
+      ],
+      "id": "BASE-224",
+      "observed": "pass",
+      "scenario": 44,
+      "target_cases": [
+        "A-FINAL-01",
+        "A-FINAL-02",
+        "A-FINAL-05"
+      ]
+    },
+    {
+      "assertion": "[codex] closing-pass: spec got a disposition edit",
+      "corrections": [
+        "C06",
+        "C07"
+      ],
+      "id": "BASE-225",
+      "observed": "pass",
+      "scenario": 44,
+      "target_cases": [
+        "A-FINAL-01",
+        "A-FINAL-02",
+        "A-FINAL-05"
+      ]
+    },
+    {
+      "assertion": "[codex] closing-pass: critic not re-run",
+      "corrections": [
+        "C06",
+        "C07"
+      ],
+      "id": "BASE-226",
+      "observed": "pass",
+      "scenario": 44,
+      "target_cases": [
+        "A-FINAL-01",
+        "A-FINAL-02",
+        "A-FINAL-05"
+      ]
+    },
+    {
+      "assertion": "[codex] review rule: closing planner receives it",
+      "corrections": [
+        "C06",
+        "C07"
+      ],
+      "id": "BASE-227",
+      "observed": "pass",
+      "scenario": 44,
+      "target_cases": [
+        "A-FINAL-01",
+        "A-FINAL-02",
+        "A-FINAL-05"
+      ]
+    },
+    {
+      "assertion": "[codex] closing-pass-off: exit 0",
+      "corrections": [
+        "C06",
+        "C07"
+      ],
+      "id": "BASE-228",
+      "observed": "pass",
+      "scenario": 45,
+      "target_cases": [
+        "A-FINAL-01",
+        "A-FINAL-02",
+        "A-FINAL-05"
+      ]
+    },
+    {
+      "assertion": "[codex] closing-pass-off: no extra planner call",
+      "corrections": [
+        "C06",
+        "C07"
+      ],
+      "id": "BASE-229",
+      "observed": "pass",
+      "scenario": 45,
+      "target_cases": [
+        "A-FINAL-01",
+        "A-FINAL-02",
+        "A-FINAL-05"
+      ]
+    },
+    {
+      "assertion": "[codex] second-opinion: exit 0",
+      "corrections": [
+        "C01",
+        "C09",
+        "C10",
+        "C11",
+        "C12"
+      ],
+      "id": "BASE-230",
+      "observed": "pass",
+      "scenario": 46,
+      "target_cases": [
+        "A-LOOP-06",
+        "A-GK-10",
+        "A-GK-11",
+        "A-REC-02"
+      ]
+    },
+    {
+      "assertion": "[codex] second-opinion: review written",
+      "corrections": [
+        "C01",
+        "C09",
+        "C10",
+        "C11",
+        "C12"
+      ],
+      "id": "BASE-231",
+      "observed": "pass",
+      "scenario": 46,
+      "target_cases": [
+        "A-LOOP-06",
+        "A-GK-10",
+        "A-GK-11",
+        "A-REC-02"
+      ]
+    },
+    {
+      "assertion": "[codex] second-opinion: reviewer is the non-incumbent (codex)",
+      "corrections": [
+        "C01",
+        "C09",
+        "C10",
+        "C11",
+        "C12"
+      ],
+      "id": "BASE-232",
+      "observed": "pass",
+      "scenario": 46,
+      "target_cases": [
+        "A-LOOP-06",
+        "A-GK-10",
+        "A-GK-11",
+        "A-REC-02"
+      ]
+    },
+    {
+      "assertion": "[codex] second-opinion: exactly two critic calls",
+      "corrections": [
+        "C01",
+        "C09",
+        "C10",
+        "C11",
+        "C12"
+      ],
+      "id": "BASE-233",
+      "observed": "pass",
+      "scenario": 46,
+      "target_cases": [
+        "A-LOOP-06",
+        "A-GK-10",
+        "A-GK-11",
+        "A-REC-02"
+      ]
+    },
+    {
+      "assertion": "[codex] second-opinion: one closing pass covers both",
+      "corrections": [
+        "C06",
+        "C07"
+      ],
+      "id": "BASE-234",
+      "observed": "pass",
+      "scenario": 46,
+      "target_cases": [
+        "A-FINAL-01",
+        "A-FINAL-02",
+        "A-FINAL-05"
+      ]
+    },
+    {
+      "assertion": "[codex] second-opinion: closing prompt points at it",
+      "corrections": [
+        "C06",
+        "C07"
+      ],
+      "id": "BASE-235",
+      "observed": "pass",
+      "scenario": 46,
+      "target_cases": [
+        "A-FINAL-01",
+        "A-FINAL-02",
+        "A-FINAL-05"
+      ]
+    },
+    {
+      "assertion": "[codex] second-opinion: no placeholder residue in its prompt",
+      "corrections": [
+        "C01",
+        "C09",
+        "C10",
+        "C11",
+        "C12"
+      ],
+      "id": "BASE-236",
+      "observed": "pass",
+      "scenario": 46,
+      "target_cases": [
+        "A-LOOP-06",
+        "A-GK-10",
+        "A-GK-11",
+        "A-REC-02"
+      ]
+    },
+    {
+      "assertion": "[codex] review rule: second opinion receives it",
+      "corrections": [
+        "C06",
+        "C07"
+      ],
+      "id": "BASE-237",
+      "observed": "pass",
+      "scenario": 46,
+      "target_cases": [
+        "A-FINAL-01",
+        "A-FINAL-02",
+        "A-FINAL-05"
+      ]
+    },
+    {
+      "assertion": "[codex] second-opinion-clean: exit 0",
+      "corrections": [
+        "C01",
+        "C09",
+        "C10",
+        "C11",
+        "C12"
+      ],
+      "id": "BASE-238",
+      "observed": "pass",
+      "scenario": 47,
+      "target_cases": [
+        "A-LOOP-06",
+        "A-GK-10",
+        "A-GK-11",
+        "A-REC-02"
+      ]
+    },
+    {
+      "assertion": "[codex] second-opinion-clean: two critic calls",
+      "corrections": [
+        "C01",
+        "C09",
+        "C10",
+        "C11",
+        "C12"
+      ],
+      "id": "BASE-239",
+      "observed": "pass",
+      "scenario": 47,
+      "target_cases": [
+        "A-LOOP-06",
+        "A-GK-10",
+        "A-GK-11",
+        "A-REC-02"
+      ]
+    },
+    {
+      "assertion": "[codex] second-opinion-clean: closing pass skipped",
+      "corrections": [
+        "C06",
+        "C07"
+      ],
+      "id": "BASE-240",
+      "observed": "pass",
+      "scenario": 47,
+      "target_cases": [
+        "A-FINAL-01",
+        "A-FINAL-02",
+        "A-FINAL-05"
+      ]
+    },
+    {
+      "assertion": "[codex] steering: exit 0",
+      "corrections": [
+        "C01"
+      ],
+      "id": "BASE-241",
+      "observed": "pass",
+      "scenario": 48,
+      "target_cases": [
+        "A-LOOP-01",
+        "A-LOOP-02",
+        "A-DIRECT-01"
+      ]
+    },
+    {
+      "assertion": "[codex] steering: HUMAN.md consumed",
+      "corrections": [
+        "C02",
+        "C08"
+      ],
+      "id": "BASE-242",
+      "observed": "pass",
+      "scenario": 48,
+      "target_cases": [
+        "A-HUMAN-01",
+        "A-HUMAN-02",
+        "A-HUMAN-03",
+        "A-LOOP-03"
+      ]
+    },
+    {
+      "assertion": "[codex] steering: archived to rounds/r01.human.md",
+      "corrections": [
+        "C02",
+        "C08"
+      ],
+      "id": "BASE-243",
+      "observed": "pass",
+      "scenario": 48,
+      "target_cases": [
+        "A-HUMAN-01",
+        "A-HUMAN-02",
+        "A-HUMAN-03",
+        "A-LOOP-03"
+      ]
+    },
+    {
+      "assertion": "[codex] steering: critic r1 got the directive",
+      "corrections": [
+        "C01"
+      ],
+      "id": "BASE-244",
+      "observed": "pass",
+      "scenario": 48,
+      "target_cases": [
+        "A-LOOP-01",
+        "A-LOOP-02",
+        "A-DIRECT-01"
+      ]
+    },
+    {
+      "assertion": "[codex] steering: critic r1 got the directive body",
+      "corrections": [
+        "C01"
+      ],
+      "id": "BASE-245",
+      "observed": "pass",
+      "scenario": 48,
+      "target_cases": [
+        "A-LOOP-01",
+        "A-LOOP-02",
+        "A-DIRECT-01"
+      ]
+    },
+    {
+      "assertion": "[codex] steering: planner revise got the directive",
+      "corrections": [
+        "C01"
+      ],
+      "id": "BASE-246",
+      "observed": "pass",
+      "scenario": 48,
+      "target_cases": [
+        "A-LOOP-01",
+        "A-LOOP-02",
+        "A-DIRECT-01"
+      ]
+    },
+    {
+      "assertion": "[codex] steering: round 2 prompt clean",
+      "corrections": [
+        "C01"
+      ],
+      "id": "BASE-247",
+      "observed": "pass",
+      "scenario": 48,
+      "target_cases": [
+        "A-LOOP-01",
+        "A-LOOP-02",
+        "A-DIRECT-01"
+      ]
+    },
+    {
+      "assertion": "[codex] steering: no placeholder residue",
+      "corrections": [
+        "C01"
+      ],
+      "id": "BASE-248",
+      "observed": "pass",
+      "scenario": 48,
+      "target_cases": [
+        "A-LOOP-01",
+        "A-LOOP-02",
+        "A-DIRECT-01"
+      ]
+    },
+    {
+      "assertion": "[codex] questions: waits after the revision",
+      "corrections": [
+        "C02",
+        "C08"
+      ],
+      "id": "BASE-249",
+      "observed": "pass",
+      "scenario": 49,
+      "target_cases": [
+        "A-HUMAN-01",
+        "A-HUMAN-02",
+        "A-HUMAN-03",
+        "A-LOOP-03"
+      ]
+    },
+    {
+      "assertion": "[codex] questions: no agent call while it waits",
+      "corrections": [
+        "C02",
+        "C08"
+      ],
+      "id": "BASE-250",
+      "observed": "pass",
+      "scenario": 49,
+      "target_cases": [
+        "A-HUMAN-01",
+        "A-HUMAN-02",
+        "A-HUMAN-03",
+        "A-LOOP-03"
+      ]
+    },
+    {
+      "assertion": "[codex] questions: QUESTIONS.md kept for the user",
+      "corrections": [
+        "C02",
+        "C08"
+      ],
+      "id": "BASE-251",
+      "observed": "pass",
+      "scenario": 49,
+      "target_cases": [
+        "A-HUMAN-01",
+        "A-HUMAN-02",
+        "A-HUMAN-03",
+        "A-LOOP-03"
+      ]
+    },
+    {
+      "assertion": "[codex] questions: questions printed",
+      "corrections": [
+        "C02",
+        "C08"
+      ],
+      "id": "BASE-252",
+      "observed": "pass",
+      "scenario": 49,
+      "target_cases": [
+        "A-HUMAN-01",
+        "A-HUMAN-02",
+        "A-HUMAN-03",
+        "A-LOOP-03"
+      ]
+    },
+    {
+      "assertion": "[codex] questions: user told to write HUMAN.md",
+      "corrections": [
+        "C02",
+        "C08"
+      ],
+      "id": "BASE-253",
+      "observed": "pass",
+      "scenario": 49,
+      "target_cases": [
+        "A-HUMAN-01",
+        "A-HUMAN-02",
+        "A-HUMAN-03",
+        "A-LOOP-03"
+      ]
+    },
+    {
+      "assertion": "[codex] questions: no typing hint without a terminal",
+      "corrections": [
+        "C02",
+        "C08"
+      ],
+      "id": "BASE-254",
+      "observed": "pass",
+      "scenario": 49,
+      "target_cases": [
+        "A-HUMAN-01",
+        "A-HUMAN-02",
+        "A-HUMAN-03",
+        "A-LOOP-03"
+      ]
+    },
+    {
+      "assertion": "[codex] questions: no pane hint without gashki",
+      "corrections": [
+        "C02",
+        "C08"
+      ],
+      "id": "BASE-255",
+      "observed": "pass",
+      "scenario": 49,
+      "target_cases": [
+        "A-HUMAN-01",
+        "A-HUMAN-02",
+        "A-HUMAN-03",
+        "A-LOOP-03"
+      ]
+    },
+    {
+      "assertion": "[codex] questions: revision snapshot written before the wait",
+      "corrections": [
+        "C02",
+        "C08"
+      ],
+      "id": "BASE-256",
+      "observed": "pass",
+      "scenario": 49,
+      "target_cases": [
+        "A-HUMAN-01",
+        "A-HUMAN-02",
+        "A-HUMAN-03",
+        "A-LOOP-03"
+      ]
+    },
+    {
+      "assertion": "[codex] questions: no round 2 critique",
+      "corrections": [
+        "C02",
+        "C08"
+      ],
+      "id": "BASE-257",
+      "observed": "pass",
+      "scenario": 49,
+      "target_cases": [
+        "A-HUMAN-01",
+        "A-HUMAN-02",
+        "A-HUMAN-03",
+        "A-LOOP-03"
+      ]
+    },
+    {
+      "assertion": "[codex] questions: init prompt names QUESTIONS.md",
+      "corrections": [
+        "C02",
+        "C08"
+      ],
+      "id": "BASE-258",
+      "observed": "pass",
+      "scenario": 49,
+      "target_cases": [
+        "A-HUMAN-01",
+        "A-HUMAN-02",
+        "A-HUMAN-03",
+        "A-LOOP-03"
+      ]
+    },
+    {
+      "assertion": "[codex] questions: revise prompt names QUESTIONS.md",
+      "corrections": [
+        "C02",
+        "C08"
+      ],
+      "id": "BASE-259",
+      "observed": "pass",
+      "scenario": 49,
+      "target_cases": [
+        "A-HUMAN-01",
+        "A-HUMAN-02",
+        "A-HUMAN-03",
+        "A-LOOP-03"
+      ]
+    },
+    {
+      "assertion": "[codex] questions: cli prompt says the loop waits",
+      "corrections": [
+        "C02",
+        "C08"
+      ],
+      "id": "BASE-260",
+      "observed": "pass",
+      "scenario": 49,
+      "target_cases": [
+        "A-HUMAN-01",
+        "A-HUMAN-02",
+        "A-HUMAN-03",
+        "A-LOOP-03"
+      ]
+    },
+    {
+      "assertion": "[codex] questions: cli prompt has no pane answer rule",
+      "corrections": [
+        "C02",
+        "C08"
+      ],
+      "id": "BASE-261",
+      "observed": "pass",
+      "scenario": 49,
+      "target_cases": [
+        "A-HUMAN-01",
+        "A-HUMAN-02",
+        "A-HUMAN-03",
+        "A-LOOP-03"
+      ]
+    },
+    {
+      "assertion": "[codex] questions: critic prompt does not",
+      "corrections": [
+        "C02",
+        "C08"
+      ],
+      "id": "BASE-262",
+      "observed": "pass",
+      "scenario": 49,
+      "target_cases": [
+        "A-HUMAN-01",
+        "A-HUMAN-02",
+        "A-HUMAN-03",
+        "A-LOOP-03"
+      ]
+    },
+    {
+      "assertion": "[codex] questions: a HUMAN.md older than QUESTIONS.md is no answer",
+      "corrections": [
+        "C02",
+        "C08"
+      ],
+      "id": "BASE-263",
+      "observed": "pass",
+      "scenario": 49,
+      "target_cases": [
+        "A-HUMAN-01",
+        "A-HUMAN-02",
+        "A-HUMAN-03",
+        "A-LOOP-03"
+      ]
+    },
+    {
+      "assertion": "[codex] questions: answer ends the wait and the loop converges",
+      "corrections": [
+        "C02",
+        "C08"
+      ],
+      "id": "BASE-264",
+      "observed": "pass",
+      "scenario": 49,
+      "target_cases": [
+        "A-HUMAN-01",
+        "A-HUMAN-02",
+        "A-HUMAN-03",
+        "A-LOOP-03"
+      ]
+    },
+    {
+      "assertion": "[codex] questions: answer logged",
+      "corrections": [
+        "C02",
+        "C08"
+      ],
+      "id": "BASE-265",
+      "observed": "pass",
+      "scenario": 49,
+      "target_cases": [
+        "A-HUMAN-01",
+        "A-HUMAN-02",
+        "A-HUMAN-03",
+        "A-LOOP-03"
+      ]
+    },
+    {
+      "assertion": "[codex] questions: QUESTIONS.md consumed",
+      "corrections": [
+        "C02",
+        "C08"
+      ],
+      "id": "BASE-266",
+      "observed": "pass",
+      "scenario": 49,
+      "target_cases": [
+        "A-HUMAN-01",
+        "A-HUMAN-02",
+        "A-HUMAN-03",
+        "A-LOOP-03"
+      ]
+    },
+    {
+      "assertion": "[codex] questions: wait marker removed",
+      "corrections": [
+        "C02",
+        "C08"
+      ],
+      "id": "BASE-267",
+      "observed": "pass",
+      "scenario": 49,
+      "target_cases": [
+        "A-HUMAN-01",
+        "A-HUMAN-02",
+        "A-HUMAN-03",
+        "A-LOOP-03"
+      ]
+    },
+    {
+      "assertion": "[codex] questions: archived beside the answer",
+      "corrections": [
+        "C02",
+        "C08"
+      ],
+      "id": "BASE-268",
+      "observed": "pass",
+      "scenario": 49,
+      "target_cases": [
+        "A-HUMAN-01",
+        "A-HUMAN-02",
+        "A-HUMAN-03",
+        "A-LOOP-03"
+      ]
+    },
+    {
+      "assertion": "[codex] questions: critic gets the questions",
+      "corrections": [
+        "C02",
+        "C08"
+      ],
+      "id": "BASE-269",
+      "observed": "pass",
+      "scenario": 49,
+      "target_cases": [
+        "A-HUMAN-01",
+        "A-HUMAN-02",
+        "A-HUMAN-03",
+        "A-LOOP-03"
+      ]
+    },
+    {
+      "assertion": "[codex] questions: critic gets the answer",
+      "corrections": [
+        "C02",
+        "C08"
+      ],
+      "id": "BASE-270",
+      "observed": "pass",
+      "scenario": 49,
+      "target_cases": [
+        "A-HUMAN-01",
+        "A-HUMAN-02",
+        "A-HUMAN-03",
+        "A-LOOP-03"
+      ]
+    },
+    {
+      "assertion": "[codex] questions: answer label on its own line",
+      "corrections": [
+        "C02",
+        "C08"
+      ],
+      "id": "BASE-271",
+      "observed": "pass",
+      "scenario": 49,
+      "target_cases": [
+        "A-HUMAN-01",
+        "A-HUMAN-02",
+        "A-HUMAN-03",
+        "A-LOOP-03"
+      ]
+    },
+    {
+      "assertion": "[codex] questions: answer starts its own line",
+      "corrections": [
+        "C02",
+        "C08"
+      ],
+      "id": "BASE-272",
+      "observed": "pass",
+      "scenario": 49,
+      "target_cases": [
+        "A-HUMAN-01",
+        "A-HUMAN-02",
+        "A-HUMAN-03",
+        "A-LOOP-03"
+      ]
+    },
+    {
+      "assertion": "[codex] questions-tty: typed answer ends the wait",
+      "corrections": [
+        "C02",
+        "C08"
+      ],
+      "id": "BASE-273",
+      "observed": "pass",
+      "scenario": 50,
+      "target_cases": [
+        "A-HUMAN-01",
+        "A-HUMAN-02",
+        "A-HUMAN-03",
+        "A-LOOP-03"
+      ]
+    },
+    {
+      "assertion": "[codex] questions-tty: typing hint shown",
+      "corrections": [
+        "C02",
+        "C08"
+      ],
+      "id": "BASE-274",
+      "observed": "pass",
+      "scenario": 50,
+      "target_cases": [
+        "A-HUMAN-01",
+        "A-HUMAN-02",
+        "A-HUMAN-03",
+        "A-LOOP-03"
+      ]
+    },
+    {
+      "assertion": "[codex] questions-tty: blank line before text is skipped",
+      "corrections": [
+        "C02",
+        "C08"
+      ],
+      "id": "BASE-275",
+      "observed": "pass",
+      "scenario": 50,
+      "target_cases": [
+        "A-HUMAN-01",
+        "A-HUMAN-02",
+        "A-HUMAN-03",
+        "A-LOOP-03"
+      ]
+    },
+    {
+      "assertion": "[codex] questions-tty: older directive kept above the answer",
+      "corrections": [
+        "C02",
+        "C08"
+      ],
+      "id": "BASE-276",
+      "observed": "pass",
+      "scenario": 50,
+      "target_cases": [
+        "A-HUMAN-01",
+        "A-HUMAN-02",
+        "A-HUMAN-03",
+        "A-LOOP-03"
+      ]
+    },
+    {
+      "assertion": "[codex] questions-tty: first typed line kept",
+      "corrections": [
+        "C02",
+        "C08"
+      ],
+      "id": "BASE-277",
+      "observed": "pass",
+      "scenario": 50,
+      "target_cases": [
+        "A-HUMAN-01",
+        "A-HUMAN-02",
+        "A-HUMAN-03",
+        "A-LOOP-03"
+      ]
+    },
+    {
+      "assertion": "[codex] questions-tty: second typed line kept",
+      "corrections": [
+        "C02",
+        "C08"
+      ],
+      "id": "BASE-278",
+      "observed": "pass",
+      "scenario": 50,
+      "target_cases": [
+        "A-HUMAN-01",
+        "A-HUMAN-02",
+        "A-HUMAN-03",
+        "A-LOOP-03"
+      ]
+    },
+    {
+      "assertion": "[codex] questions-tty: critic gets the typed answer",
+      "corrections": [
+        "C02",
+        "C08"
+      ],
+      "id": "BASE-279",
+      "observed": "pass",
+      "scenario": 50,
+      "target_cases": [
+        "A-HUMAN-01",
+        "A-HUMAN-02",
+        "A-HUMAN-03",
+        "A-LOOP-03"
+      ]
+    },
+    {
+      "assertion": "[codex] questions-tty: no temp file left",
+      "corrections": [
+        "C02",
+        "C08"
+      ],
+      "id": "BASE-280",
+      "observed": "pass",
+      "scenario": 50,
+      "target_cases": [
+        "A-HUMAN-01",
+        "A-HUMAN-02",
+        "A-HUMAN-03",
+        "A-LOOP-03"
+      ]
+    },
+    {
+      "assertion": "[codex] questions-touched: HUMAN.md newer than the wait start answers",
+      "corrections": [
+        "C02",
+        "C08"
+      ],
+      "id": "BASE-281",
+      "observed": "pass",
+      "scenario": 51,
+      "target_cases": [
+        "A-HUMAN-01",
+        "A-HUMAN-02",
+        "A-HUMAN-03",
+        "A-LOOP-03"
+      ]
+    },
+    {
+      "assertion": "[codex] questions-touched: critic gets the answer",
+      "corrections": [
+        "C02",
+        "C08"
+      ],
+      "id": "BASE-282",
+      "observed": "pass",
+      "scenario": 51,
+      "target_cases": [
+        "A-HUMAN-01",
+        "A-HUMAN-02",
+        "A-HUMAN-03",
+        "A-LOOP-03"
+      ]
+    },
+    {
+      "assertion": "[codex] questions-deleted: loop goes on and converges",
+      "corrections": [
+        "C02",
+        "C08"
+      ],
+      "id": "BASE-283",
+      "observed": "pass",
+      "scenario": 52,
+      "target_cases": [
+        "A-HUMAN-01",
+        "A-HUMAN-02",
+        "A-HUMAN-03",
+        "A-LOOP-03"
+      ]
+    },
+    {
+      "assertion": "[codex] questions-deleted: logged",
+      "corrections": [
+        "C02",
+        "C08"
+      ],
+      "id": "BASE-284",
+      "observed": "pass",
+      "scenario": 52,
+      "target_cases": [
+        "A-HUMAN-01",
+        "A-HUMAN-02",
+        "A-HUMAN-03",
+        "A-LOOP-03"
+      ]
+    },
+    {
+      "assertion": "[codex] questions-deleted: no directive in round 2",
+      "corrections": [
+        "C02",
+        "C08"
+      ],
+      "id": "BASE-285",
+      "observed": "pass",
+      "scenario": 52,
+      "target_cases": [
+        "A-HUMAN-01",
+        "A-HUMAN-02",
+        "A-HUMAN-03",
+        "A-LOOP-03"
+      ]
+    },
+    {
+      "assertion": "[codex] questions-empty: waits for an answer",
+      "corrections": [
+        "C02",
+        "C08"
+      ],
+      "id": "BASE-286",
+      "observed": "pass",
+      "scenario": 53,
+      "target_cases": [
+        "A-HUMAN-01",
+        "A-HUMAN-02",
+        "A-HUMAN-03",
+        "A-LOOP-03"
+      ]
+    },
+    {
+      "assertion": "[codex] questions-empty: loop goes on and converges",
+      "corrections": [
+        "C02",
+        "C08"
+      ],
+      "id": "BASE-287",
+      "observed": "pass",
+      "scenario": 53,
+      "target_cases": [
+        "A-HUMAN-01",
+        "A-HUMAN-02",
+        "A-HUMAN-03",
+        "A-LOOP-03"
+      ]
+    },
+    {
+      "assertion": "[codex] questions-empty: no answer is invented",
+      "corrections": [
+        "C02",
+        "C08"
+      ],
+      "id": "BASE-288",
+      "observed": "pass",
+      "scenario": 53,
+      "target_cases": [
+        "A-HUMAN-01",
+        "A-HUMAN-02",
+        "A-HUMAN-03",
+        "A-LOOP-03"
+      ]
+    },
+    {
+      "assertion": "[codex] questions-empty: next critique runs",
+      "corrections": [
+        "C02",
+        "C08"
+      ],
+      "id": "BASE-289",
+      "observed": "pass",
+      "scenario": 53,
+      "target_cases": [
+        "A-HUMAN-01",
+        "A-HUMAN-02",
+        "A-HUMAN-03",
+        "A-LOOP-03"
+      ]
+    },
+    {
+      "assertion": "[codex] questions-init: waits after the draft",
+      "corrections": [
+        "C02",
+        "C08"
+      ],
+      "id": "BASE-290",
+      "observed": "pass",
+      "scenario": 54,
+      "target_cases": [
+        "A-HUMAN-01",
+        "A-HUMAN-02",
+        "A-HUMAN-03",
+        "A-LOOP-03"
+      ]
+    },
+    {
+      "assertion": "[codex] questions-init: no critique yet",
+      "corrections": [
+        "C02",
+        "C08"
+      ],
+      "id": "BASE-291",
+      "observed": "pass",
+      "scenario": 54,
+      "target_cases": [
+        "A-HUMAN-01",
+        "A-HUMAN-02",
+        "A-HUMAN-03",
+        "A-LOOP-03"
+      ]
+    },
+    {
+      "assertion": "[codex] questions-init: answer ends the wait and the loop converges",
+      "corrections": [
+        "C02",
+        "C08"
+      ],
+      "id": "BASE-292",
+      "observed": "pass",
+      "scenario": 54,
+      "target_cases": [
+        "A-HUMAN-01",
+        "A-HUMAN-02",
+        "A-HUMAN-03",
+        "A-LOOP-03"
+      ]
+    },
+    {
+      "assertion": "[codex] questions-init: archived with round 1",
+      "corrections": [
+        "C02",
+        "C08"
+      ],
+      "id": "BASE-293",
+      "observed": "pass",
+      "scenario": 54,
+      "target_cases": [
+        "A-HUMAN-01",
+        "A-HUMAN-02",
+        "A-HUMAN-03",
+        "A-LOOP-03"
+      ]
+    },
+    {
+      "assertion": "[codex] questions-rerun: rerun waits at the start",
+      "corrections": [
+        "C02",
+        "C08"
+      ],
+      "id": "BASE-294",
+      "observed": "pass",
+      "scenario": 55,
+      "target_cases": [
+        "A-HUMAN-01",
+        "A-HUMAN-02",
+        "A-HUMAN-03",
+        "A-LOOP-03"
+      ]
+    },
+    {
+      "assertion": "[codex] questions-rerun: no agent call before the answer",
+      "corrections": [
+        "C02",
+        "C08"
+      ],
+      "id": "BASE-295",
+      "observed": "pass",
+      "scenario": 55,
+      "target_cases": [
+        "A-HUMAN-01",
+        "A-HUMAN-02",
+        "A-HUMAN-03",
+        "A-LOOP-03"
+      ]
+    },
+    {
+      "assertion": "[codex] questions-rerun: answered rerun converges",
+      "corrections": [
+        "C02",
+        "C08"
+      ],
+      "id": "BASE-296",
+      "observed": "pass",
+      "scenario": 55,
+      "target_cases": [
+        "A-HUMAN-01",
+        "A-HUMAN-02",
+        "A-HUMAN-03",
+        "A-LOOP-03"
+      ]
+    },
+    {
+      "assertion": "[codex] questions-rerun: critic gets the answer",
+      "corrections": [
+        "C02",
+        "C08"
+      ],
+      "id": "BASE-297",
+      "observed": "pass",
+      "scenario": 55,
+      "target_cases": [
+        "A-HUMAN-01",
+        "A-HUMAN-02",
+        "A-HUMAN-03",
+        "A-LOOP-03"
+      ]
+    },
+    {
+      "assertion": "[codex] questions-closing: waits after the closing pass",
+      "corrections": [
+        "C06",
+        "C07"
+      ],
+      "id": "BASE-298",
+      "observed": "pass",
+      "scenario": 56,
+      "target_cases": [
+        "A-FINAL-01",
+        "A-FINAL-02",
+        "A-FINAL-05"
+      ]
+    },
+    {
+      "assertion": "[codex] questions-closing: not logged as converged",
+      "corrections": [
+        "C06",
+        "C07"
+      ],
+      "id": "BASE-299",
+      "observed": "pass",
+      "scenario": 56,
+      "target_cases": [
+        "A-FINAL-01",
+        "A-FINAL-02",
+        "A-FINAL-05"
+      ]
+    },
+    {
+      "assertion": "[codex] questions-closing: answer gets another review, then converges",
+      "corrections": [
+        "C06",
+        "C07"
+      ],
+      "id": "BASE-300",
+      "observed": "pass",
+      "scenario": 56,
+      "target_cases": [
+        "A-FINAL-01",
+        "A-FINAL-02",
+        "A-FINAL-05"
+      ]
+    },
+    {
+      "assertion": "[codex] questions-closing: critic gets the answer",
+      "corrections": [
+        "C06",
+        "C07"
+      ],
+      "id": "BASE-301",
+      "observed": "pass",
+      "scenario": 56,
+      "target_cases": [
+        "A-FINAL-01",
+        "A-FINAL-02",
+        "A-FINAL-05"
+      ]
+    },
+    {
+      "assertion": "[codex] questions-closing-deleted: converges with no new round",
+      "corrections": [
+        "C06",
+        "C07"
+      ],
+      "id": "BASE-302",
+      "observed": "pass",
+      "scenario": 57,
+      "target_cases": [
+        "A-FINAL-01",
+        "A-FINAL-02",
+        "A-FINAL-05"
+      ]
+    },
+    {
+      "assertion": "[codex] questions-cap: last round does not wait; exits 2",
+      "corrections": [
+        "C02",
+        "C08"
+      ],
+      "id": "BASE-303",
+      "observed": "pass",
+      "scenario": 58,
+      "target_cases": [
+        "A-HUMAN-01",
+        "A-HUMAN-02",
+        "A-HUMAN-03",
+        "A-LOOP-03"
+      ]
+    },
+    {
+      "assertion": "[codex] questions-cap: logged",
+      "corrections": [
+        "C02",
+        "C08"
+      ],
+      "id": "BASE-304",
+      "observed": "pass",
+      "scenario": 58,
+      "target_cases": [
+        "A-HUMAN-01",
+        "A-HUMAN-02",
+        "A-HUMAN-03",
+        "A-LOOP-03"
+      ]
+    },
+    {
+      "assertion": "[codex] questions-cap: impasse report has the last critique",
+      "corrections": [
+        "C02",
+        "C08"
+      ],
+      "id": "BASE-305",
+      "observed": "pass",
+      "scenario": 58,
+      "target_cases": [
+        "A-HUMAN-01",
+        "A-HUMAN-02",
+        "A-HUMAN-03",
+        "A-LOOP-03"
+      ]
+    },
+    {
+      "assertion": "[codex] questions-cap: impasse report lists the open questions",
+      "corrections": [
+        "C02",
+        "C08"
+      ],
+      "id": "BASE-306",
+      "observed": "pass",
+      "scenario": 58,
+      "target_cases": [
+        "A-HUMAN-01",
+        "A-HUMAN-02",
+        "A-HUMAN-03",
+        "A-LOOP-03"
+      ]
+    },
+    {
+      "assertion": "[codex] questions-cap: rerun at the cap does not wait; exits 2",
+      "corrections": [
+        "C02",
+        "C08"
+      ],
+      "id": "BASE-307",
+      "observed": "pass",
+      "scenario": 58,
+      "target_cases": [
+        "A-HUMAN-01",
+        "A-HUMAN-02",
+        "A-HUMAN-03",
+        "A-LOOP-03"
+      ]
+    },
+    {
+      "assertion": "[codex] questions-cap: rerun with a higher cap waits",
+      "corrections": [
+        "C02",
+        "C08"
+      ],
+      "id": "BASE-308",
+      "observed": "pass",
+      "scenario": 58,
+      "target_cases": [
+        "A-HUMAN-01",
+        "A-HUMAN-02",
+        "A-HUMAN-03",
+        "A-LOOP-03"
+      ]
+    },
+    {
+      "assertion": "[codex] questions-cap: answered rerun converges in round 2",
+      "corrections": [
+        "C02",
+        "C08"
+      ],
+      "id": "BASE-309",
+      "observed": "pass",
+      "scenario": 58,
+      "target_cases": [
+        "A-HUMAN-01",
+        "A-HUMAN-02",
+        "A-HUMAN-03",
+        "A-LOOP-03"
+      ]
+    },
+    {
+      "assertion": "[codex] questions-closing-cap: approval with open questions at the cap exits 2",
+      "corrections": [
+        "C06",
+        "C07"
+      ],
+      "id": "BASE-310",
+      "observed": "pass",
+      "scenario": 59,
+      "target_cases": [
+        "A-FINAL-01",
+        "A-FINAL-02",
+        "A-FINAL-05"
+      ]
+    },
+    {
+      "assertion": "[codex] questions-closing-cap: report says the critic approved",
+      "corrections": [
+        "C06",
+        "C07"
+      ],
+      "id": "BASE-311",
+      "observed": "pass",
+      "scenario": 59,
+      "target_cases": [
+        "A-FINAL-01",
+        "A-FINAL-02",
+        "A-FINAL-05"
+      ]
+    },
+    {
+      "assertion": "[codex] questions-closing-cap: not logged as converged",
+      "corrections": [
+        "C06",
+        "C07"
+      ],
+      "id": "BASE-312",
+      "observed": "pass",
+      "scenario": 59,
+      "target_cases": [
+        "A-FINAL-01",
+        "A-FINAL-02",
+        "A-FINAL-05"
+      ]
+    },
+    {
+      "assertion": "[codex] constraints: exit 0",
+      "corrections": [],
+      "id": "BASE-313",
+      "observed": "pass",
+      "scenario": 60,
+      "target_cases": [
+        "A-PROMPT-01",
+        "A-PROMPT-02"
+      ]
+    },
+    {
+      "assertion": "[codex] constraints: initial planner got binding block",
+      "corrections": [],
+      "id": "BASE-314",
+      "observed": "pass",
+      "scenario": 60,
+      "target_cases": [
+        "A-PROMPT-01",
+        "A-PROMPT-02"
+      ]
+    },
+    {
+      "assertion": "[codex] constraints: critic got constraint body",
+      "corrections": [],
+      "id": "BASE-315",
+      "observed": "pass",
+      "scenario": 60,
+      "target_cases": [
+        "A-PROMPT-01",
+        "A-PROMPT-02"
+      ]
+    },
+    {
+      "assertion": "[codex] constraints: revision planner got constraint body",
+      "corrections": [],
+      "id": "BASE-316",
+      "observed": "pass",
+      "scenario": 60,
+      "target_cases": [
+        "A-PROMPT-01",
+        "A-PROMPT-02"
+      ]
+    },
+    {
+      "assertion": "[codex] constraints: no placeholder residue",
+      "corrections": [],
+      "id": "BASE-317",
+      "observed": "pass",
+      "scenario": 60,
+      "target_cases": [
+        "A-PROMPT-01",
+        "A-PROMPT-02"
+      ]
+    },
+    {
+      "assertion": "[codex] second-opinion-impasse: exit 2",
+      "corrections": [
+        "C01",
+        "C09",
+        "C10",
+        "C11",
+        "C12"
+      ],
+      "id": "BASE-318",
+      "observed": "pass",
+      "scenario": 61,
+      "target_cases": [
+        "A-LOOP-06",
+        "A-GK-10",
+        "A-GK-11",
+        "A-REC-02"
+      ]
+    },
+    {
+      "assertion": "[codex] second-opinion-impasse: no second opinion",
+      "corrections": [
+        "C06",
+        "C07"
+      ],
+      "id": "BASE-319",
+      "observed": "pass",
+      "scenario": 61,
+      "target_cases": [
+        "A-FINAL-01",
+        "A-FINAL-02",
+        "A-FINAL-05"
+      ]
+    },
+    {
+      "assertion": "[codex] impasse: exit 2",
+      "corrections": [
+        "C01"
+      ],
+      "id": "BASE-320",
+      "observed": "pass",
+      "scenario": 62,
+      "target_cases": [
+        "A-LOOP-05"
+      ]
+    },
+    {
+      "assertion": "[codex] impasse: IMPASSE.md written",
+      "corrections": [
+        "C01"
+      ],
+      "id": "BASE-321",
+      "observed": "pass",
+      "scenario": 62,
+      "target_cases": [
+        "A-LOOP-05"
+      ]
+    },
+    {
+      "assertion": "[codex] verdict-retry: exit 0",
+      "corrections": [
+        "C04",
+        "C05"
+      ],
+      "id": "BASE-322",
+      "observed": "pass",
+      "scenario": 63,
+      "target_cases": [
+        "A-LOOP-02",
+        "A-FINAL-04"
+      ]
+    },
+    {
+      "assertion": "[codex] verdict-retry: critic asked twice",
+      "corrections": [
+        "C04",
+        "C05"
+      ],
+      "id": "BASE-323",
+      "observed": "pass",
+      "scenario": 63,
+      "target_cases": [
+        "A-LOOP-02",
+        "A-FINAL-04"
+      ]
+    },
+    {
+      "assertion": "[codex] verdict-retry: still round 1",
+      "corrections": [
+        "C04",
+        "C05"
+      ],
+      "id": "BASE-324",
+      "observed": "pass",
+      "scenario": 63,
+      "target_cases": [
+        "A-LOOP-02",
+        "A-FINAL-04"
+      ]
+    },
+    {
+      "assertion": "[codex] review rule: re-asked critic receives it",
+      "corrections": [],
+      "id": "BASE-325",
+      "observed": "pass",
+      "scenario": 63,
+      "target_cases": [
+        "A-PROMPT-01",
+        "A-PROMPT-02"
+      ]
+    },
+    {
+      "assertion": "[codex] context: exit 0",
+      "corrections": [
+        "C15"
+      ],
+      "id": "BASE-326",
+      "observed": "pass",
+      "scenario": 64,
+      "target_cases": [
+        "A-CFG-05",
+        "A-REC-02",
+        "A-LOOP-07"
+      ]
+    },
+    {
+      "assertion": "[codex] context: planner prompt names the dir",
+      "corrections": [
+        "C15"
+      ],
+      "id": "BASE-327",
+      "observed": "pass",
+      "scenario": 64,
+      "target_cases": [
+        "A-CFG-05",
+        "A-REC-02",
+        "A-LOOP-07"
+      ]
+    },
+    {
+      "assertion": "[codex] context: critic prompt names the dir",
+      "corrections": [
+        "C15"
+      ],
+      "id": "BASE-328",
+      "observed": "pass",
+      "scenario": 64,
+      "target_cases": [
+        "A-CFG-05",
+        "A-REC-02",
+        "A-LOOP-07"
+      ]
+    },
+    {
+      "assertion": "[codex] context: claude invoked with --add-dir",
+      "corrections": [
+        "C15"
+      ],
+      "id": "BASE-329",
+      "observed": "pass",
+      "scenario": 64,
+      "target_cases": [
+        "A-CFG-05",
+        "A-REC-02",
+        "A-LOOP-07"
+      ]
+    },
+    {
+      "assertion": "[codex] context: --add-dir points at the dir",
+      "corrections": [
+        "C15"
+      ],
+      "id": "BASE-330",
+      "observed": "pass",
+      "scenario": 64,
+      "target_cases": [
+        "A-CFG-05",
+        "A-REC-02",
+        "A-LOOP-07"
+      ]
+    },
+    {
+      "assertion": "[codex] context-guard: relative path refused",
+      "corrections": [
+        "C15"
+      ],
+      "id": "BASE-331",
+      "observed": "pass",
+      "scenario": 65,
+      "target_cases": [
+        "A-CFG-05",
+        "A-REC-02",
+        "A-LOOP-07"
+      ]
+    },
+    {
+      "assertion": "[codex] context-guard: unreadable path refused",
+      "corrections": [
+        "C15"
+      ],
+      "id": "BASE-332",
+      "observed": "pass",
+      "scenario": 66,
+      "target_cases": [
+        "A-CFG-05",
+        "A-REC-02",
+        "A-LOOP-07"
+      ]
+    },
+    {
+      "assertion": "[codex] context-guard: dir inside workspace refused",
+      "corrections": [
+        "C15"
+      ],
+      "id": "BASE-333",
+      "observed": "pass",
+      "scenario": 67,
+      "target_cases": [
+        "A-CFG-05",
+        "A-REC-02",
+        "A-LOOP-07"
+      ]
+    },
+    {
+      "assertion": "[codex] context-guard: workspace itself refused",
+      "corrections": [
+        "C15"
+      ],
+      "id": "BASE-334",
+      "observed": "pass",
+      "scenario": 68,
+      "target_cases": [
+        "A-CFG-05",
+        "A-REC-02",
+        "A-LOOP-07"
+      ]
+    },
+    {
+      "assertion": "[codex] profile: exit 0",
+      "corrections": [],
+      "id": "BASE-335",
+      "observed": "pass",
+      "scenario": 69,
+      "target_cases": [
+        "A-PROMPT-01",
+        "A-PROMPT-02"
+      ]
+    },
+    {
+      "assertion": "[codex] profile: critic prompt carries the rubric",
+      "corrections": [],
+      "id": "BASE-336",
+      "observed": "pass",
+      "scenario": 69,
+      "target_cases": [
+        "A-PROMPT-01",
+        "A-PROMPT-02"
+      ]
+    },
+    {
+      "assertion": "[codex] profile: planner prompt does not",
+      "corrections": [],
+      "id": "BASE-337",
+      "observed": "pass",
+      "scenario": 69,
+      "target_cases": [
+        "A-PROMPT-01",
+        "A-PROMPT-02"
+      ]
+    },
+    {
+      "assertion": "[codex] profile-guard: unknown profile refused",
+      "corrections": [],
+      "id": "BASE-338",
+      "observed": "pass",
+      "scenario": 70,
+      "target_cases": [
+        "A-PROMPT-01",
+        "A-PROMPT-02"
+      ]
+    },
+    {
+      "assertion": "[codex] profile-off: unprofiled critic prompt clean",
+      "corrections": [],
+      "id": "BASE-339",
+      "observed": "pass",
+      "scenario": 71,
+      "target_cases": [
+        "A-PROMPT-01",
+        "A-PROMPT-02"
+      ]
+    },
+    {
+      "assertion": "[codex] models: exit 0",
+      "corrections": [
+        "C12"
+      ],
+      "id": "BASE-340",
+      "observed": "pass",
+      "scenario": 72,
+      "target_cases": [
+        "A-REC-01",
+        "A-DIRECT-01",
+        "A-GK-01"
+      ]
+    },
+    {
+      "assertion": "[codex] models: provenance records claude model",
+      "corrections": [
+        "C12"
+      ],
+      "id": "BASE-341",
+      "observed": "pass",
+      "scenario": 72,
+      "target_cases": [
+        "A-REC-01",
+        "A-DIRECT-01",
+        "A-GK-01"
+      ]
+    },
+    {
+      "assertion": "[codex] models: provenance records codex model",
+      "corrections": [
+        "C12"
+      ],
+      "id": "BASE-342",
+      "observed": "pass",
+      "scenario": 72,
+      "target_cases": [
+        "A-REC-01",
+        "A-DIRECT-01",
+        "A-GK-01"
+      ]
+    },
+    {
+      "assertion": "[codex] models: claude invoked with --model",
+      "corrections": [
+        "C12"
+      ],
+      "id": "BASE-343",
+      "observed": "pass",
+      "scenario": 72,
+      "target_cases": [
+        "A-REC-01",
+        "A-DIRECT-01",
+        "A-GK-01"
+      ]
+    },
+    {
+      "assertion": "[codex] models: claude model value passed",
+      "corrections": [
+        "C12"
+      ],
+      "id": "BASE-344",
+      "observed": "pass",
+      "scenario": 72,
+      "target_cases": [
+        "A-REC-01",
+        "A-DIRECT-01",
+        "A-GK-01"
+      ]
+    },
+    {
+      "assertion": "[codex] models: codex invoked with --model",
+      "corrections": [
+        "C12"
+      ],
+      "id": "BASE-345",
+      "observed": "pass",
+      "scenario": 72,
+      "target_cases": [
+        "A-REC-01",
+        "A-DIRECT-01",
+        "A-GK-01"
+      ]
+    },
+    {
+      "assertion": "[codex] models: codex model value passed",
+      "corrections": [
+        "C12"
+      ],
+      "id": "BASE-346",
+      "observed": "pass",
+      "scenario": 72,
+      "target_cases": [
+        "A-REC-01",
+        "A-DIRECT-01",
+        "A-GK-01"
+      ]
+    },
+    {
+      "assertion": "[codex] effort: exit 0",
+      "corrections": [
+        "C12"
+      ],
+      "id": "BASE-347",
+      "observed": "pass",
+      "scenario": 73,
+      "target_cases": [
+        "A-REC-01",
+        "A-DIRECT-01",
+        "A-GK-01"
+      ]
+    },
+    {
+      "assertion": "[codex] effort: provenance records claude effort",
+      "corrections": [
+        "C12"
+      ],
+      "id": "BASE-348",
+      "observed": "pass",
+      "scenario": 73,
+      "target_cases": [
+        "A-REC-01",
+        "A-DIRECT-01",
+        "A-GK-01"
+      ]
+    },
+    {
+      "assertion": "[codex] effort: provenance records codex effort",
+      "corrections": [
+        "C12"
+      ],
+      "id": "BASE-349",
+      "observed": "pass",
+      "scenario": 73,
+      "target_cases": [
+        "A-REC-01",
+        "A-DIRECT-01",
+        "A-GK-01"
+      ]
+    },
+    {
+      "assertion": "[codex] effort: claude invoked with --effort",
+      "corrections": [
+        "C12"
+      ],
+      "id": "BASE-350",
+      "observed": "pass",
+      "scenario": 73,
+      "target_cases": [
+        "A-REC-01",
+        "A-DIRECT-01",
+        "A-GK-01"
+      ]
+    },
+    {
+      "assertion": "[codex] effort: claude effort value passed",
+      "corrections": [
+        "C12"
+      ],
+      "id": "BASE-351",
+      "observed": "pass",
+      "scenario": 73,
+      "target_cases": [
+        "A-REC-01",
+        "A-DIRECT-01",
+        "A-GK-01"
+      ]
+    },
+    {
+      "assertion": "[codex] effort: codex gets model_reasoning_effort override",
+      "corrections": [
+        "C12"
+      ],
+      "id": "BASE-352",
+      "observed": "pass",
+      "scenario": 73,
+      "target_cases": [
+        "A-REC-01",
+        "A-DIRECT-01",
+        "A-GK-01"
+      ]
+    },
+    {
+      "assertion": "[codex] effort-persistent: exit 0",
+      "corrections": [
+        "C12"
+      ],
+      "id": "BASE-353",
+      "observed": "pass",
+      "scenario": 74,
+      "target_cases": [
+        "A-REC-01",
+        "A-DIRECT-01",
+        "A-GK-01"
+      ]
+    },
+    {
+      "assertion": "[codex] effort-persistent: claude resume keeps --effort",
+      "corrections": [
+        "C12"
+      ],
+      "id": "BASE-354",
+      "observed": "pass",
+      "scenario": 74,
+      "target_cases": [
+        "A-REC-01",
+        "A-DIRECT-01",
+        "A-GK-01"
+      ]
+    },
+    {
+      "assertion": "[codex] effort-persistent: codex resume re-receives the override",
+      "corrections": [
+        "C12"
+      ],
+      "id": "BASE-355",
+      "observed": "pass",
+      "scenario": 74,
+      "target_cases": [
+        "A-REC-01",
+        "A-DIRECT-01",
+        "A-GK-01"
+      ]
+    },
+    {
+      "assertion": "[codex] effort-guard: bad claude effort refused",
+      "corrections": [
+        "C12"
+      ],
+      "id": "BASE-356",
+      "observed": "pass",
+      "scenario": 75,
+      "target_cases": [
+        "A-REC-01",
+        "A-DIRECT-01",
+        "A-GK-01"
+      ]
+    },
+    {
+      "assertion": "[codex] effort-guard: message names the variable",
+      "corrections": [
+        "C12"
+      ],
+      "id": "BASE-357",
+      "observed": "pass",
+      "scenario": 75,
+      "target_cases": [
+        "A-REC-01",
+        "A-DIRECT-01",
+        "A-GK-01"
+      ]
+    },
+    {
+      "assertion": "[codex] effort-off: claude argv carries no --effort",
+      "corrections": [
+        "C12"
+      ],
+      "id": "BASE-358",
+      "observed": "pass",
+      "scenario": 76,
+      "target_cases": [
+        "A-REC-01",
+        "A-DIRECT-01",
+        "A-GK-01"
+      ]
+    },
+    {
+      "assertion": "[codex] effort-off: codex argv carries no effort override",
+      "corrections": [
+        "C12"
+      ],
+      "id": "BASE-359",
+      "observed": "pass",
+      "scenario": 76,
+      "target_cases": [
+        "A-REC-01",
+        "A-DIRECT-01",
+        "A-GK-01"
+      ]
+    },
+    {
+      "assertion": "[codex] role-pin: swapped rerun refused",
+      "corrections": [
+        "C01",
+        "C09",
+        "C10",
+        "C11",
+        "C12"
+      ],
+      "id": "BASE-360",
+      "observed": "pass",
+      "scenario": 77,
+      "target_cases": [
+        "A-LOOP-06",
+        "A-GK-10",
+        "A-GK-11",
+        "A-REC-02"
+      ]
+    },
+    {
+      "assertion": "[codex] role-pin: message names original role",
+      "corrections": [
+        "C01",
+        "C09",
+        "C10",
+        "C11",
+        "C12"
+      ],
+      "id": "BASE-361",
+      "observed": "pass",
+      "scenario": 77,
+      "target_cases": [
+        "A-LOOP-06",
+        "A-GK-10",
+        "A-GK-11",
+        "A-REC-02"
+      ]
+    },
+    {
+      "assertion": "[codex] persistent: exit 0",
+      "corrections": [
+        "C10"
+      ],
+      "id": "BASE-362",
+      "observed": "pass",
+      "scenario": 78,
+      "target_cases": [
+        "A-DIRECT-02",
+        "A-DIRECT-03",
+        "A-DIRECT-04"
+      ]
+    },
+    {
+      "assertion": "[codex] persistent: planner session recorded",
+      "corrections": [
+        "C10"
+      ],
+      "id": "BASE-363",
+      "observed": "pass",
+      "scenario": 78,
+      "target_cases": [
+        "A-DIRECT-02",
+        "A-DIRECT-03",
+        "A-DIRECT-04"
+      ]
+    },
+    {
+      "assertion": "[codex] persistent: critic session recorded",
+      "corrections": [
+        "C10"
+      ],
+      "id": "BASE-364",
+      "observed": "pass",
+      "scenario": 78,
+      "target_cases": [
+        "A-DIRECT-02",
+        "A-DIRECT-03",
+        "A-DIRECT-04"
+      ]
+    },
+    {
+      "assertion": "[codex] persistent: provenance records mode",
+      "corrections": [
+        "C12"
+      ],
+      "id": "BASE-365",
+      "observed": "pass",
+      "scenario": 78,
+      "target_cases": [
+        "A-REC-01",
+        "A-DIRECT-01",
+        "A-GK-01"
+      ]
+    },
+    {
+      "assertion": "[codex] persistent: codex planner round 0 is a fresh exec",
+      "corrections": [
+        "C10"
+      ],
+      "id": "BASE-366",
+      "observed": "pass",
+      "scenario": 78,
+      "target_cases": [
+        "A-DIRECT-02",
+        "A-DIRECT-03",
+        "A-DIRECT-04"
+      ]
+    },
+    {
+      "assertion": "[codex] persistent: codex planner resumes on revision",
+      "corrections": [
+        "C10"
+      ],
+      "id": "BASE-367",
+      "observed": "pass",
+      "scenario": 78,
+      "target_cases": [
+        "A-DIRECT-02",
+        "A-DIRECT-03",
+        "A-DIRECT-04"
+      ]
+    },
+    {
+      "assertion": "[codex] persistent: codex resume names the recorded id",
+      "corrections": [
+        "C10"
+      ],
+      "id": "BASE-368",
+      "observed": "pass",
+      "scenario": 78,
+      "target_cases": [
+        "A-DIRECT-02",
+        "A-DIRECT-03",
+        "A-DIRECT-04"
+      ]
+    },
+    {
+      "assertion": "[codex] persistent: codex resume re-imposes write sandbox",
+      "corrections": [
+        "C10"
+      ],
+      "id": "BASE-369",
+      "observed": "pass",
+      "scenario": 78,
+      "target_cases": [
+        "A-DIRECT-02",
+        "A-DIRECT-03",
+        "A-DIRECT-04"
+      ]
+    },
+    {
+      "assertion": "[codex] persistent: claude critic opens with --session-id",
+      "corrections": [
+        "C10"
+      ],
+      "id": "BASE-370",
+      "observed": "pass",
+      "scenario": 78,
+      "target_cases": [
+        "A-DIRECT-02",
+        "A-DIRECT-03",
+        "A-DIRECT-04"
+      ]
+    },
+    {
+      "assertion": "[codex] persistent: claude critic resumes round 2",
+      "corrections": [
+        "C10"
+      ],
+      "id": "BASE-371",
+      "observed": "pass",
+      "scenario": 78,
+      "target_cases": [
+        "A-DIRECT-02",
+        "A-DIRECT-03",
+        "A-DIRECT-04"
+      ]
+    },
+    {
+      "assertion": "[codex] persistent: critic resume names the recorded id",
+      "corrections": [
+        "C10"
+      ],
+      "id": "BASE-372",
+      "observed": "pass",
+      "scenario": 78,
+      "target_cases": [
+        "A-DIRECT-02",
+        "A-DIRECT-03",
+        "A-DIRECT-04"
+      ]
+    },
+    {
+      "assertion": "[codex] persistent-retry: exit 0",
+      "corrections": [
+        "C10"
+      ],
+      "id": "BASE-373",
+      "observed": "pass",
+      "scenario": 79,
+      "target_cases": [
+        "A-DIRECT-02",
+        "A-DIRECT-03",
+        "A-DIRECT-04"
+      ]
+    },
+    {
+      "assertion": "[codex] persistent-retry: re-ask resumes the critic session",
+      "corrections": [
+        "C10"
+      ],
+      "id": "BASE-374",
+      "observed": "pass",
+      "scenario": 79,
+      "target_cases": [
+        "A-DIRECT-02",
+        "A-DIRECT-03",
+        "A-DIRECT-04"
+      ]
+    },
+    {
+      "assertion": "[codex] persistent-second: exit 0",
+      "corrections": [
+        "C10"
+      ],
+      "id": "BASE-375",
+      "observed": "pass",
+      "scenario": 80,
+      "target_cases": [
+        "A-DIRECT-02",
+        "A-DIRECT-03",
+        "A-DIRECT-04"
+      ]
+    },
+    {
+      "assertion": "[codex] persistent-second: second opinion stays one-shot",
+      "corrections": [
+        "C06",
+        "C07"
+      ],
+      "id": "BASE-376",
+      "observed": "pass",
+      "scenario": 80,
+      "target_cases": [
+        "A-FINAL-01",
+        "A-FINAL-02",
+        "A-FINAL-05"
+      ]
+    },
+    {
+      "assertion": "[codex] persistent-second: closing pass resumes the planner session",
+      "corrections": [
+        "C06",
+        "C07"
+      ],
+      "id": "BASE-377",
+      "observed": "pass",
+      "scenario": 80,
+      "target_cases": [
+        "A-FINAL-01",
+        "A-FINAL-02",
+        "A-FINAL-05"
+      ]
+    },
+    {
+      "assertion": "[codex] persistent-pin: mode flip on rerun refused",
+      "corrections": [
+        "C10"
+      ],
+      "id": "BASE-378",
+      "observed": "pass",
+      "scenario": 81,
+      "target_cases": [
+        "A-DIRECT-02",
+        "A-DIRECT-03",
+        "A-DIRECT-04"
+      ]
+    },
+    {
+      "assertion": "[codex] persistent-pin: message names VOLLEY_PERSISTENT",
+      "corrections": [
+        "C10"
+      ],
+      "id": "BASE-379",
+      "observed": "pass",
+      "scenario": 81,
+      "target_cases": [
+        "A-DIRECT-02",
+        "A-DIRECT-03",
+        "A-DIRECT-04"
+      ]
+    },
+    {
+      "assertion": "[codex] resume-revision: exit 0",
+      "corrections": [
+        "C01",
+        "C09",
+        "C10",
+        "C11",
+        "C12"
+      ],
+      "id": "BASE-380",
+      "observed": "pass",
+      "scenario": 82,
+      "target_cases": [
+        "A-LOOP-06",
+        "A-GK-10",
+        "A-GK-11",
+        "A-REC-02"
+      ]
+    },
+    {
+      "assertion": "[codex] resume-revision: log names the catch-up",
+      "corrections": [
+        "C01",
+        "C09",
+        "C10",
+        "C11",
+        "C12"
+      ],
+      "id": "BASE-381",
+      "observed": "pass",
+      "scenario": 82,
+      "target_cases": [
+        "A-LOOP-06",
+        "A-GK-10",
+        "A-GK-11",
+        "A-REC-02"
+      ]
+    },
+    {
+      "assertion": "[codex] resume-revision: r01 spec snapshot recreated",
+      "corrections": [
+        "C01",
+        "C09",
+        "C10",
+        "C11",
+        "C12"
+      ],
+      "id": "BASE-382",
+      "observed": "pass",
+      "scenario": 82,
+      "target_cases": [
+        "A-LOOP-06",
+        "A-GK-10",
+        "A-GK-11",
+        "A-REC-02"
+      ]
+    },
+    {
+      "assertion": "[codex] resume-revision: critic then reviews the revised spec",
+      "corrections": [
+        "C01",
+        "C09",
+        "C10",
+        "C11",
+        "C12"
+      ],
+      "id": "BASE-383",
+      "observed": "pass",
+      "scenario": 82,
+      "target_cases": [
+        "A-LOOP-06",
+        "A-GK-10",
+        "A-GK-11",
+        "A-REC-02"
+      ]
+    },
+    {
+      "assertion": "[codex] resume-revision: no wasted critic call",
+      "corrections": [
+        "C01",
+        "C09",
+        "C10",
+        "C11",
+        "C12"
+      ],
+      "id": "BASE-384",
+      "observed": "pass",
+      "scenario": 82,
+      "target_cases": [
+        "A-LOOP-06",
+        "A-GK-10",
+        "A-GK-11",
+        "A-REC-02"
+      ]
+    },
+    {
+      "assertion": "[codex] persistent-off: no planner session file",
+      "corrections": [
+        "C10"
+      ],
+      "id": "BASE-385",
+      "observed": "pass",
+      "scenario": 83,
+      "target_cases": [
+        "A-DIRECT-02",
+        "A-DIRECT-03",
+        "A-DIRECT-04"
+      ]
+    },
+    {
+      "assertion": "[codex] persistent-off: no critic session file",
+      "corrections": [
+        "C10"
+      ],
+      "id": "BASE-386",
+      "observed": "pass",
+      "scenario": 83,
+      "target_cases": [
+        "A-DIRECT-02",
+        "A-DIRECT-03",
+        "A-DIRECT-04"
+      ]
+    },
+    {
+      "assertion": "[codex] persistent-off: provenance records mode off",
+      "corrections": [
+        "C12"
+      ],
+      "id": "BASE-387",
+      "observed": "pass",
+      "scenario": 83,
+      "target_cases": [
+        "A-REC-01",
+        "A-DIRECT-01",
+        "A-GK-01"
+      ]
+    },
+    {
+      "assertion": "[gashki claude] converge: exit 0",
+      "corrections": [
+        "C09",
+        "C11",
+        "C14",
+        "C15"
+      ],
+      "id": "BASE-388",
+      "observed": "pass",
+      "scenario": 84,
+      "target_cases": [
+        "A-GK-01",
+        "A-GK-02",
+        "A-GK-03",
+        "A-GK-04",
+        "A-GK-12"
+      ]
+    },
+    {
+      "assertion": "[gashki claude] converge: SPEC.md written",
+      "corrections": [
+        "C09",
+        "C11",
+        "C14",
+        "C15"
+      ],
+      "id": "BASE-389",
+      "observed": "pass",
+      "scenario": 84,
+      "target_cases": [
+        "A-GK-01",
+        "A-GK-02",
+        "A-GK-03",
+        "A-GK-04",
+        "A-GK-12"
+      ]
+    },
+    {
+      "assertion": "[gashki claude] converge: critic wrote the critique file",
+      "corrections": [
+        "C09",
+        "C11",
+        "C14",
+        "C15"
+      ],
+      "id": "BASE-390",
+      "observed": "pass",
+      "scenario": 84,
+      "target_cases": [
+        "A-GK-01",
+        "A-GK-02",
+        "A-GK-03",
+        "A-GK-04",
+        "A-GK-12"
+      ]
+    },
+    {
+      "assertion": "[gashki claude] converge: critic was codex",
+      "corrections": [
+        "C09",
+        "C11",
+        "C14",
+        "C15"
+      ],
+      "id": "BASE-391",
+      "observed": "pass",
+      "scenario": 84,
+      "target_cases": [
+        "A-GK-01",
+        "A-GK-02",
+        "A-GK-03",
+        "A-GK-04",
+        "A-GK-12"
+      ]
+    },
+    {
+      "assertion": "[gashki claude] converge: critic told where to write",
+      "corrections": [
+        "C09",
+        "C11",
+        "C14",
+        "C15"
+      ],
+      "id": "BASE-392",
+      "observed": "pass",
+      "scenario": 84,
+      "target_cases": [
+        "A-GK-01",
+        "A-GK-02",
+        "A-GK-03",
+        "A-GK-04",
+        "A-GK-12"
+      ]
+    },
+    {
+      "assertion": "[gashki claude] converge: prompt kept in state/prompts",
+      "corrections": [
+        "C09",
+        "C11",
+        "C14",
+        "C15"
+      ],
+      "id": "BASE-393",
+      "observed": "pass",
+      "scenario": 84,
+      "target_cases": [
+        "A-GK-01",
+        "A-GK-02",
+        "A-GK-03",
+        "A-GK-04",
+        "A-GK-12"
+      ]
+    },
+    {
+      "assertion": "[gashki claude] converge: planner pane spawned in the workspace",
+      "corrections": [
+        "C09",
+        "C11",
+        "C14",
+        "C15"
+      ],
+      "id": "BASE-394",
+      "observed": "pass",
+      "scenario": 84,
+      "target_cases": [
+        "A-GK-01",
+        "A-GK-02",
+        "A-GK-03",
+        "A-GK-04",
+        "A-GK-12"
+      ]
+    },
+    {
+      "assertion": "[gashki claude] converge: sends carry an idempotency key",
+      "corrections": [
+        "C09",
+        "C11",
+        "C14",
+        "C15"
+      ],
+      "id": "BASE-395",
+      "observed": "pass",
+      "scenario": 84,
+      "target_cases": [
+        "A-GK-01",
+        "A-GK-02",
+        "A-GK-03",
+        "A-GK-04",
+        "A-GK-12"
+      ]
+    },
+    {
+      "assertion": "[gashki claude] converge: planner pane killed",
+      "corrections": [
+        "C09",
+        "C11",
+        "C14",
+        "C15"
+      ],
+      "id": "BASE-396",
+      "observed": "pass",
+      "scenario": 84,
+      "target_cases": [
+        "A-GK-01",
+        "A-GK-02",
+        "A-GK-03",
+        "A-GK-04",
+        "A-GK-12"
+      ]
+    },
+    {
+      "assertion": "[gashki claude] converge: critic pane killed",
+      "corrections": [
+        "C09",
+        "C11",
+        "C14",
+        "C15"
+      ],
+      "id": "BASE-397",
+      "observed": "pass",
+      "scenario": 84,
+      "target_cases": [
+        "A-GK-01",
+        "A-GK-02",
+        "A-GK-03",
+        "A-GK-04",
+        "A-GK-12"
+      ]
+    },
+    {
+      "assertion": "[gashki claude] converge: state/run removed",
+      "corrections": [
+        "C09",
+        "C11",
+        "C14",
+        "C15"
+      ],
+      "id": "BASE-398",
+      "observed": "pass",
+      "scenario": 84,
+      "target_cases": [
+        "A-GK-01",
+        "A-GK-02",
+        "A-GK-03",
+        "A-GK-04",
+        "A-GK-12"
+      ]
+    },
+    {
+      "assertion": "[gashki claude] converge: provenance records backend",
+      "corrections": [
+        "C12"
+      ],
+      "id": "BASE-399",
+      "observed": "pass",
+      "scenario": 84,
+      "target_cases": [
+        "A-REC-01",
+        "A-DIRECT-01",
+        "A-GK-01"
+      ]
+    },
+    {
+      "assertion": "[gashki claude] review rule: initial planner receives it",
+      "corrections": [],
+      "id": "BASE-400",
+      "observed": "pass",
+      "scenario": 84,
+      "target_cases": [
+        "A-PROMPT-01",
+        "A-PROMPT-02"
+      ]
+    },
+    {
+      "assertion": "[gashki claude] review rule: critic receives it",
+      "corrections": [],
+      "id": "BASE-401",
+      "observed": "pass",
+      "scenario": 84,
+      "target_cases": [
+        "A-PROMPT-01",
+        "A-PROMPT-02"
+      ]
+    },
+    {
+      "assertion": "[gashki claude] revise-approve: exit 0",
+      "corrections": [
+        "C09",
+        "C11",
+        "C14",
+        "C15"
+      ],
+      "id": "BASE-402",
+      "observed": "pass",
+      "scenario": 85,
+      "target_cases": [
+        "A-GK-01",
+        "A-GK-02",
+        "A-GK-03",
+        "A-GK-04",
+        "A-GK-12"
+      ]
+    },
+    {
+      "assertion": "[gashki claude] revise-approve: second critique",
+      "corrections": [
+        "C09",
+        "C11",
+        "C14",
+        "C15"
+      ],
+      "id": "BASE-403",
+      "observed": "pass",
+      "scenario": 85,
+      "target_cases": [
+        "A-GK-01",
+        "A-GK-02",
+        "A-GK-03",
+        "A-GK-04",
+        "A-GK-12"
+      ]
+    },
+    {
+      "assertion": "[gashki claude] revise-approve: panes reused across rounds",
+      "corrections": [
+        "C09",
+        "C11",
+        "C14",
+        "C15"
+      ],
+      "id": "BASE-404",
+      "observed": "pass",
+      "scenario": 85,
+      "target_cases": [
+        "A-GK-01",
+        "A-GK-02",
+        "A-GK-03",
+        "A-GK-04",
+        "A-GK-12"
+      ]
+    },
+    {
+      "assertion": "[gashki claude] revise-approve: init reply saved from the transcript",
+      "corrections": [
+        "C09",
+        "C11",
+        "C14",
+        "C15"
+      ],
+      "id": "BASE-405",
+      "observed": "pass",
+      "scenario": 85,
+      "target_cases": [
+        "A-GK-01",
+        "A-GK-02",
+        "A-GK-03",
+        "A-GK-04",
+        "A-GK-12"
+      ]
+    },
+    {
+      "assertion": "[gashki claude] revise-approve: revise reply saved from the transcript",
+      "corrections": [
+        "C09",
+        "C11",
+        "C14",
+        "C15"
+      ],
+      "id": "BASE-406",
+      "observed": "pass",
+      "scenario": 85,
+      "target_cases": [
+        "A-GK-01",
+        "A-GK-02",
+        "A-GK-03",
+        "A-GK-04",
+        "A-GK-12"
+      ]
+    },
+    {
+      "assertion": "[gashki claude] review rule: revision planner receives it",
+      "corrections": [],
+      "id": "BASE-407",
+      "observed": "pass",
+      "scenario": 85,
+      "target_cases": [
+        "A-PROMPT-01",
+        "A-PROMPT-02"
+      ]
+    },
+    {
+      "assertion": "[gashki claude] questions: waits after the revision",
+      "corrections": [
+        "C02",
+        "C08"
+      ],
+      "id": "BASE-408",
+      "observed": "pass",
+      "scenario": 86,
+      "target_cases": [
+        "A-HUMAN-01",
+        "A-HUMAN-02",
+        "A-HUMAN-03",
+        "A-LOOP-03"
+      ]
+    },
+    {
+      "assertion": "[gashki claude] questions: no agent call while it waits",
+      "corrections": [
+        "C02",
+        "C08"
+      ],
+      "id": "BASE-409",
+      "observed": "pass",
+      "scenario": 86,
+      "target_cases": [
+        "A-HUMAN-01",
+        "A-HUMAN-02",
+        "A-HUMAN-03",
+        "A-LOOP-03"
+      ]
+    },
+    {
+      "assertion": "[gashki claude] questions: panes stay up",
+      "corrections": [
+        "C02",
+        "C08"
+      ],
+      "id": "BASE-410",
+      "observed": "pass",
+      "scenario": 86,
+      "target_cases": [
+        "A-HUMAN-01",
+        "A-HUMAN-02",
+        "A-HUMAN-03",
+        "A-LOOP-03"
+      ]
+    },
+    {
+      "assertion": "[gashki claude] questions: user told to answer in the planner pane",
+      "corrections": [
+        "C02",
+        "C08"
+      ],
+      "id": "BASE-411",
+      "observed": "pass",
+      "scenario": 86,
+      "target_cases": [
+        "A-HUMAN-01",
+        "A-HUMAN-02",
+        "A-HUMAN-03",
+        "A-LOOP-03"
+      ]
+    },
+    {
+      "assertion": "[gashki claude] questions: planner told to list the questions in its reply",
+      "corrections": [
+        "C02",
+        "C08"
+      ],
+      "id": "BASE-412",
+      "observed": "pass",
+      "scenario": 86,
+      "target_cases": [
+        "A-HUMAN-01",
+        "A-HUMAN-02",
+        "A-HUMAN-03",
+        "A-LOOP-03"
+      ]
+    },
+    {
+      "assertion": "[gashki claude] questions: planner told to copy a pane answer to HUMAN.md",
+      "corrections": [
+        "C02",
+        "C08"
+      ],
+      "id": "BASE-413",
+      "observed": "pass",
+      "scenario": 86,
+      "target_cases": [
+        "A-HUMAN-01",
+        "A-HUMAN-02",
+        "A-HUMAN-03",
+        "A-LOOP-03"
+      ]
+    },
+    {
+      "assertion": "[gashki claude] questions: answer ends the wait and the loop converges",
+      "corrections": [
+        "C02",
+        "C08"
+      ],
+      "id": "BASE-414",
+      "observed": "pass",
+      "scenario": 86,
+      "target_cases": [
+        "A-HUMAN-01",
+        "A-HUMAN-02",
+        "A-HUMAN-03",
+        "A-LOOP-03"
+      ]
+    },
+    {
+      "assertion": "[gashki claude] questions: panes reused",
+      "corrections": [
+        "C02",
+        "C08"
+      ],
+      "id": "BASE-415",
+      "observed": "pass",
+      "scenario": 86,
+      "target_cases": [
+        "A-HUMAN-01",
+        "A-HUMAN-02",
+        "A-HUMAN-03",
+        "A-LOOP-03"
+      ]
+    },
+    {
+      "assertion": "[gashki claude] questions: critic gets the answer",
+      "corrections": [
+        "C02",
+        "C08"
+      ],
+      "id": "BASE-416",
+      "observed": "pass",
+      "scenario": 86,
+      "target_cases": [
+        "A-HUMAN-01",
+        "A-HUMAN-02",
+        "A-HUMAN-03",
+        "A-LOOP-03"
+      ]
+    },
+    {
+      "assertion": "[gashki claude] questions: planner pane idle before the next turn",
+      "corrections": [
+        "C02",
+        "C08"
+      ],
+      "id": "BASE-417",
+      "observed": "pass",
+      "scenario": 86,
+      "target_cases": [
+        "A-HUMAN-01",
+        "A-HUMAN-02",
+        "A-HUMAN-03",
+        "A-LOOP-03"
+      ]
+    },
+    {
+      "assertion": "[gashki claude] closing-pass: exit 0",
+      "corrections": [
+        "C06",
+        "C07"
+      ],
+      "id": "BASE-418",
+      "observed": "pass",
+      "scenario": 87,
+      "target_cases": [
+        "A-FINAL-01",
+        "A-FINAL-02",
+        "A-FINAL-05"
+      ]
+    },
+    {
+      "assertion": "[gashki claude] closing-pass: closing reply saved from the transcript",
+      "corrections": [
+        "C06",
+        "C07"
+      ],
+      "id": "BASE-419",
+      "observed": "pass",
+      "scenario": 87,
+      "target_cases": [
+        "A-FINAL-01",
+        "A-FINAL-02",
+        "A-FINAL-05"
+      ]
+    },
+    {
+      "assertion": "[gashki claude] review rule: closing planner receives it",
+      "corrections": [
+        "C06",
+        "C07"
+      ],
+      "id": "BASE-420",
+      "observed": "pass",
+      "scenario": 87,
+      "target_cases": [
+        "A-FINAL-01",
+        "A-FINAL-02",
+        "A-FINAL-05"
+      ]
+    },
+    {
+      "assertion": "[gashki claude] second opinion: exit 0",
+      "corrections": [
+        "C06",
+        "C07"
+      ],
+      "id": "BASE-421",
+      "observed": "pass",
+      "scenario": 88,
+      "target_cases": [
+        "A-FINAL-01",
+        "A-FINAL-02",
+        "A-FINAL-05"
+      ]
+    },
+    {
+      "assertion": "[gashki claude] review rule: second opinion receives it",
+      "corrections": [
+        "C06",
+        "C07"
+      ],
+      "id": "BASE-422",
+      "observed": "pass",
+      "scenario": 88,
+      "target_cases": [
+        "A-FINAL-01",
+        "A-FINAL-02",
+        "A-FINAL-05"
+      ]
+    },
+    {
+      "assertion": "[gashki claude] re-ask: exit 0",
+      "corrections": [
+        "C09",
+        "C11",
+        "C14",
+        "C15"
+      ],
+      "id": "BASE-423",
+      "observed": "pass",
+      "scenario": 89,
+      "target_cases": [
+        "A-GK-01",
+        "A-GK-02",
+        "A-GK-03",
+        "A-GK-04",
+        "A-GK-12"
+      ]
+    },
+    {
+      "assertion": "[gashki claude] re-ask: critic asked twice",
+      "corrections": [
+        "C09",
+        "C11",
+        "C14",
+        "C15"
+      ],
+      "id": "BASE-424",
+      "observed": "pass",
+      "scenario": 89,
+      "target_cases": [
+        "A-GK-01",
+        "A-GK-02",
+        "A-GK-03",
+        "A-GK-04",
+        "A-GK-12"
+      ]
+    },
+    {
+      "assertion": "[gashki claude] re-ask: own key",
+      "corrections": [
+        "C09",
+        "C11",
+        "C14",
+        "C15"
+      ],
+      "id": "BASE-425",
+      "observed": "pass",
+      "scenario": 89,
+      "target_cases": [
+        "A-GK-01",
+        "A-GK-02",
+        "A-GK-03",
+        "A-GK-04",
+        "A-GK-12"
+      ]
+    },
+    {
+      "assertion": "[gashki claude] review rule: re-asked critic receives it",
+      "corrections": [],
+      "id": "BASE-426",
+      "observed": "pass",
+      "scenario": 89,
+      "target_cases": [
+        "A-PROMPT-01",
+        "A-PROMPT-02"
+      ]
+    },
+    {
+      "assertion": "[gashki claude] no transcript: run still converges",
+      "corrections": [
+        "C09",
+        "C11",
+        "C14",
+        "C15"
+      ],
+      "id": "BASE-427",
+      "observed": "pass",
+      "scenario": 90,
+      "target_cases": [
+        "A-GK-01",
+        "A-GK-02",
+        "A-GK-03",
+        "A-GK-04",
+        "A-GK-12"
+      ]
+    },
+    {
+      "assertion": "[gashki claude] no transcript: no reply file",
+      "corrections": [
+        "C09",
+        "C11",
+        "C14",
+        "C15"
+      ],
+      "id": "BASE-428",
+      "observed": "pass",
+      "scenario": 90,
+      "target_cases": [
+        "A-GK-01",
+        "A-GK-02",
+        "A-GK-03",
+        "A-GK-04",
+        "A-GK-12"
+      ]
+    },
+    {
+      "assertion": "[gashki claude] no transcript: logged",
+      "corrections": [
+        "C09",
+        "C11",
+        "C14",
+        "C15"
+      ],
+      "id": "BASE-429",
+      "observed": "pass",
+      "scenario": 90,
+      "target_cases": [
+        "A-GK-01",
+        "A-GK-02",
+        "A-GK-03",
+        "A-GK-04",
+        "A-GK-12"
+      ]
+    },
+    {
+      "assertion": "[gashki codex] converge: exit 0",
+      "corrections": [
+        "C09",
+        "C11",
+        "C14",
+        "C15"
+      ],
+      "id": "BASE-430",
+      "observed": "pass",
+      "scenario": 91,
+      "target_cases": [
+        "A-GK-01",
+        "A-GK-02",
+        "A-GK-03",
+        "A-GK-04",
+        "A-GK-12"
+      ]
+    },
+    {
+      "assertion": "[gashki codex] converge: SPEC.md written",
+      "corrections": [
+        "C09",
+        "C11",
+        "C14",
+        "C15"
+      ],
+      "id": "BASE-431",
+      "observed": "pass",
+      "scenario": 91,
+      "target_cases": [
+        "A-GK-01",
+        "A-GK-02",
+        "A-GK-03",
+        "A-GK-04",
+        "A-GK-12"
+      ]
+    },
+    {
+      "assertion": "[gashki codex] converge: critic wrote the critique file",
+      "corrections": [
+        "C09",
+        "C11",
+        "C14",
+        "C15"
+      ],
+      "id": "BASE-432",
+      "observed": "pass",
+      "scenario": 91,
+      "target_cases": [
+        "A-GK-01",
+        "A-GK-02",
+        "A-GK-03",
+        "A-GK-04",
+        "A-GK-12"
+      ]
+    },
+    {
+      "assertion": "[gashki codex] converge: critic was claude",
+      "corrections": [
+        "C09",
+        "C11",
+        "C14",
+        "C15"
+      ],
+      "id": "BASE-433",
+      "observed": "pass",
+      "scenario": 91,
+      "target_cases": [
+        "A-GK-01",
+        "A-GK-02",
+        "A-GK-03",
+        "A-GK-04",
+        "A-GK-12"
+      ]
+    },
+    {
+      "assertion": "[gashki codex] converge: critic told where to write",
+      "corrections": [
+        "C09",
+        "C11",
+        "C14",
+        "C15"
+      ],
+      "id": "BASE-434",
+      "observed": "pass",
+      "scenario": 91,
+      "target_cases": [
+        "A-GK-01",
+        "A-GK-02",
+        "A-GK-03",
+        "A-GK-04",
+        "A-GK-12"
+      ]
+    },
+    {
+      "assertion": "[gashki codex] converge: prompt kept in state/prompts",
+      "corrections": [
+        "C09",
+        "C11",
+        "C14",
+        "C15"
+      ],
+      "id": "BASE-435",
+      "observed": "pass",
+      "scenario": 91,
+      "target_cases": [
+        "A-GK-01",
+        "A-GK-02",
+        "A-GK-03",
+        "A-GK-04",
+        "A-GK-12"
+      ]
+    },
+    {
+      "assertion": "[gashki codex] converge: planner pane spawned in the workspace",
+      "corrections": [
+        "C09",
+        "C11",
+        "C14",
+        "C15"
+      ],
+      "id": "BASE-436",
+      "observed": "pass",
+      "scenario": 91,
+      "target_cases": [
+        "A-GK-01",
+        "A-GK-02",
+        "A-GK-03",
+        "A-GK-04",
+        "A-GK-12"
+      ]
+    },
+    {
+      "assertion": "[gashki codex] converge: sends carry an idempotency key",
+      "corrections": [
+        "C09",
+        "C11",
+        "C14",
+        "C15"
+      ],
+      "id": "BASE-437",
+      "observed": "pass",
+      "scenario": 91,
+      "target_cases": [
+        "A-GK-01",
+        "A-GK-02",
+        "A-GK-03",
+        "A-GK-04",
+        "A-GK-12"
+      ]
+    },
+    {
+      "assertion": "[gashki codex] converge: planner pane killed",
+      "corrections": [
+        "C09",
+        "C11",
+        "C14",
+        "C15"
+      ],
+      "id": "BASE-438",
+      "observed": "pass",
+      "scenario": 91,
+      "target_cases": [
+        "A-GK-01",
+        "A-GK-02",
+        "A-GK-03",
+        "A-GK-04",
+        "A-GK-12"
+      ]
+    },
+    {
+      "assertion": "[gashki codex] converge: critic pane killed",
+      "corrections": [
+        "C09",
+        "C11",
+        "C14",
+        "C15"
+      ],
+      "id": "BASE-439",
+      "observed": "pass",
+      "scenario": 91,
+      "target_cases": [
+        "A-GK-01",
+        "A-GK-02",
+        "A-GK-03",
+        "A-GK-04",
+        "A-GK-12"
+      ]
+    },
+    {
+      "assertion": "[gashki codex] converge: state/run removed",
+      "corrections": [
+        "C09",
+        "C11",
+        "C14",
+        "C15"
+      ],
+      "id": "BASE-440",
+      "observed": "pass",
+      "scenario": 91,
+      "target_cases": [
+        "A-GK-01",
+        "A-GK-02",
+        "A-GK-03",
+        "A-GK-04",
+        "A-GK-12"
+      ]
+    },
+    {
+      "assertion": "[gashki codex] converge: provenance records backend",
+      "corrections": [
+        "C12"
+      ],
+      "id": "BASE-441",
+      "observed": "pass",
+      "scenario": 91,
+      "target_cases": [
+        "A-REC-01",
+        "A-DIRECT-01",
+        "A-GK-01"
+      ]
+    },
+    {
+      "assertion": "[gashki codex] review rule: initial planner receives it",
+      "corrections": [],
+      "id": "BASE-442",
+      "observed": "pass",
+      "scenario": 91,
+      "target_cases": [
+        "A-PROMPT-01",
+        "A-PROMPT-02"
+      ]
+    },
+    {
+      "assertion": "[gashki codex] review rule: critic receives it",
+      "corrections": [],
+      "id": "BASE-443",
+      "observed": "pass",
+      "scenario": 91,
+      "target_cases": [
+        "A-PROMPT-01",
+        "A-PROMPT-02"
+      ]
+    },
+    {
+      "assertion": "[gashki codex] revise-approve: exit 0",
+      "corrections": [
+        "C09",
+        "C11",
+        "C14",
+        "C15"
+      ],
+      "id": "BASE-444",
+      "observed": "pass",
+      "scenario": 92,
+      "target_cases": [
+        "A-GK-01",
+        "A-GK-02",
+        "A-GK-03",
+        "A-GK-04",
+        "A-GK-12"
+      ]
+    },
+    {
+      "assertion": "[gashki codex] revise-approve: second critique",
+      "corrections": [
+        "C09",
+        "C11",
+        "C14",
+        "C15"
+      ],
+      "id": "BASE-445",
+      "observed": "pass",
+      "scenario": 92,
+      "target_cases": [
+        "A-GK-01",
+        "A-GK-02",
+        "A-GK-03",
+        "A-GK-04",
+        "A-GK-12"
+      ]
+    },
+    {
+      "assertion": "[gashki codex] revise-approve: panes reused across rounds",
+      "corrections": [
+        "C09",
+        "C11",
+        "C14",
+        "C15"
+      ],
+      "id": "BASE-446",
+      "observed": "pass",
+      "scenario": 92,
+      "target_cases": [
+        "A-GK-01",
+        "A-GK-02",
+        "A-GK-03",
+        "A-GK-04",
+        "A-GK-12"
+      ]
+    },
+    {
+      "assertion": "[gashki codex] revise-approve: init reply saved from the transcript",
+      "corrections": [
+        "C09",
+        "C11",
+        "C14",
+        "C15"
+      ],
+      "id": "BASE-447",
+      "observed": "pass",
+      "scenario": 92,
+      "target_cases": [
+        "A-GK-01",
+        "A-GK-02",
+        "A-GK-03",
+        "A-GK-04",
+        "A-GK-12"
+      ]
+    },
+    {
+      "assertion": "[gashki codex] revise-approve: revise reply saved from the transcript",
+      "corrections": [
+        "C09",
+        "C11",
+        "C14",
+        "C15"
+      ],
+      "id": "BASE-448",
+      "observed": "pass",
+      "scenario": 92,
+      "target_cases": [
+        "A-GK-01",
+        "A-GK-02",
+        "A-GK-03",
+        "A-GK-04",
+        "A-GK-12"
+      ]
+    },
+    {
+      "assertion": "[gashki codex] review rule: revision planner receives it",
+      "corrections": [],
+      "id": "BASE-449",
+      "observed": "pass",
+      "scenario": 92,
+      "target_cases": [
+        "A-PROMPT-01",
+        "A-PROMPT-02"
+      ]
+    },
+    {
+      "assertion": "[gashki codex] questions: waits after the revision",
+      "corrections": [
+        "C02",
+        "C08"
+      ],
+      "id": "BASE-450",
+      "observed": "pass",
+      "scenario": 93,
+      "target_cases": [
+        "A-HUMAN-01",
+        "A-HUMAN-02",
+        "A-HUMAN-03",
+        "A-LOOP-03"
+      ]
+    },
+    {
+      "assertion": "[gashki codex] questions: no agent call while it waits",
+      "corrections": [
+        "C02",
+        "C08"
+      ],
+      "id": "BASE-451",
+      "observed": "pass",
+      "scenario": 93,
+      "target_cases": [
+        "A-HUMAN-01",
+        "A-HUMAN-02",
+        "A-HUMAN-03",
+        "A-LOOP-03"
+      ]
+    },
+    {
+      "assertion": "[gashki codex] questions: panes stay up",
+      "corrections": [
+        "C02",
+        "C08"
+      ],
+      "id": "BASE-452",
+      "observed": "pass",
+      "scenario": 93,
+      "target_cases": [
+        "A-HUMAN-01",
+        "A-HUMAN-02",
+        "A-HUMAN-03",
+        "A-LOOP-03"
+      ]
+    },
+    {
+      "assertion": "[gashki codex] questions: user told to answer in the planner pane",
+      "corrections": [
+        "C02",
+        "C08"
+      ],
+      "id": "BASE-453",
+      "observed": "pass",
+      "scenario": 93,
+      "target_cases": [
+        "A-HUMAN-01",
+        "A-HUMAN-02",
+        "A-HUMAN-03",
+        "A-LOOP-03"
+      ]
+    },
+    {
+      "assertion": "[gashki codex] questions: planner told to list the questions in its reply",
+      "corrections": [
+        "C02",
+        "C08"
+      ],
+      "id": "BASE-454",
+      "observed": "pass",
+      "scenario": 93,
+      "target_cases": [
+        "A-HUMAN-01",
+        "A-HUMAN-02",
+        "A-HUMAN-03",
+        "A-LOOP-03"
+      ]
+    },
+    {
+      "assertion": "[gashki codex] questions: planner told to copy a pane answer to HUMAN.md",
+      "corrections": [
+        "C02",
+        "C08"
+      ],
+      "id": "BASE-455",
+      "observed": "pass",
+      "scenario": 93,
+      "target_cases": [
+        "A-HUMAN-01",
+        "A-HUMAN-02",
+        "A-HUMAN-03",
+        "A-LOOP-03"
+      ]
+    },
+    {
+      "assertion": "[gashki codex] questions: answer ends the wait and the loop converges",
+      "corrections": [
+        "C02",
+        "C08"
+      ],
+      "id": "BASE-456",
+      "observed": "pass",
+      "scenario": 93,
+      "target_cases": [
+        "A-HUMAN-01",
+        "A-HUMAN-02",
+        "A-HUMAN-03",
+        "A-LOOP-03"
+      ]
+    },
+    {
+      "assertion": "[gashki codex] questions: panes reused",
+      "corrections": [
+        "C02",
+        "C08"
+      ],
+      "id": "BASE-457",
+      "observed": "pass",
+      "scenario": 93,
+      "target_cases": [
+        "A-HUMAN-01",
+        "A-HUMAN-02",
+        "A-HUMAN-03",
+        "A-LOOP-03"
+      ]
+    },
+    {
+      "assertion": "[gashki codex] questions: critic gets the answer",
+      "corrections": [
+        "C02",
+        "C08"
+      ],
+      "id": "BASE-458",
+      "observed": "pass",
+      "scenario": 93,
+      "target_cases": [
+        "A-HUMAN-01",
+        "A-HUMAN-02",
+        "A-HUMAN-03",
+        "A-LOOP-03"
+      ]
+    },
+    {
+      "assertion": "[gashki codex] questions: planner pane idle before the next turn",
+      "corrections": [
+        "C02",
+        "C08"
+      ],
+      "id": "BASE-459",
+      "observed": "pass",
+      "scenario": 93,
+      "target_cases": [
+        "A-HUMAN-01",
+        "A-HUMAN-02",
+        "A-HUMAN-03",
+        "A-LOOP-03"
+      ]
+    },
+    {
+      "assertion": "[gashki codex] closing-pass: exit 0",
+      "corrections": [
+        "C06",
+        "C07"
+      ],
+      "id": "BASE-460",
+      "observed": "pass",
+      "scenario": 94,
+      "target_cases": [
+        "A-FINAL-01",
+        "A-FINAL-02",
+        "A-FINAL-05"
+      ]
+    },
+    {
+      "assertion": "[gashki codex] closing-pass: closing reply saved from the transcript",
+      "corrections": [
+        "C06",
+        "C07"
+      ],
+      "id": "BASE-461",
+      "observed": "pass",
+      "scenario": 94,
+      "target_cases": [
+        "A-FINAL-01",
+        "A-FINAL-02",
+        "A-FINAL-05"
+      ]
+    },
+    {
+      "assertion": "[gashki codex] review rule: closing planner receives it",
+      "corrections": [
+        "C06",
+        "C07"
+      ],
+      "id": "BASE-462",
+      "observed": "pass",
+      "scenario": 94,
+      "target_cases": [
+        "A-FINAL-01",
+        "A-FINAL-02",
+        "A-FINAL-05"
+      ]
+    },
+    {
+      "assertion": "[gashki codex] second opinion: exit 0",
+      "corrections": [
+        "C06",
+        "C07"
+      ],
+      "id": "BASE-463",
+      "observed": "pass",
+      "scenario": 95,
+      "target_cases": [
+        "A-FINAL-01",
+        "A-FINAL-02",
+        "A-FINAL-05"
+      ]
+    },
+    {
+      "assertion": "[gashki codex] review rule: second opinion receives it",
+      "corrections": [
+        "C06",
+        "C07"
+      ],
+      "id": "BASE-464",
+      "observed": "pass",
+      "scenario": 95,
+      "target_cases": [
+        "A-FINAL-01",
+        "A-FINAL-02",
+        "A-FINAL-05"
+      ]
+    },
+    {
+      "assertion": "[gashki codex] re-ask: exit 0",
+      "corrections": [
+        "C09",
+        "C11",
+        "C14",
+        "C15"
+      ],
+      "id": "BASE-465",
+      "observed": "pass",
+      "scenario": 96,
+      "target_cases": [
+        "A-GK-01",
+        "A-GK-02",
+        "A-GK-03",
+        "A-GK-04",
+        "A-GK-12"
+      ]
+    },
+    {
+      "assertion": "[gashki codex] re-ask: critic asked twice",
+      "corrections": [
+        "C09",
+        "C11",
+        "C14",
+        "C15"
+      ],
+      "id": "BASE-466",
+      "observed": "pass",
+      "scenario": 96,
+      "target_cases": [
+        "A-GK-01",
+        "A-GK-02",
+        "A-GK-03",
+        "A-GK-04",
+        "A-GK-12"
+      ]
+    },
+    {
+      "assertion": "[gashki codex] re-ask: own key",
+      "corrections": [
+        "C09",
+        "C11",
+        "C14",
+        "C15"
+      ],
+      "id": "BASE-467",
+      "observed": "pass",
+      "scenario": 96,
+      "target_cases": [
+        "A-GK-01",
+        "A-GK-02",
+        "A-GK-03",
+        "A-GK-04",
+        "A-GK-12"
+      ]
+    },
+    {
+      "assertion": "[gashki codex] review rule: re-asked critic receives it",
+      "corrections": [],
+      "id": "BASE-468",
+      "observed": "pass",
+      "scenario": 96,
+      "target_cases": [
+        "A-PROMPT-01",
+        "A-PROMPT-02"
+      ]
+    },
+    {
+      "assertion": "[gashki codex] no transcript: run still converges",
+      "corrections": [
+        "C09",
+        "C11",
+        "C14",
+        "C15"
+      ],
+      "id": "BASE-469",
+      "observed": "pass",
+      "scenario": 97,
+      "target_cases": [
+        "A-GK-01",
+        "A-GK-02",
+        "A-GK-03",
+        "A-GK-04",
+        "A-GK-12"
+      ]
+    },
+    {
+      "assertion": "[gashki codex] no transcript: no reply file",
+      "corrections": [
+        "C09",
+        "C11",
+        "C14",
+        "C15"
+      ],
+      "id": "BASE-470",
+      "observed": "pass",
+      "scenario": 97,
+      "target_cases": [
+        "A-GK-01",
+        "A-GK-02",
+        "A-GK-03",
+        "A-GK-04",
+        "A-GK-12"
+      ]
+    },
+    {
+      "assertion": "[gashki codex] no transcript: logged",
+      "corrections": [
+        "C09",
+        "C11",
+        "C14",
+        "C15"
+      ],
+      "id": "BASE-471",
+      "observed": "pass",
+      "scenario": 97,
+      "target_cases": [
+        "A-GK-01",
+        "A-GK-02",
+        "A-GK-03",
+        "A-GK-04",
+        "A-GK-12"
+      ]
+    },
+    {
+      "assertion": "[gashki] outside tmux: exit 0",
+      "corrections": [
+        "C09",
+        "C11",
+        "C14",
+        "C15"
+      ],
+      "id": "BASE-472",
+      "observed": "pass",
+      "scenario": 98,
+      "target_cases": [
+        "A-GK-01",
+        "A-GK-02",
+        "A-GK-03",
+        "A-GK-04",
+        "A-GK-12"
+      ]
+    },
+    {
+      "assertion": "[gashki] outside tmux: no --here",
+      "corrections": [
+        "C09",
+        "C11",
+        "C14",
+        "C15"
+      ],
+      "id": "BASE-473",
+      "observed": "pass",
+      "scenario": 98,
+      "target_cases": [
+        "A-GK-01",
+        "A-GK-02",
+        "A-GK-03",
+        "A-GK-04",
+        "A-GK-12"
+      ]
+    },
+    {
+      "assertion": "[gashki] inside tmux: exit 0",
+      "corrections": [
+        "C09",
+        "C11",
+        "C14",
+        "C15"
+      ],
+      "id": "BASE-474",
+      "observed": "pass",
+      "scenario": 99,
+      "target_cases": [
+        "A-GK-01",
+        "A-GK-02",
+        "A-GK-03",
+        "A-GK-04",
+        "A-GK-12"
+      ]
+    },
+    {
+      "assertion": "[gashki] inside tmux: both spawns use --here",
+      "corrections": [
+        "C09",
+        "C11",
+        "C14",
+        "C15"
+      ],
+      "id": "BASE-475",
+      "observed": "pass",
+      "scenario": 99,
+      "target_cases": [
+        "A-GK-01",
+        "A-GK-02",
+        "A-GK-03",
+        "A-GK-04",
+        "A-GK-12"
+      ]
+    },
+    {
+      "assertion": "[gashki] trust unset: no --trust-folder",
+      "corrections": [
+        "C09",
+        "C11",
+        "C14",
+        "C15"
+      ],
+      "id": "BASE-476",
+      "observed": "pass",
+      "scenario": 100,
+      "target_cases": [
+        "A-GK-01",
+        "A-GK-02",
+        "A-GK-03",
+        "A-GK-04",
+        "A-GK-12"
+      ]
+    },
+    {
+      "assertion": "[gashki] trust 1: both spawns use --trust-folder",
+      "corrections": [
+        "C09",
+        "C11",
+        "C14",
+        "C15"
+      ],
+      "id": "BASE-477",
+      "observed": "pass",
+      "scenario": 101,
+      "target_cases": [
+        "A-GK-01",
+        "A-GK-02",
+        "A-GK-03",
+        "A-GK-04",
+        "A-GK-12"
+      ]
+    },
+    {
+      "assertion": "[gashki] trust : no --trust-folder",
+      "corrections": [
+        "C09",
+        "C11",
+        "C14",
+        "C15"
+      ],
+      "id": "BASE-478",
+      "observed": "pass",
+      "scenario": 102,
+      "target_cases": [
+        "A-GK-01",
+        "A-GK-02",
+        "A-GK-03",
+        "A-GK-04",
+        "A-GK-12"
+      ]
+    },
+    {
+      "assertion": "[gashki] trust 0: no --trust-folder",
+      "corrections": [
+        "C09",
+        "C11",
+        "C14",
+        "C15"
+      ],
+      "id": "BASE-479",
+      "observed": "pass",
+      "scenario": 103,
+      "target_cases": [
+        "A-GK-01",
+        "A-GK-02",
+        "A-GK-03",
+        "A-GK-04",
+        "A-GK-12"
+      ]
+    },
+    {
+      "assertion": "[gashki] trust true: no --trust-folder",
+      "corrections": [
+        "C09",
+        "C11",
+        "C14",
+        "C15"
+      ],
+      "id": "BASE-480",
+      "observed": "pass",
+      "scenario": 104,
+      "target_cases": [
+        "A-GK-01",
+        "A-GK-02",
+        "A-GK-03",
+        "A-GK-04",
+        "A-GK-12"
+      ]
+    },
+    {
+      "assertion": "[gashki] trust 01: no --trust-folder",
+      "corrections": [
+        "C09",
+        "C11",
+        "C14",
+        "C15"
+      ],
+      "id": "BASE-481",
+      "observed": "pass",
+      "scenario": 105,
+      "target_cases": [
+        "A-GK-01",
+        "A-GK-02",
+        "A-GK-03",
+        "A-GK-04",
+        "A-GK-12"
+      ]
+    },
+    {
+      "assertion": "[gashki] agent-args: claude planner gets model",
+      "corrections": [
+        "C12"
+      ],
+      "id": "BASE-482",
+      "observed": "pass",
+      "scenario": 106,
+      "target_cases": [
+        "A-REC-01",
+        "A-DIRECT-01",
+        "A-GK-01"
+      ]
+    },
+    {
+      "assertion": "[gashki] agent-args: claude planner tools limited",
+      "corrections": [
+        "C15"
+      ],
+      "id": "BASE-483",
+      "observed": "pass",
+      "scenario": 106,
+      "target_cases": [
+        "A-PROMPT-02",
+        "A-DIRECT-05",
+        "A-GK-13"
+      ]
+    },
+    {
+      "assertion": "[gashki] agent-args: no 1M override without [1m]",
+      "corrections": [
+        "C12"
+      ],
+      "id": "BASE-484",
+      "observed": "pass",
+      "scenario": 106,
+      "target_cases": [
+        "A-REC-01",
+        "A-DIRECT-01",
+        "A-GK-01"
+      ]
+    },
+    {
+      "assertion": "[gashki] 1M model: exit 0",
+      "corrections": [
+        "C12"
+      ],
+      "id": "BASE-485",
+      "observed": "pass",
+      "scenario": 107,
+      "target_cases": [
+        "A-REC-01",
+        "A-DIRECT-01",
+        "A-GK-01"
+      ]
+    },
+    {
+      "assertion": "[gashki] 1M model: planner gets the model",
+      "corrections": [
+        "C12"
+      ],
+      "id": "BASE-486",
+      "observed": "pass",
+      "scenario": 107,
+      "target_cases": [
+        "A-REC-01",
+        "A-DIRECT-01",
+        "A-GK-01"
+      ]
+    },
+    {
+      "assertion": "[gashki] 1M model: planner gets the cap override",
+      "corrections": [
+        "C12"
+      ],
+      "id": "BASE-487",
+      "observed": "pass",
+      "scenario": 107,
+      "target_cases": [
+        "A-REC-01",
+        "A-DIRECT-01",
+        "A-GK-01"
+      ]
+    },
+    {
+      "assertion": "[cli] 1M model: exit 0",
+      "corrections": [
+        "C12"
+      ],
+      "id": "BASE-488",
+      "observed": "pass",
+      "scenario": 108,
+      "target_cases": [
+        "A-REC-01",
+        "A-DIRECT-01",
+        "A-GK-01"
+      ]
+    },
+    {
+      "assertion": "[cli] 1M model: claude gets the cap override",
+      "corrections": [
+        "C12"
+      ],
+      "id": "BASE-489",
+      "observed": "pass",
+      "scenario": 108,
+      "target_cases": [
+        "A-REC-01",
+        "A-DIRECT-01",
+        "A-GK-01"
+      ]
+    },
+    {
+      "assertion": "[gashki] agent-args: claude critic tools limited",
+      "corrections": [
+        "C15"
+      ],
+      "id": "BASE-490",
+      "observed": "pass",
+      "scenario": 109,
+      "target_cases": [
+        "A-PROMPT-02",
+        "A-DIRECT-05",
+        "A-GK-13"
+      ]
+    },
+    {
+      "assertion": "[gashki] context: claude gets --add-dir",
+      "corrections": [
+        "C15"
+      ],
+      "id": "BASE-491",
+      "observed": "pass",
+      "scenario": 110,
+      "target_cases": [
+        "A-CFG-05",
+        "A-REC-02",
+        "A-LOOP-07"
+      ]
+    },
+    {
+      "assertion": "[cli] skills: exit 0",
+      "corrections": [
+        "C15"
+      ],
+      "id": "BASE-492",
+      "observed": "pass",
+      "scenario": 111,
+      "target_cases": [
+        "A-PROMPT-02",
+        "A-DIRECT-05",
+        "A-GK-13"
+      ]
+    },
+    {
+      "assertion": "[cli] skills: one --settings flag",
+      "corrections": [
+        "C15"
+      ],
+      "id": "BASE-493",
+      "observed": "pass",
+      "scenario": 111,
+      "target_cases": [
+        "A-PROMPT-02",
+        "A-DIRECT-05",
+        "A-GK-13"
+      ]
+    },
+    {
+      "assertion": "[cli] skills: read rule for the skills dir",
+      "corrections": [
+        "C15"
+      ],
+      "id": "BASE-494",
+      "observed": "pass",
+      "scenario": 111,
+      "target_cases": [
+        "A-PROMPT-02",
+        "A-DIRECT-05",
+        "A-GK-13"
+      ]
+    },
+    {
+      "assertion": "[cli] skills: read rule for the resolved skills dir",
+      "corrections": [
+        "C15"
+      ],
+      "id": "BASE-495",
+      "observed": "pass",
+      "scenario": 111,
+      "target_cases": [
+        "A-PROMPT-02",
+        "A-DIRECT-05",
+        "A-GK-13"
+      ]
+    },
+    {
+      "assertion": "[cli] skills: read rule for the linked skill's target",
+      "corrections": [
+        "C15"
+      ],
+      "id": "BASE-496",
+      "observed": "pass",
+      "scenario": 111,
+      "target_cases": [
+        "A-PROMPT-02",
+        "A-DIRECT-05",
+        "A-GK-13"
+      ]
+    },
+    {
+      "assertion": "[cli] skills: no rule for a plain skill",
+      "corrections": [
+        "C15"
+      ],
+      "id": "BASE-497",
+      "observed": "pass",
+      "scenario": 111,
+      "target_cases": [
+        "A-PROMPT-02",
+        "A-DIRECT-05",
+        "A-GK-13"
+      ]
+    },
+    {
+      "assertion": "[cli] skills: no write rules",
+      "corrections": [
+        "C15"
+      ],
+      "id": "BASE-498",
+      "observed": "pass",
+      "scenario": 111,
+      "target_cases": [
+        "A-PROMPT-02",
+        "A-DIRECT-05",
+        "A-GK-13"
+      ]
+    },
+    {
+      "assertion": "[cli] skills+1M: one --settings flag",
+      "corrections": [
+        "C15"
+      ],
+      "id": "BASE-499",
+      "observed": "pass",
+      "scenario": 112,
+      "target_cases": [
+        "A-PROMPT-02",
+        "A-DIRECT-05",
+        "A-GK-13"
+      ]
+    },
+    {
+      "assertion": "[cli] skills+1M: settings keep the cap override and the read rules",
+      "corrections": [
+        "C15"
+      ],
+      "id": "BASE-500",
+      "observed": "pass",
+      "scenario": 112,
+      "target_cases": [
+        "A-PROMPT-02",
+        "A-DIRECT-05",
+        "A-GK-13"
+      ]
+    },
+    {
+      "assertion": "[cli] skills: hint names the skills dir",
+      "corrections": [
+        "C15"
+      ],
+      "id": "BASE-501",
+      "observed": "pass",
+      "scenario": 112,
+      "target_cases": [
+        "A-PROMPT-02",
+        "A-DIRECT-05",
+        "A-GK-13"
+      ]
+    },
+    {
+      "assertion": "[cli] no skills dir: no --settings",
+      "corrections": [
+        "C15"
+      ],
+      "id": "BASE-502",
+      "observed": "pass",
+      "scenario": 113,
+      "target_cases": [
+        "A-PROMPT-02",
+        "A-DIRECT-05",
+        "A-GK-13"
+      ]
+    },
+    {
+      "assertion": "[cli] no skills dir: no skills hint",
+      "corrections": [
+        "C15"
+      ],
+      "id": "BASE-503",
+      "observed": "pass",
+      "scenario": 113,
+      "target_cases": [
+        "A-PROMPT-02",
+        "A-DIRECT-05",
+        "A-GK-13"
+      ]
+    },
+    {
+      "assertion": "[cli] skills: claude critic gets no write rule",
+      "corrections": [
+        "C15"
+      ],
+      "id": "BASE-504",
+      "observed": "pass",
+      "scenario": 114,
+      "target_cases": [
+        "A-PROMPT-02",
+        "A-DIRECT-05",
+        "A-GK-13"
+      ]
+    },
+    {
+      "assertion": "[gashki] dontAsk: planner runs in dontAsk mode",
+      "corrections": [
+        "C15"
+      ],
+      "id": "BASE-505",
+      "observed": "pass",
+      "scenario": 115,
+      "target_cases": [
+        "A-PROMPT-02",
+        "A-DIRECT-05",
+        "A-GK-13"
+      ]
+    },
+    {
+      "assertion": "[gashki] dontAsk: one --settings flag",
+      "corrections": [
+        "C15"
+      ],
+      "id": "BASE-506",
+      "observed": "pass",
+      "scenario": 115,
+      "target_cases": [
+        "A-PROMPT-02",
+        "A-DIRECT-05",
+        "A-GK-13"
+      ]
+    },
+    {
+      "assertion": "[gashki] dontAsk: workspace Edit rule",
+      "corrections": [
+        "C15"
+      ],
+      "id": "BASE-507",
+      "observed": "pass",
+      "scenario": 115,
+      "target_cases": [
+        "A-PROMPT-02",
+        "A-DIRECT-05",
+        "A-GK-13"
+      ]
+    },
+    {
+      "assertion": "[gashki] dontAsk: no Edit rule for the context dir or home",
+      "corrections": [
+        "C15"
+      ],
+      "id": "BASE-508",
+      "observed": "pass",
+      "scenario": 115,
+      "target_cases": [
+        "A-PROMPT-02",
+        "A-DIRECT-05",
+        "A-GK-13"
+      ]
+    },
+    {
+      "assertion": "[gashki] skills: planner gets the skills hint",
+      "corrections": [
+        "C15"
+      ],
+      "id": "BASE-509",
+      "observed": "pass",
+      "scenario": 116,
+      "target_cases": [
+        "A-PROMPT-02",
+        "A-DIRECT-05",
+        "A-GK-13"
+      ]
+    },
+    {
+      "assertion": "[gashki] skills: planner gets the read rules",
+      "corrections": [
+        "C15"
+      ],
+      "id": "BASE-510",
+      "observed": "pass",
+      "scenario": 116,
+      "target_cases": [
+        "A-PROMPT-02",
+        "A-DIRECT-05",
+        "A-GK-13"
+      ]
+    },
+    {
+      "assertion": "[gashki] skills: claude critic gets the read rules",
+      "corrections": [
+        "C15"
+      ],
+      "id": "BASE-511",
+      "observed": "pass",
+      "scenario": 117,
+      "target_cases": [
+        "A-PROMPT-02",
+        "A-DIRECT-05",
+        "A-GK-13"
+      ]
+    },
+    {
+      "assertion": "[gashki] dontAsk: claude critic runs in dontAsk mode",
+      "corrections": [
+        "C15"
+      ],
+      "id": "BASE-512",
+      "observed": "pass",
+      "scenario": 117,
+      "target_cases": [
+        "A-PROMPT-02",
+        "A-DIRECT-05",
+        "A-GK-13"
+      ]
+    },
+    {
+      "assertion": "[gashki] send exit 7, file present: exit 0",
+      "corrections": [
+        "C09",
+        "C11"
+      ],
+      "id": "BASE-513",
+      "observed": "pass",
+      "scenario": 118,
+      "target_cases": [
+        "A-GK-05",
+        "A-GK-06",
+        "A-GK-09"
+      ]
+    },
+    {
+      "assertion": "[gashki] send exit 7: logged",
+      "corrections": [
+        "C09",
+        "C11"
+      ],
+      "id": "BASE-514",
+      "observed": "pass",
+      "scenario": 118,
+      "target_cases": [
+        "A-GK-05",
+        "A-GK-06",
+        "A-GK-09"
+      ]
+    },
+    {
+      "assertion": "[gashki] send exit 7: no resend",
+      "corrections": [
+        "C09",
+        "C11"
+      ],
+      "id": "BASE-515",
+      "observed": "pass",
+      "scenario": 118,
+      "target_cases": [
+        "A-GK-05",
+        "A-GK-06",
+        "A-GK-09"
+      ]
+    },
+    {
+      "assertion": "[gashki] send exit 7, file missing: exit 1",
+      "corrections": [
+        "C09",
+        "C11"
+      ],
+      "id": "BASE-516",
+      "observed": "pass",
+      "scenario": 119,
+      "target_cases": [
+        "A-GK-05",
+        "A-GK-06",
+        "A-GK-09"
+      ]
+    },
+    {
+      "assertion": "[gashki] send exit 7, file missing: names the file",
+      "corrections": [
+        "C09",
+        "C11"
+      ],
+      "id": "BASE-517",
+      "observed": "pass",
+      "scenario": 119,
+      "target_cases": [
+        "A-GK-05",
+        "A-GK-06",
+        "A-GK-09"
+      ]
+    },
+    {
+      "assertion": "[gashki] no limit, timeouts while working: exit 0",
+      "corrections": [
+        "C03",
+        "C11"
+      ],
+      "id": "BASE-518",
+      "observed": "pass",
+      "scenario": 120,
+      "target_cases": [
+        "A-PROC-01",
+        "A-GK-07",
+        "A-GK-08"
+      ]
+    },
+    {
+      "assertion": "[gashki] no limit: waited again 3 times",
+      "corrections": [
+        "C03",
+        "C11"
+      ],
+      "id": "BASE-519",
+      "observed": "pass",
+      "scenario": 120,
+      "target_cases": [
+        "A-PROC-01",
+        "A-GK-07",
+        "A-GK-08"
+      ]
+    },
+    {
+      "assertion": "[gashki] no limit: observed the pane each time",
+      "corrections": [
+        "C03",
+        "C11"
+      ],
+      "id": "BASE-520",
+      "observed": "pass",
+      "scenario": 120,
+      "target_cases": [
+        "A-PROC-01",
+        "A-GK-07",
+        "A-GK-08"
+      ]
+    },
+    {
+      "assertion": "[gashki] no limit: 24h per wait",
+      "corrections": [
+        "C03",
+        "C11"
+      ],
+      "id": "BASE-521",
+      "observed": "pass",
+      "scenario": 120,
+      "target_cases": [
+        "A-PROC-01",
+        "A-GK-07",
+        "A-GK-08"
+      ]
+    },
+    {
+      "assertion": "[gashki] CALL_TIMEOUT set, timeout while working: exit 1",
+      "corrections": [
+        "C03",
+        "C11"
+      ],
+      "id": "BASE-522",
+      "observed": "pass",
+      "scenario": 121,
+      "target_cases": [
+        "A-PROC-01",
+        "A-GK-07",
+        "A-GK-08"
+      ]
+    },
+    {
+      "assertion": "[gashki] CALL_TIMEOUT set: names WAIT_TIMEOUT",
+      "corrections": [
+        "C03",
+        "C11"
+      ],
+      "id": "BASE-523",
+      "observed": "pass",
+      "scenario": 121,
+      "target_cases": [
+        "A-PROC-01",
+        "A-GK-07",
+        "A-GK-08"
+      ]
+    },
+    {
+      "assertion": "[gashki] CALL_TIMEOUT set: passes the budget",
+      "corrections": [
+        "C03",
+        "C11"
+      ],
+      "id": "BASE-524",
+      "observed": "pass",
+      "scenario": 121,
+      "target_cases": [
+        "A-PROC-01",
+        "A-GK-07",
+        "A-GK-08"
+      ]
+    },
+    {
+      "assertion": "[gashki] CALL_TIMEOUT set: no wait again",
+      "corrections": [
+        "C03",
+        "C11"
+      ],
+      "id": "BASE-525",
+      "observed": "pass",
+      "scenario": 121,
+      "target_cases": [
+        "A-PROC-01",
+        "A-GK-07",
+        "A-GK-08"
+      ]
+    },
+    {
+      "assertion": "[gashki] timeout while idle: exit 1",
+      "corrections": [
+        "C03",
+        "C11"
+      ],
+      "id": "BASE-526",
+      "observed": "pass",
+      "scenario": 122,
+      "target_cases": [
+        "A-PROC-01",
+        "A-GK-07",
+        "A-GK-08"
+      ]
+    },
+    {
+      "assertion": "[gashki] timeout while idle: names WAIT_TIMEOUT",
+      "corrections": [
+        "C03",
+        "C11"
+      ],
+      "id": "BASE-527",
+      "observed": "pass",
+      "scenario": 122,
+      "target_cases": [
+        "A-PROC-01",
+        "A-GK-07",
+        "A-GK-08"
+      ]
+    },
+    {
+      "assertion": "[gashki] approval: exit 1",
+      "corrections": [
+        "C09",
+        "C11",
+        "C14",
+        "C15"
+      ],
+      "id": "BASE-528",
+      "observed": "pass",
+      "scenario": 123,
+      "target_cases": [
+        "A-GK-01",
+        "A-GK-02",
+        "A-GK-03",
+        "A-GK-04",
+        "A-GK-12"
+      ]
+    },
+    {
+      "assertion": "[gashki] approval: names APPROVAL_REQUIRED",
+      "corrections": [
+        "C09",
+        "C11",
+        "C14",
+        "C15"
+      ],
+      "id": "BASE-529",
+      "observed": "pass",
+      "scenario": 123,
+      "target_cases": [
+        "A-GK-01",
+        "A-GK-02",
+        "A-GK-03",
+        "A-GK-04",
+        "A-GK-12"
+      ]
+    },
+    {
+      "assertion": "[gashki] send exit 2: exit 1",
+      "corrections": [
+        "C09",
+        "C11"
+      ],
+      "id": "BASE-530",
+      "observed": "pass",
+      "scenario": 124,
+      "target_cases": [
+        "A-GK-05",
+        "A-GK-06",
+        "A-GK-09"
+      ]
+    },
+    {
+      "assertion": "[gashki] send exit 2: names the code",
+      "corrections": [
+        "C09",
+        "C11"
+      ],
+      "id": "BASE-531",
+      "observed": "pass",
+      "scenario": 124,
+      "target_cases": [
+        "A-GK-05",
+        "A-GK-06",
+        "A-GK-09"
+      ]
+    },
+    {
+      "assertion": "[gashki] send exit 8: exit 1",
+      "corrections": [
+        "C09",
+        "C11"
+      ],
+      "id": "BASE-532",
+      "observed": "pass",
+      "scenario": 125,
+      "target_cases": [
+        "A-GK-05",
+        "A-GK-06",
+        "A-GK-09"
+      ]
+    },
+    {
+      "assertion": "[gashki] send exit 8: names the code",
+      "corrections": [
+        "C09",
+        "C11"
+      ],
+      "id": "BASE-533",
+      "observed": "pass",
+      "scenario": 125,
+      "target_cases": [
+        "A-GK-05",
+        "A-GK-06",
+        "A-GK-09"
+      ]
+    },
+    {
+      "assertion": "[gashki] send exit 8: panes killed",
+      "corrections": [
+        "C09",
+        "C11"
+      ],
+      "id": "BASE-534",
+      "observed": "pass",
+      "scenario": 125,
+      "target_cases": [
+        "A-GK-05",
+        "A-GK-06",
+        "A-GK-09"
+      ]
+    },
+    {
+      "assertion": "[gashki] send exit 8: state/run removed",
+      "corrections": [
+        "C09",
+        "C11"
+      ],
+      "id": "BASE-535",
+      "observed": "pass",
+      "scenario": 125,
+      "target_cases": [
+        "A-GK-05",
+        "A-GK-06",
+        "A-GK-09"
+      ]
+    },
+    {
+      "assertion": "[gashki] send exit 8: rerun exit 0",
+      "corrections": [
+        "C09",
+        "C11"
+      ],
+      "id": "BASE-536",
+      "observed": "pass",
+      "scenario": 125,
+      "target_cases": [
+        "A-GK-05",
+        "A-GK-06",
+        "A-GK-09"
+      ]
+    },
+    {
+      "assertion": "[gashki] send exit 8: rerun gets new panes",
+      "corrections": [
+        "C09",
+        "C11"
+      ],
+      "id": "BASE-537",
+      "observed": "pass",
+      "scenario": 125,
+      "target_cases": [
+        "A-GK-05",
+        "A-GK-06",
+        "A-GK-09"
+      ]
+    },
+    {
+      "assertion": "[gashki] critic edits SPEC.md: exit 1",
+      "corrections": [
+        "C15"
+      ],
+      "id": "BASE-538",
+      "observed": "pass",
+      "scenario": 126,
+      "target_cases": [
+        "A-GK-13",
+        "A-LOOP-07"
+      ]
+    },
+    {
+      "assertion": "[gashki] critic edits SPEC.md: says so",
+      "corrections": [
+        "C15"
+      ],
+      "id": "BASE-539",
+      "observed": "pass",
+      "scenario": 126,
+      "target_cases": [
+        "A-GK-13",
+        "A-LOOP-07"
+      ]
+    },
+    {
+      "assertion": "[gashki] critic edits SPEC.md: panes killed",
+      "corrections": [
+        "C15"
+      ],
+      "id": "BASE-540",
+      "observed": "pass",
+      "scenario": 126,
+      "target_cases": [
+        "A-GK-13",
+        "A-LOOP-07"
+      ]
+    },
+    {
+      "assertion": "[gashki] resume: first run fails mid-revision",
+      "corrections": [
+        "C01",
+        "C09",
+        "C10",
+        "C11",
+        "C12"
+      ],
+      "id": "BASE-541",
+      "observed": "pass",
+      "scenario": 127,
+      "target_cases": [
+        "A-LOOP-06",
+        "A-GK-10",
+        "A-GK-11",
+        "A-REC-02"
+      ]
+    },
+    {
+      "assertion": "[gashki] resume: run id kept after a failure",
+      "corrections": [
+        "C01",
+        "C09",
+        "C10",
+        "C11",
+        "C12"
+      ],
+      "id": "BASE-542",
+      "observed": "pass",
+      "scenario": 127,
+      "target_cases": [
+        "A-LOOP-06",
+        "A-GK-10",
+        "A-GK-11",
+        "A-REC-02"
+      ]
+    },
+    {
+      "assertion": "[gashki] resume: panes not killed after a failed wait",
+      "corrections": [
+        "C01",
+        "C09",
+        "C10",
+        "C11",
+        "C12"
+      ],
+      "id": "BASE-543",
+      "observed": "pass",
+      "scenario": 127,
+      "target_cases": [
+        "A-LOOP-06",
+        "A-GK-10",
+        "A-GK-11",
+        "A-REC-02"
+      ]
+    },
+    {
+      "assertion": "[gashki] resume: says how to discard the panes",
+      "corrections": [
+        "C01",
+        "C09",
+        "C10",
+        "C11",
+        "C12"
+      ],
+      "id": "BASE-544",
+      "observed": "pass",
+      "scenario": 127,
+      "target_cases": [
+        "A-LOOP-06",
+        "A-GK-10",
+        "A-GK-11",
+        "A-REC-02"
+      ]
+    },
+    {
+      "assertion": "[gashki] resume: rerun exit 0",
+      "corrections": [
+        "C01",
+        "C09",
+        "C10",
+        "C11",
+        "C12"
+      ],
+      "id": "BASE-545",
+      "observed": "pass",
+      "scenario": 127,
+      "target_cases": [
+        "A-LOOP-06",
+        "A-GK-10",
+        "A-GK-11",
+        "A-REC-02"
+      ]
+    },
+    {
+      "assertion": "[gashki] resume: no new panes",
+      "corrections": [
+        "C01",
+        "C09",
+        "C10",
+        "C11",
+        "C12"
+      ],
+      "id": "BASE-546",
+      "observed": "pass",
+      "scenario": 127,
+      "target_cases": [
+        "A-LOOP-06",
+        "A-GK-10",
+        "A-GK-11",
+        "A-REC-02"
+      ]
+    },
+    {
+      "assertion": "[gashki] resume: revise key sent twice to the same pane",
+      "corrections": [
+        "C01",
+        "C09",
+        "C10",
+        "C11",
+        "C12"
+      ],
+      "id": "BASE-547",
+      "observed": "pass",
+      "scenario": 127,
+      "target_cases": [
+        "A-LOOP-06",
+        "A-GK-10",
+        "A-GK-11",
+        "A-REC-02"
+      ]
+    },
+    {
+      "assertion": "[gashki] resume: revision turn ran once",
+      "corrections": [
+        "C01",
+        "C09",
+        "C10",
+        "C11",
+        "C12"
+      ],
+      "id": "BASE-548",
+      "observed": "pass",
+      "scenario": 127,
+      "target_cases": [
+        "A-LOOP-06",
+        "A-GK-10",
+        "A-GK-11",
+        "A-REC-02"
+      ]
+    },
+    {
+      "assertion": "[gashki] resume: panes killed at the end",
+      "corrections": [
+        "C01",
+        "C09",
+        "C10",
+        "C11",
+        "C12"
+      ],
+      "id": "BASE-549",
+      "observed": "pass",
+      "scenario": 127,
+      "target_cases": [
+        "A-LOOP-06",
+        "A-GK-10",
+        "A-GK-11",
+        "A-REC-02"
+      ]
+    },
+    {
+      "assertion": "[gashki] resume: state/run removed",
+      "corrections": [
+        "C01",
+        "C09",
+        "C10",
+        "C11",
+        "C12"
+      ],
+      "id": "BASE-550",
+      "observed": "pass",
+      "scenario": 127,
+      "target_cases": [
+        "A-LOOP-06",
+        "A-GK-10",
+        "A-GK-11",
+        "A-REC-02"
+      ]
+    },
+    {
+      "assertion": "[gashki] other window: first run keeps panes",
+      "corrections": [
+        "C01",
+        "C09",
+        "C10",
+        "C11",
+        "C12"
+      ],
+      "id": "BASE-551",
+      "observed": "pass",
+      "scenario": 128,
+      "target_cases": [
+        "A-LOOP-06",
+        "A-GK-10",
+        "A-GK-11",
+        "A-REC-02"
+      ]
+    },
+    {
+      "assertion": "[gashki] other window: resumed spawn refused",
+      "corrections": [
+        "C01",
+        "C09",
+        "C10",
+        "C11",
+        "C12"
+      ],
+      "id": "BASE-552",
+      "observed": "pass",
+      "scenario": 128,
+      "target_cases": [
+        "A-LOOP-06",
+        "A-GK-10",
+        "A-GK-11",
+        "A-REC-02"
+      ]
+    },
+    {
+      "assertion": "[gashki] other window: conflict reported",
+      "corrections": [
+        "C01",
+        "C09",
+        "C10",
+        "C11",
+        "C12"
+      ],
+      "id": "BASE-553",
+      "observed": "pass",
+      "scenario": 128,
+      "target_cases": [
+        "A-LOOP-06",
+        "A-GK-10",
+        "A-GK-11",
+        "A-REC-02"
+      ]
+    },
+    {
+      "assertion": "[gashki] other window: existing panes kept",
+      "corrections": [
+        "C01",
+        "C09",
+        "C10",
+        "C11",
+        "C12"
+      ],
+      "id": "BASE-554",
+      "observed": "pass",
+      "scenario": 128,
+      "target_cases": [
+        "A-LOOP-06",
+        "A-GK-10",
+        "A-GK-11",
+        "A-REC-02"
+      ]
+    },
+    {
+      "assertion": "[gashki] other window: run id kept",
+      "corrections": [
+        "C01",
+        "C09",
+        "C10",
+        "C11",
+        "C12"
+      ],
+      "id": "BASE-555",
+      "observed": "pass",
+      "scenario": 128,
+      "target_cases": [
+        "A-LOOP-06",
+        "A-GK-10",
+        "A-GK-11",
+        "A-REC-02"
+      ]
+    },
+    {
+      "assertion": "[gashki] original window: resumed run exits 0",
+      "corrections": [
+        "C01",
+        "C09",
+        "C10",
+        "C11",
+        "C12"
+      ],
+      "id": "BASE-556",
+      "observed": "pass",
+      "scenario": 128,
+      "target_cases": [
+        "A-LOOP-06",
+        "A-GK-10",
+        "A-GK-11",
+        "A-REC-02"
+      ]
+    },
+    {
+      "assertion": "[gashki] original window: no new panes",
+      "corrections": [
+        "C01",
+        "C09",
+        "C10",
+        "C11",
+        "C12"
+      ],
+      "id": "BASE-557",
+      "observed": "pass",
+      "scenario": 128,
+      "target_cases": [
+        "A-LOOP-06",
+        "A-GK-10",
+        "A-GK-11",
+        "A-REC-02"
+      ]
+    },
+    {
+      "assertion": "[gashki] second opinion: exit 0",
+      "corrections": [
+        "C06",
+        "C07"
+      ],
+      "id": "BASE-558",
+      "observed": "pass",
+      "scenario": 129,
+      "target_cases": [
+        "A-FINAL-01",
+        "A-FINAL-02",
+        "A-FINAL-05"
+      ]
+    },
+    {
+      "assertion": "[gashki] second opinion: review written",
+      "corrections": [
+        "C06",
+        "C07"
+      ],
+      "id": "BASE-559",
+      "observed": "pass",
+      "scenario": 129,
+      "target_cases": [
+        "A-FINAL-01",
+        "A-FINAL-02",
+        "A-FINAL-05"
+      ]
+    },
+    {
+      "assertion": "[gashki] second opinion: own pane, killed after",
+      "corrections": [
+        "C06",
+        "C07"
+      ],
+      "id": "BASE-560",
+      "observed": "pass",
+      "scenario": 129,
+      "target_cases": [
+        "A-FINAL-01",
+        "A-FINAL-02",
+        "A-FINAL-05"
+      ]
+    },
+    {
+      "assertion": "[gashki] second opinion: closing pass ran",
+      "corrections": [
+        "C06",
+        "C07"
+      ],
+      "id": "BASE-561",
+      "observed": "pass",
+      "scenario": 129,
+      "target_cases": [
+        "A-FINAL-01",
+        "A-FINAL-02",
+        "A-FINAL-05"
+      ]
+    },
+    {
+      "assertion": "[gashki] guard: VOLLEY_PERSISTENT=1 refused",
+      "corrections": [
+        "C10"
+      ],
+      "id": "BASE-562",
+      "observed": "pass",
+      "scenario": 130,
+      "target_cases": [
+        "A-DIRECT-02",
+        "A-DIRECT-03",
+        "A-DIRECT-04"
+      ]
+    },
+    {
+      "assertion": "[gashki] guard: unknown backend refused",
+      "corrections": [
+        "C09",
+        "C11",
+        "C14",
+        "C15"
+      ],
+      "id": "BASE-563",
+      "observed": "pass",
+      "scenario": 131,
+      "target_cases": [
+        "A-GK-01",
+        "A-GK-02",
+        "A-GK-03",
+        "A-GK-04",
+        "A-GK-12"
+      ]
+    },
+    {
+      "assertion": "[gashki] guard: missing gashki refused",
+      "corrections": [
+        "C09",
+        "C11",
+        "C14",
+        "C15"
+      ],
+      "id": "BASE-564",
+      "observed": "pass",
+      "scenario": 132,
+      "target_cases": [
+        "A-GK-01",
+        "A-GK-02",
+        "A-GK-03",
+        "A-GK-04",
+        "A-GK-12"
+      ]
+    },
+    {
+      "assertion": "[gashki] backend-pin: switch on rerun refused",
+      "corrections": [
+        "C01",
+        "C09",
+        "C10",
+        "C11",
+        "C12"
+      ],
+      "id": "BASE-565",
+      "observed": "pass",
+      "scenario": 133,
+      "target_cases": [
+        "A-LOOP-06",
+        "A-GK-10",
+        "A-GK-11",
+        "A-REC-02"
+      ]
+    },
+    {
+      "assertion": "[gashki] backend-pin: names VOLLEY_BACKEND",
+      "corrections": [
+        "C01",
+        "C09",
+        "C10",
+        "C11",
+        "C12"
+      ],
+      "id": "BASE-566",
+      "observed": "pass",
+      "scenario": 133,
+      "target_cases": [
+        "A-LOOP-06",
+        "A-GK-10",
+        "A-GK-11",
+        "A-REC-02"
+      ]
+    },
+    {
+      "assertion": "guard: ANTHROPIC_API_KEY refused",
+      "corrections": [
+        "C14"
+      ],
+      "id": "BASE-567",
+      "observed": "pass",
+      "scenario": 134,
+      "target_cases": [
+        "A-REC-03"
+      ]
+    },
+    {
+      "assertion": "guard: names the variable",
+      "corrections": [
+        "C01"
+      ],
+      "id": "BASE-568",
+      "observed": "pass",
+      "scenario": 134,
+      "target_cases": [
+        "A-LOOP-01",
+        "A-LOOP-02",
+        "A-DIRECT-01"
+      ]
+    },
+    {
+      "assertion": "guard: OPENAI_API_KEY refused",
+      "corrections": [
+        "C14"
+      ],
+      "id": "BASE-569",
+      "observed": "pass",
+      "scenario": 135,
+      "target_cases": [
+        "A-REC-03"
+      ]
+    },
+    {
+      "assertion": "guard: apiKeyHelper refused",
+      "corrections": [
+        "C14"
+      ],
+      "id": "BASE-570",
+      "observed": "pass",
+      "scenario": 136,
+      "target_cases": [
+        "A-REC-03"
+      ]
+    },
+    {
+      "assertion": "guard: auth.json string key refused",
+      "corrections": [
+        "C14"
+      ],
+      "id": "BASE-571",
+      "observed": "pass",
+      "scenario": 137,
+      "target_cases": [
+        "A-REC-03"
+      ]
+    },
+    {
+      "assertion": "guard: auth.json null key allowed",
+      "corrections": [
+        "C14"
+      ],
+      "id": "BASE-572",
+      "observed": "pass",
+      "scenario": 138,
+      "target_cases": [
+        "A-REC-03"
+      ]
+    },
+    {
+      "assertion": "profiles: security fragment shipped",
+      "corrections": [],
+      "id": "BASE-573",
+      "observed": "pass",
+      "scenario": 138,
+      "target_cases": [
+        "A-PROMPT-01",
+        "A-PROMPT-02"
+      ]
+    },
+    {
+      "assertion": "profiles: data fragment shipped",
+      "corrections": [],
+      "id": "BASE-574",
+      "observed": "pass",
+      "scenario": 138,
+      "target_cases": [
+        "A-PROMPT-01",
+        "A-PROMPT-02"
+      ]
+    },
+    {
+      "assertion": "profiles: decision-memo fragment shipped",
+      "corrections": [],
+      "id": "BASE-575",
+      "observed": "pass",
+      "scenario": 138,
+      "target_cases": [
+        "A-PROMPT-01",
+        "A-PROMPT-02"
+      ]
+    },
+    {
+      "assertion": "profiles: plan-spec fragment shipped",
+      "corrections": [],
+      "id": "BASE-576",
+      "observed": "pass",
+      "scenario": 138,
+      "target_cases": [
+        "A-PROMPT-01",
+        "A-PROMPT-02"
+      ]
+    },
+    {
+      "assertion": "seed: SPEC.md without BRIEF.md runs, exit 0",
+      "corrections": [],
+      "id": "BASE-577",
+      "observed": "pass",
+      "scenario": 139,
+      "target_cases": [
+        "A-LOOP-02"
+      ]
+    },
+    {
+      "assertion": "seed: no initial draft (planner not called)",
+      "corrections": [],
+      "id": "BASE-578",
+      "observed": "pass",
+      "scenario": 139,
+      "target_cases": [
+        "A-LOOP-02"
+      ]
+    },
+    {
+      "assertion": "seed: r01 critique has verdict",
+      "corrections": [
+        "C04",
+        "C05"
+      ],
+      "id": "BASE-579",
+      "observed": "pass",
+      "scenario": 139,
+      "target_cases": [
+        "A-LOOP-02",
+        "A-FINAL-04"
+      ]
+    },
+    {
+      "assertion": "seed: SPEC.md kept as given",
+      "corrections": [],
+      "id": "BASE-580",
+      "observed": "pass",
+      "scenario": 139,
+      "target_cases": [
+        "A-LOOP-02"
+      ]
+    },
+    {
+      "assertion": "seed: context block without BRIEF.md in the critic prompt",
+      "corrections": [
+        "C15"
+      ],
+      "id": "BASE-581",
+      "observed": "pass",
+      "scenario": 139,
+      "target_cases": [
+        "A-CFG-05",
+        "A-REC-02",
+        "A-LOOP-07"
+      ]
+    },
+    {
+      "assertion": "setup: missing BRIEF.md and SPEC.md refused",
+      "corrections": [
+        "C13"
+      ],
+      "id": "BASE-582",
+      "observed": "pass",
+      "scenario": 140,
+      "target_cases": [
+        "A-CLI-02",
+        "A-CFG-04"
+      ]
+    },
+    {
+      "assertion": "setup: VOLLEY_POLL=0 refused",
+      "corrections": [
+        "C13"
+      ],
+      "id": "BASE-583",
+      "observed": "pass",
+      "scenario": 141,
+      "target_cases": [
+        "A-CLI-02",
+        "A-CFG-04"
+      ]
+    },
+    {
+      "assertion": "setup: VOLLEY_POLL=0.0 refused",
+      "corrections": [
+        "C13"
+      ],
+      "id": "BASE-584",
+      "observed": "pass",
+      "scenario": 142,
+      "target_cases": [
+        "A-CLI-02",
+        "A-CFG-04"
+      ]
+    },
+    {
+      "assertion": "setup: VOLLEY_POLL=-1 refused",
+      "corrections": [
+        "C13"
+      ],
+      "id": "BASE-585",
+      "observed": "pass",
+      "scenario": 143,
+      "target_cases": [
+        "A-CLI-02",
+        "A-CFG-04"
+      ]
+    },
+    {
+      "assertion": "setup: VOLLEY_POLL=abc refused",
+      "corrections": [
+        "C13"
+      ],
+      "id": "BASE-586",
+      "observed": "pass",
+      "scenario": 144,
+      "target_cases": [
+        "A-CLI-02",
+        "A-CFG-04"
+      ]
+    },
+    {
+      "assertion": "setup: VOLLEY_POLL=1. refused",
+      "corrections": [
+        "C13"
+      ],
+      "id": "BASE-587",
+      "observed": "pass",
+      "scenario": 145,
+      "target_cases": [
+        "A-CLI-02",
+        "A-CFG-04"
+      ]
+    },
+    {
+      "assertion": "setup: VOLLEY_POLL=0.5 accepted",
+      "corrections": [
+        "C13"
+      ],
+      "id": "BASE-588",
+      "observed": "pass",
+      "scenario": 146,
+      "target_cases": [
+        "A-CLI-02",
+        "A-CFG-04"
+      ]
+    }
+  ],
+  "case_ids": [
+    "A-BASE-01",
+    "A-BASE-02"
+  ],
+  "fixtures": [
+    "F-SRC",
+    "F-DIRECT",
+    "F-GK-CANNED"
+  ],
+  "historical_assertions": 588,
+  "matrix_exit": 0,
+  "numeric_target": false,
+  "process_counts": {
+    "critic_calls": 174,
+    "gashki_send_calls": 109,
+    "live_pastes": 0,
+    "live_vendor_launches": 0,
+    "planner_calls": 183
+  },
+  "settings": "Each argv/prompt and Gashki call is saved in the scenario artifacts. All executable paths are owned stubs; HOME/XDG/temp/tmux roots are isolated.",
+  "source_commit": "a7252e474023f986d9912469b1e58742e644afc8",
+  "source_sha256": {
+    "README.md": "810750dca325c9864b0ad1d55de34ecd2f8a904436f8fdcadc6e8ca567eb3ebe",
+    "cc-volley": "22176168536df0dc9e5c57792c0ef4f571ef8d58b8d87343e93c78c2924c6fa6",
+    "codex-volley": "bd9a4b5d422a3c14acc78378644f63aade2d9759f66b8c4cbfc3a816d0643a97",
+    "prompts/closing-pass.md": "b62426489e6ed30ddf63a6f1a56e9c7440e493536940fc8a0b25ee1d7b9f4e6d",
+    "prompts/critic.md": "70175c0175936194209000f246d262631ad534f8e3406cfce381efa17b9ed7bc",
+    "prompts/planner-init.md": "843ef5a604ac4b68032bcdfe6daeeed298cc4d79f73236d1938f7c5358068ca9",
+    "prompts/planner-revise.md": "97b4cdf82aabaecadc922b6cdefb1235065e700758c47d49740675b6ed1bb4a1",
+    "prompts/profiles/data.md": "39fb3f014839a350aab850418ece77bf529014a94f23cd87ccd2862a3bad888e",
+    "prompts/profiles/decision-memo.md": "e3a52dcd16a91fb6c1cef1c9fbdbd418dd03e2662a53ffff5e5c86b9043351af",
+    "prompts/profiles/plan-spec.md": "67bc626c52932371e7f84c07a188841edb248cc6cc6f4248e838b601eb5976d1",
+    "prompts/profiles/security.md": "6a723c0b28c0e62fecdc146a932bb378dd702181f314af72327bf5529e5d90a3",
+    "tests/mocks/claude": "5fb8990787032a03d27d0decc5e80c29bd51793ad921ee43291d9a7c78d61984",
+    "tests/mocks/codex": "f74421de010601a2d28f65c2c50586501b0e36b9ed355488a083a0a3419df4ae",
+    "tests/mocks/gashki": "aa8aa44ce976158cc6caa9ac0b9eb5fee6bcf592ebbcf0ad749a563966894fd4",
+    "tests/run-matrix.sh": "6730718db708318ce6962f7f01181e2a6c725cfb213e7b1064cb8a20415eb535",
+    "volley.sh": "6793a28286de5969c219319ad7a0f7908cd252003c58da0b67597924ad452587"
+  },
+  "target_os": "Darwin/arm64",
+  "tier": "A",
+  "bash": "GNU bash, version 5.3.9(1)-release (aarch64-apple-darwin24.6.0)",
+  "capture_sha256": "63c4b79c44cf19f981ca845f454ebb2962ef57184fee291058bfbbcd56129dc7",
+  "normalizations": [
+    "owned fixture paths",
+    "random session/run IDs",
+    "log and provenance times"
+  ]
+}
