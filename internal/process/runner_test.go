@@ -332,3 +332,19 @@ func TestAPROC03StartRecordFailure(t *testing.T) {
 		})
 	}
 }
+
+func TestEditorInputRefusesNonTerminal(t *testing.T) {
+	file, err := os.CreateTemp(t.TempDir(), "not-terminal")
+	if err != nil {
+		t.Fatal(err)
+	}
+	defer file.Close()
+	exe, err := os.Executable()
+	if err != nil {
+		t.Fatal(err)
+	}
+	result, err := (UnixRunner{}).Run(context.Background(), Request{Path: exe, Args: fixtureArgs("argv"), UserTTY: file})
+	if err == nil || result.Started || result.Outcome != NotStarted {
+		t.Fatalf("Non-terminal editor input accepted: %+v %v", result, err)
+	}
+}

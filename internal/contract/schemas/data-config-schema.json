@@ -33,6 +33,9 @@
     },
     "allOf": {
       "type": "array"
+    },
+    "description": {
+      "type": "string"
     }
   },
   "required": [

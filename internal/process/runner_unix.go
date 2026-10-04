@@ -105,6 +105,12 @@ func (UnixRunner) Run(ctx context.Context, req Request) (result Result, err erro
 	cmd.Dir = req.Cwd
 	cmd.Env = req.Env
 	cmd.Stdin = nil
+	if req.UserTTY != nil {
+		if !IsTerminal(req.UserTTY) {
+			return result, fmt.Errorf("Editor input must be a terminal")
+		}
+		cmd.Stdin = req.UserTTY
+	}
 	cmd.Stdout = req.Stdout
 	cmd.Stderr = req.Stderr
 	if cmd.Stdout == nil {

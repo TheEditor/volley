@@ -4,6 +4,7 @@ package process
 import (
 	"context"
 	"io"
+	"os"
 	"time"
 )
 
@@ -23,7 +24,10 @@ type Request struct {
 	ElapsedBefore time.Duration
 	Stdout        io.Writer
 	Stderr        io.Writer
-	OnStart       func(Identity) error
+	// UserTTY is an explicit editor-only terminal descriptor. Agent requests
+	// leave it nil. It is never the controller answer input descriptor.
+	UserTTY *os.File
+	OnStart func(Identity) error
 }
 type Outcome string
 

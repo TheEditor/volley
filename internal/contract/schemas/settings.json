@@ -10,7 +10,14 @@
       "enum": [
         "claude",
         "codex"
-      ]
+      ],
+      "x-volley-type": "string",
+      "x-volley-validation": {
+        "enum": [
+          "claude",
+          "codex"
+        ]
+      }
     },
     "backend": {
       "type": "string",
@@ -18,33 +25,60 @@
       "enum": [
         "cli",
         "gashki"
-      ]
+      ],
+      "x-volley-type": "string",
+      "x-volley-validation": {
+        "enum": [
+          "cli",
+          "gashki"
+        ]
+      }
     },
     "max_rounds": {
       "type": "integer",
       "default": 8,
       "minimum": 1,
-      "maximum": 9999
+      "maximum": 9999,
+      "x-volley-type": "integer",
+      "x-volley-validation": {
+        "minimum": 1,
+        "maximum": 9999
+      }
     },
     "wait_timeout": {
       "type": "string",
-      "default": "0s"
+      "default": "0s",
+      "x-volley-type": "duration",
+      "x-volley-validation": {
+        "minimum": "0s"
+      }
     },
     "poll_interval": {
       "type": "string",
-      "default": "2s"
+      "default": "2s",
+      "x-volley-type": "duration",
+      "x-volley-validation": {
+        "minimum": "10ms",
+        "maximum": "1m"
+      }
     },
     "persistent": {
       "type": "boolean",
-      "default": false
+      "default": false,
+      "x-volley-type": "boolean",
+      "x-volley-validation": {}
     },
     "closing_pass": {
       "type": "boolean",
-      "default": true
+      "default": true,
+      "x-volley-type": "boolean",
+      "x-volley-validation": {}
     },
     "second_opinion": {
       "type": "boolean",
-      "default": false
+      "default": false,
+      "x-volley-type": "boolean",
+      "x-volley-validation": {}
     },
     "rubric": {
       "type": "string",
@@ -55,35 +89,79 @@
         "data",
         "decision-memo",
         "plan-spec"
-      ]
+      ],
+      "x-volley-type": "string",
+      "x-volley-validation": {
+        "enum": [
+          "",
+          "security",
+          "data",
+          "decision-memo",
+          "plan-spec"
+        ]
+      }
     },
     "context_dir": {
       "type": "string",
-      "default": ""
+      "default": "",
+      "x-volley-type": "path",
+      "x-volley-validation": {
+        "outside_workspace": true
+      },
+      "x-volley-source-base": "Relative file values use the file directory. Relative flag values use the invocation cwd. Bare executable names use PATH."
     },
     "claude_bin": {
       "type": "string",
-      "default": "claude"
+      "default": "claude",
+      "x-volley-type": "executable",
+      "x-volley-validation": {},
+      "x-volley-source-base": "Relative file values use the file directory. Relative flag values use the invocation cwd. Bare executable names use PATH.",
+      "x-volley-inactive-when": {
+        "backend": "gashki"
+      }
     },
     "codex_bin": {
       "type": "string",
-      "default": "codex"
+      "default": "codex",
+      "x-volley-type": "executable",
+      "x-volley-validation": {},
+      "x-volley-source-base": "Relative file values use the file directory. Relative flag values use the invocation cwd. Bare executable names use PATH.",
+      "x-volley-inactive-when": {
+        "backend": "gashki"
+      }
     },
     "gashki_bin": {
       "type": "string",
-      "default": "gashki"
+      "default": "gashki",
+      "x-volley-type": "executable",
+      "x-volley-validation": {},
+      "x-volley-source-base": "Relative file values use the file directory. Relative flag values use the invocation cwd. Bare executable names use PATH.",
+      "x-volley-inactive-when": {
+        "backend": "cli"
+      }
     },
     "gashki_config": {
       "type": "string",
-      "default": ""
+      "default": "",
+      "x-volley-type": "path",
+      "x-volley-validation": {},
+      "x-volley-source-base": "Relative file values use the file directory. Relative flag values use the invocation cwd. Bare executable names use PATH."
     },
     "claude_model": {
       "type": "string",
-      "default": ""
+      "default": "",
+      "x-volley-type": "string",
+      "x-volley-validation": {
+        "identifier": true
+      }
     },
     "codex_model": {
       "type": "string",
-      "default": ""
+      "default": "",
+      "x-volley-type": "string",
+      "x-volley-validation": {
+        "identifier": true
+      }
     },
     "claude_effort": {
       "type": "string",
@@ -95,18 +173,39 @@
         "high",
         "xhigh",
         "max"
-      ]
+      ],
+      "x-volley-type": "string",
+      "x-volley-validation": {
+        "enum": [
+          "",
+          "low",
+          "medium",
+          "high",
+          "xhigh",
+          "max"
+        ]
+      }
     },
     "codex_effort": {
       "type": "string",
-      "default": ""
+      "default": "",
+      "x-volley-type": "string",
+      "x-volley-validation": {
+        "identifier": true
+      }
     },
     "claude_permission_mode": {
       "type": "string",
       "default": "dontAsk",
       "enum": [
         "dontAsk"
-      ]
+      ],
+      "x-volley-type": "string",
+      "x-volley-validation": {
+        "enum": [
+          "dontAsk"
+        ]
+      }
     },
     "claude_planner_tools": {
       "type": "array",
@@ -128,7 +227,18 @@
           "Skill"
         ]
       },
-      "uniqueItems": true
+      "uniqueItems": true,
+      "x-volley-type": "array",
+      "x-volley-validation": {
+        "items": [
+          "Read",
+          "Write",
+          "Edit",
+          "Glob",
+          "Grep",
+          "Skill"
+        ]
+      }
     },
     "claude_critic_tools": {
       "type": "array",
@@ -146,11 +256,22 @@
           "Skill"
         ]
       },
-      "uniqueItems": true
+      "uniqueItems": true,
+      "x-volley-type": "array",
+      "x-volley-validation": {
+        "items": [
+          "Read",
+          "Glob",
+          "Grep",
+          "Skill"
+        ]
+      }
     },
     "trust_folder": {
       "type": "boolean",
-      "default": false
+      "default": false,
+      "x-volley-type": "boolean",
+      "x-volley-validation": {}
     },
     "placement": {
       "type": "string",
@@ -159,11 +280,21 @@
         "auto",
         "normal",
         "here"
-      ]
+      ],
+      "x-volley-type": "string",
+      "x-volley-validation": {
+        "enum": [
+          "auto",
+          "normal",
+          "here"
+        ]
+      }
     },
     "allow_api_key": {
       "type": "boolean",
-      "default": false
+      "default": false,
+      "x-volley-type": "boolean",
+      "x-volley-validation": {}
     }
   },
   "required": [
@@ -191,5 +322,6 @@
     "trust_folder",
     "placement",
     "allow_api_key"
-  ]
+  ],
+  "description": "Flat Volley settings. Effective precedence is flag, file, then declared default. No setting environment variables or profiles."
 }

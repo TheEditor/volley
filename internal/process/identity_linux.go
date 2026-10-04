@@ -4,6 +4,7 @@ package process
 
 import (
 	"fmt"
+	"golang.org/x/sys/unix"
 	"os"
 	"strconv"
 	"strings"
@@ -52,4 +53,12 @@ func platformProcesses() ([]observation, error) {
 		out = append(out, observation{Identity: Identity{pid, pgid, strings.TrimSpace(string(boot)) + "/" + fields[19], true}, Parent: parent, Zombie: fields[0] == "Z"})
 	}
 	return out, nil
+}
+
+func IsTerminal(file *os.File) bool {
+	if file == nil {
+		return false
+	}
+	_, err := unix.IoctlGetTermios(int(file.Fd()), unix.TCGETS)
+	return err == nil
 }
