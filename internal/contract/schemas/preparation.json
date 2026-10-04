@@ -1,0 +1,458 @@
+{
+  "type": "object",
+  "additionalProperties": false,
+  "properties": {
+    "record_version": {
+      "const": 1
+    },
+    "run_id": {
+      "type": "string",
+      "pattern": "^[a-z2-7]{26}$"
+    },
+    "backend": {
+      "enum": [
+        "cli",
+        "gashki"
+      ]
+    },
+    "caller": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "home": {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "known": {
+              "type": "boolean"
+            },
+            "present": {
+              "type": "boolean"
+            },
+            "value": {
+              "type": [
+                "string",
+                "null"
+              ]
+            },
+            "reason": {
+              "type": "string"
+            }
+          },
+          "required": [
+            "known",
+            "present",
+            "value",
+            "reason"
+          ]
+        },
+        "claude_root": {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "known": {
+              "type": "boolean"
+            },
+            "present": {
+              "type": "boolean"
+            },
+            "value": {
+              "type": [
+                "string",
+                "null"
+              ]
+            },
+            "reason": {
+              "type": "string"
+            }
+          },
+          "required": [
+            "known",
+            "present",
+            "value",
+            "reason"
+          ]
+        },
+        "codex_root": {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "known": {
+              "type": "boolean"
+            },
+            "present": {
+              "type": "boolean"
+            },
+            "value": {
+              "type": [
+                "string",
+                "null"
+              ]
+            },
+            "reason": {
+              "type": "string"
+            }
+          },
+          "required": [
+            "known",
+            "present",
+            "value",
+            "reason"
+          ]
+        }
+      },
+      "required": [
+        "home",
+        "claude_root",
+        "codex_root"
+      ]
+    },
+    "server": {
+      "anyOf": [
+        {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "context": {
+              "type": "object",
+              "additionalProperties": false,
+              "properties": {
+                "home": {
+                  "type": "object",
+                  "additionalProperties": false,
+                  "properties": {
+                    "known": {
+                      "type": "boolean"
+                    },
+                    "present": {
+                      "type": "boolean"
+                    },
+                    "value": {
+                      "type": [
+                        "string",
+                        "null"
+                      ]
+                    },
+                    "reason": {
+                      "type": "string"
+                    }
+                  },
+                  "required": [
+                    "known",
+                    "present",
+                    "value",
+                    "reason"
+                  ]
+                },
+                "claude_root": {
+                  "type": "object",
+                  "additionalProperties": false,
+                  "properties": {
+                    "known": {
+                      "type": "boolean"
+                    },
+                    "present": {
+                      "type": "boolean"
+                    },
+                    "value": {
+                      "type": [
+                        "string",
+                        "null"
+                      ]
+                    },
+                    "reason": {
+                      "type": "string"
+                    }
+                  },
+                  "required": [
+                    "known",
+                    "present",
+                    "value",
+                    "reason"
+                  ]
+                },
+                "codex_root": {
+                  "type": "object",
+                  "additionalProperties": false,
+                  "properties": {
+                    "known": {
+                      "type": "boolean"
+                    },
+                    "present": {
+                      "type": "boolean"
+                    },
+                    "value": {
+                      "type": [
+                        "string",
+                        "null"
+                      ]
+                    },
+                    "reason": {
+                      "type": "string"
+                    }
+                  },
+                  "required": [
+                    "known",
+                    "present",
+                    "value",
+                    "reason"
+                  ]
+                }
+              },
+              "required": [
+                "home",
+                "claude_root",
+                "codex_root"
+              ]
+            },
+            "socket": {
+              "type": [
+                "string",
+                "null"
+              ]
+            },
+            "window": {
+              "type": "string"
+            },
+            "reason": {
+              "type": "string"
+            },
+            "socket_device": {
+              "type": "integer"
+            },
+            "socket_inode": {
+              "type": "integer"
+            },
+            "socket_kind": {
+              "type": "string"
+            }
+          },
+          "required": [
+            "context",
+            "socket",
+            "window",
+            "reason",
+            "socket_device",
+            "socket_inode",
+            "socket_kind"
+          ]
+        },
+        {
+          "type": "null"
+        }
+      ]
+    },
+    "roots": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "claude": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "codex": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "claude_reason": {
+          "type": "string"
+        },
+        "codex_reason": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "claude",
+        "codex",
+        "claude_reason",
+        "codex_reason"
+      ]
+    },
+    "executables": {
+      "type": "object",
+      "additionalProperties": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "path": {
+            "type": "string"
+          },
+          "sha256": {
+            "type": "string"
+          },
+          "version": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "path",
+          "sha256",
+          "version"
+        ]
+      }
+    },
+    "mechanism": {
+      "anyOf": [
+        {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "state_dir": {
+              "type": "string"
+            },
+            "tmux_socket": {
+              "type": [
+                "string",
+                "null"
+              ]
+            },
+            "ready_timeout": {
+              "type": "string"
+            },
+            "wait_timeout": {
+              "type": "string"
+            }
+          },
+          "required": [
+            "state_dir",
+            "tmux_socket",
+            "ready_timeout",
+            "wait_timeout"
+          ]
+        },
+        {
+          "type": "null"
+        }
+      ]
+    },
+    "billing": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "allowed": {
+          "type": "boolean"
+        },
+        "explicit": {
+          "type": "boolean"
+        }
+      },
+      "required": [
+        "allowed",
+        "explicit"
+      ]
+    },
+    "requested_model": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "claude": {
+          "type": "string"
+        },
+        "codex": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "claude",
+        "codex"
+      ]
+    },
+    "requested_effort": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "claude": {
+          "type": "string"
+        },
+        "codex": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "claude",
+        "codex"
+      ]
+    },
+    "observed_model": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "claude": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "codex": {
+          "type": [
+            "string",
+            "null"
+          ]
+        }
+      },
+      "required": [
+        "claude",
+        "codex"
+      ]
+    },
+    "observed_effort": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "claude": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "codex": {
+          "type": [
+            "string",
+            "null"
+          ]
+        }
+      },
+      "required": [
+        "claude",
+        "codex"
+      ]
+    },
+    "observation_reason": {
+      "type": "string"
+    },
+    "removed_environment_names": {
+      "type": "array",
+      "items": {
+        "type": "string",
+        "enum": [
+          "ANTHROPIC_BASE_URL",
+          "CLAUDECODE",
+          "CLAUDE_CODE_ENTRYPOINT"
+        ]
+      }
+    }
+  },
+  "required": [
+    "record_version",
+    "run_id",
+    "backend",
+    "caller",
+    "server",
+    "roots",
+    "executables",
+    "mechanism",
+    "billing",
+    "requested_model",
+    "requested_effort",
+    "observed_model",
+    "observed_effort",
+    "observation_reason",
+    "removed_environment_names"
+  ],
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://volley.invalid/schema/1/preparation"
+}

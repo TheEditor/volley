@@ -105,6 +105,7 @@ func Resolve(o ResolveOptions) (Resolved, []contract.Warning, error) {
 		}
 	} else {
 		out.Exists = true
+		out.SelectedHash = contract.HashBytes(d.Bytes)
 		for key, v := range d.Values {
 			values[key] = v
 			out.Sources[key] = Source{Source: "file", Path: path, Line: d.Spans[key].Line, Rule: "file overrides default"}

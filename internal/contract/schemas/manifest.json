@@ -1281,7 +1281,10 @@
       "additionalProperties": false,
       "properties": {
         "socket_path": {
-          "type": "string"
+          "type": [
+            "string",
+            "null"
+          ]
         },
         "caller_window": {
           "type": "string"
@@ -1290,7 +1293,10 @@
           "type": "string"
         },
         "home": {
-          "type": "string"
+          "type": [
+            "string",
+            "null"
+          ]
         },
         "claude_root": {
           "type": "object",
@@ -1300,7 +1306,10 @@
               "type": "boolean"
             },
             "value": {
-              "type": "string"
+              "type": [
+                "string",
+                "null"
+              ]
             },
             "reason": {
               "type": "string"
@@ -1320,7 +1329,10 @@
               "type": "boolean"
             },
             "value": {
-              "type": "string"
+              "type": [
+                "string",
+                "null"
+              ]
             },
             "reason": {
               "type": "string"
@@ -1331,6 +1343,18 @@
             "value",
             "reason"
           ]
+        },
+        "state_dir": {
+          "type": "string"
+        },
+        "socket_device": {
+          "type": "integer"
+        },
+        "socket_inode": {
+          "type": "integer"
+        },
+        "socket_kind": {
+          "type": "string"
         }
       },
       "required": [
@@ -1339,7 +1363,11 @@
         "identity_reason",
         "home",
         "claude_root",
-        "codex_root"
+        "codex_root",
+        "state_dir",
+        "socket_device",
+        "socket_inode",
+        "socket_kind"
       ]
     },
     "identity": {
@@ -1347,7 +1375,10 @@
       "additionalProperties": false,
       "properties": {
         "home": {
-          "type": "string"
+          "type": [
+            "string",
+            "null"
+          ]
         },
         "claude_root": {
           "type": "object",
@@ -1357,7 +1388,10 @@
               "type": "boolean"
             },
             "value": {
-              "type": "string"
+              "type": [
+                "string",
+                "null"
+              ]
             },
             "reason": {
               "type": "string"
@@ -1377,7 +1411,10 @@
               "type": "boolean"
             },
             "value": {
-              "type": "string"
+              "type": [
+                "string",
+                "null"
+              ]
             },
             "reason": {
               "type": "string"
@@ -1735,6 +1772,45 @@
     },
     "index_registered": {
       "type": "boolean"
+    },
+    "preparation": {
+      "anyOf": [
+        {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "path": {
+              "type": "string"
+            },
+            "sha256": {
+              "type": "string"
+            },
+            "bytes": {
+              "type": "integer"
+            },
+            "type": {
+              "type": "string"
+            },
+            "device": {
+              "type": "integer"
+            },
+            "inode": {
+              "type": "integer"
+            }
+          },
+          "required": [
+            "path",
+            "sha256",
+            "bytes",
+            "type",
+            "device",
+            "inode"
+          ]
+        },
+        {
+          "type": "null"
+        }
+      ]
     }
   },
   "required": [
@@ -1781,6 +1857,7 @@
     "recommended_commands",
     "event_sequence",
     "audit_pending",
-    "index_registered"
+    "index_registered",
+    "preparation"
   ]
 }

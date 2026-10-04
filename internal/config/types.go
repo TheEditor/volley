@@ -41,4 +41,5 @@ type Resolved struct {
 	SelectedFile string
 	Explicit     bool
 	Exists       bool
+	SelectedHash string
 }

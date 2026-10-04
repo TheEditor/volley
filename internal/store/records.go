@@ -20,6 +20,16 @@ import (
 
 type Snapshot map[string]any
 
+// ReadRecord is a read-only, no-follow read of a schema-validated owned record.
+func (s *Store) ReadRecord(schema, path string) (map[string]any, []byte, error) {
+	b, _, err := s.read(path, RecordLimit)
+	if err != nil {
+		return nil, nil, err
+	}
+	m, err := parseRecord(schema, b)
+	return m, b, err
+}
+
 func (m Snapshot) String(key string) string { value, _ := m[key].(string); return value }
 func (m Snapshot) Revision() uint64 {
 	n, _ := strconv.ParseUint(fmt.Sprint(m["revision"]), 10, 64)
@@ -210,6 +220,12 @@ func (s *Store) SaveTurnReceipt(turnID string, record map[string]any) (ReceiptRe
 	return ReceiptRef{path, contract.HashBytes(b)}, nil
 }
 func (s *Store) StageText(path string, b []byte) (string, error) {
+	return s.stageText(path, b, 0666)
+}
+func (s *Store) StagePrivateText(path string, b []byte) (string, error) {
+	return s.stageText(path, b, 0600)
+}
+func (s *Store) stageText(path string, b []byte, mode uint32) (string, error) {
 	if err := s.checkOwner(); err != nil {
 		return "", err
 	}
@@ -225,7 +241,7 @@ func (s *Store) StageText(path string, b []byte) (string, error) {
 	if err := s.mkdir(filepath.Dir(path), 0700); err != nil {
 		return "", err
 	}
-	if err := s.immutable(path, b, 0666, "artifact-stage"); err != nil {
+	if err := s.immutable(path, b, mode, "artifact-stage"); err != nil {
 		return "", err
 	}
 	return contract.HashBytes(b), nil
@@ -382,6 +398,11 @@ func (s *Store) commitTransaction(tx Transaction, project bool) error {
 	if err != nil {
 		previous = nil
 		hash = ""
+	}
+	if previous != nil {
+		if _, err := s.History(); err != nil {
+			return err
+		}
 	}
 	next, err := parseRecord("manifest", tx.Next)
 	if err != nil {
