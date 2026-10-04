@@ -1,0 +1,53 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://volley.invalid/schema/1/inbox-entry",
+  "type": "object",
+  "additionalProperties": false,
+  "properties": {
+    "record_version": {
+      "const": 1
+    },
+    "sequence": {
+      "type": "integer"
+    },
+    "previous_hash": {
+      "type": "string"
+    },
+    "run_id": {
+      "type": "string"
+    },
+    "kind": {
+      "enum": [
+        "answer",
+        "steer",
+        "control"
+      ]
+    },
+    "key": {
+      "type": "string"
+    },
+    "generation_id": {
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "receipt_path": {
+      "type": "string"
+    },
+    "receipt_hash": {
+      "type": "string"
+    }
+  },
+  "required": [
+    "record_version",
+    "sequence",
+    "previous_hash",
+    "run_id",
+    "kind",
+    "key",
+    "generation_id",
+    "receipt_path",
+    "receipt_hash"
+  ]
+}

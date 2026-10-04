@@ -1,0 +1,45 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://volley.invalid/schema/1/input-receipt",
+  "type": "object",
+  "additionalProperties": false,
+  "properties": {
+    "record_version": {
+      "const": 1
+    },
+    "run_id": {
+      "type": "string"
+    },
+    "kind": {
+      "enum": [
+        "answer",
+        "steer",
+        "control"
+      ]
+    },
+    "key": {
+      "type": "string"
+    },
+    "generation_id": {
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "text": {
+      "type": "string"
+    },
+    "created_at": {
+      "type": "string"
+    }
+  },
+  "required": [
+    "record_version",
+    "run_id",
+    "kind",
+    "key",
+    "generation_id",
+    "text",
+    "created_at"
+  ]
+}

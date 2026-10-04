@@ -1,0 +1,137 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://volley.invalid/schema/1/transaction",
+  "type": "object",
+  "additionalProperties": false,
+  "properties": {
+    "record_version": {
+      "const": 1
+    },
+    "id": {
+      "type": "string"
+    },
+    "kind": {
+      "enum": [
+        "initialize",
+        "intent",
+        "result",
+        "final",
+        "control",
+        "audit"
+      ]
+    },
+    "previous_revision": {
+      "type": "integer"
+    },
+    "previous_hash": {
+      "type": "string"
+    },
+    "next": {
+      "$ref": "manifest.json"
+    },
+    "artifacts": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "staged_path": {
+            "type": "string"
+          },
+          "target_path": {
+            "type": "string"
+          },
+          "hash": {
+            "type": "string"
+          },
+          "replace": {
+            "type": "boolean"
+          },
+          "before": {
+            "anyOf": [
+              {
+                "type": "object",
+                "additionalProperties": false,
+                "properties": {
+                  "path": {
+                    "type": "string"
+                  },
+                  "hash": {
+                    "type": "string"
+                  },
+                  "kind": {
+                    "type": "string"
+                  },
+                  "device": {
+                    "type": "integer"
+                  },
+                  "inode": {
+                    "type": "integer"
+                  },
+                  "bytes": {
+                    "type": "integer"
+                  }
+                },
+                "required": [
+                  "path",
+                  "hash",
+                  "kind",
+                  "device",
+                  "inode",
+                  "bytes"
+                ]
+              },
+              {
+                "type": "null"
+              }
+            ]
+          }
+        },
+        "required": [
+          "staged_path",
+          "target_path",
+          "hash",
+          "replace",
+          "before"
+        ]
+      }
+    },
+    "receipt": {
+      "anyOf": [
+        {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "path": {
+              "type": "string"
+            },
+            "hash": {
+              "type": "string"
+            }
+          },
+          "required": [
+            "path",
+            "hash"
+          ]
+        },
+        {
+          "type": "null"
+        }
+      ]
+    },
+    "at": {
+      "type": "string"
+    }
+  },
+  "required": [
+    "record_version",
+    "id",
+    "kind",
+    "previous_revision",
+    "previous_hash",
+    "next",
+    "artifacts",
+    "receipt",
+    "at"
+  ]
+}
