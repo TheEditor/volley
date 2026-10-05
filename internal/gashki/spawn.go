@@ -57,8 +57,7 @@ func (c *Client) saveExact(path string, v any) error {
 	if e := c.options.Register([]string{path}); e != nil {
 		return e
 	}
-	_, e = c.options.Store.StagePrivateText(path, b)
-	return e
+	return c.writeText(path, b)
 }
 
 func (m *PaneManager) PrepareSpawn(ctx context.Context, q SpawnRequest, budget Budget) (SpawnIntent, error) {

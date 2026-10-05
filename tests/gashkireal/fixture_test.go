@@ -6,10 +6,12 @@ import (
 	"bytes"
 	"context"
 	"crypto/rand"
+	"crypto/sha256"
 	"debug/buildinfo"
 	"encoding/hex"
 	"encoding/json"
 	"fmt"
+	"io"
 	"os"
 	"os/exec"
 	"path/filepath"
@@ -17,15 +19,34 @@ import (
 	"runtime"
 	"strconv"
 	"strings"
+	"sync"
 	"testing"
 	"time"
 
 	"github.com/TheEditor/volley/internal/contract"
 	"github.com/TheEditor/volley/internal/input"
 	"github.com/santhosh-tekuri/jsonschema/v6"
+	"golang.org/x/sys/unix"
 )
 
 const pin = "8eaecc9b31c965bab6c63a6a5562ebf38c43e363"
+
+var fixtureTestHash = sync.OnceValues(func() (string, error) {
+	path, err := os.Executable()
+	if err != nil {
+		return "", err
+	}
+	file, err := os.Open(path)
+	if err != nil {
+		return "", err
+	}
+	defer file.Close()
+	h := sha256.New()
+	if _, err = io.Copy(h, file); err != nil {
+		return "", err
+	}
+	return hex.EncodeToString(h.Sum(nil)), nil
+})
 
 type fixture struct {
 	t                                                   *testing.T
@@ -95,6 +116,10 @@ func newFixture(t *testing.T) *fixture {
 	dir, e := filepath.Abs(dir)
 	if e != nil {
 		t.Fatal(e)
+	}
+	var space unix.Statfs_t
+	if e := unix.Statfs(dir, &space); e != nil || uint64(space.Bavail)*uint64(space.Bsize) < 2<<30 {
+		t.Fatal("fixture requires 2 GiB free space", e)
 	}
 	m := object(t, read(t, filepath.Join(dir, "fixture.json")))
 	if text(m, "source_commit") != pin || !strings.HasPrefix(text(m, "target"), runtime.GOOS+"/") {
@@ -276,6 +301,75 @@ func newFixture(t *testing.T) *fixture {
 			t.Error(e)
 		}
 		put(t, filepath.Join(root, "summary.json"), jsonBytes(map[string]any{"fixture": "F-GK-REAL", "os": runtime.GOOS, "source_commit": pin, "socket": f.socketPath, "calls": f.calls, "provider_spawns": f.spawns, "owned_server_stopped": true}))
+		// Keep compact evidence, then remove this exact owned fixture. Failure to
+		// establish process settlement above deliberately retains the root.
+		hashes := map[string]string{}
+		var size int64
+		e = filepath.WalkDir(root, func(path string, entry os.DirEntry, walkErr error) error {
+			if walkErr != nil {
+				return walkErr
+			}
+			if !entry.Type().IsRegular() {
+				return nil
+			}
+			info, err := entry.Info()
+			if err != nil {
+				return err
+			}
+			size += info.Size()
+			if size > 512<<20 {
+				return fmt.Errorf("fixture exceeds 512 MiB limit")
+			}
+			file, err := os.Open(path)
+			if err != nil {
+				return err
+			}
+			h := sha256.New()
+			_, err = io.Copy(h, file)
+			closeErr := file.Close()
+			if err != nil {
+				return err
+			}
+			if closeErr != nil {
+				return closeErr
+			}
+			rel, err := filepath.Rel(root, path)
+			if err != nil {
+				return err
+			}
+			hashes[rel] = hex.EncodeToString(h.Sum(nil))
+			return nil
+		})
+		if e != nil {
+			t.Error(e)
+			return
+		}
+		counts := map[string]any{}
+		for _, provider := range []string{"claude", "codex"} {
+			load := func(suffix string) string {
+				b, err := os.ReadFile(filepath.Join(root, "stub", provider+suffix))
+				if os.IsNotExist(err) {
+					return ""
+				}
+				if err != nil {
+					t.Error(err)
+					return ""
+				}
+				return string(b)
+			}
+			counts[provider] = map[string]any{"launches": strings.Count(load(".launches"), "1\n"), "pastes": strings.Count(load(".keys"), "<Paste>\n"), "prompt_hooks": strings.Count(load(".hooks"), "UserPromptSubmit\n"), "stop_hooks": strings.Count(load(".hooks"), "Stop\n")}
+		}
+		testHash, err := fixtureTestHash()
+		if err != nil {
+			t.Error(err)
+			return
+		}
+		put(t, root+"-evidence.json", jsonBytes(map[string]any{"test": t.Name(), "passed": !t.Failed(), "source_commit": pin, "target": text(m, "target"), "binaries": m["binaries"], "controller_test_binary_sha256": testHash, "owned_provider_counts": counts, "bytes": size, "artifacts": hashes, "owned_server_stopped": true}))
+		if option("--retain-fixtures") != "yes" {
+			if e := os.RemoveAll(root); e != nil {
+				t.Error(e)
+			}
+		}
 	})
 	if !strings.HasPrefix(f.socketPath, short+string(os.PathSeparator)) || f.socketInfo.Mode()&os.ModeSocket == 0 {
 		t.Fatal("foreign server socket", f.socketPath, short)

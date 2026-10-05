@@ -17,6 +17,7 @@ import (
 	"github.com/TheEditor/volley/internal/agent"
 	"github.com/TheEditor/volley/internal/config"
 	"github.com/TheEditor/volley/internal/contract"
+	"github.com/TheEditor/volley/internal/gashki"
 	"github.com/TheEditor/volley/internal/human"
 	"github.com/TheEditor/volley/internal/migration"
 	"github.com/TheEditor/volley/internal/process"
@@ -42,6 +43,10 @@ type Options struct {
 	Env    []string
 	Clock  human.Clock
 	Fault  store.Fault
+	// Explicit harness bindings. Production resolves tmux and does not assert
+	// source provenance for an arbitrary installed Gashki binary.
+	TmuxPath          string
+	GashkiSourceProof *gashki.SourceProof
 	// Hook is a harness seam. Release builds have no environment trigger.
 	Hook     func(string, *store.Store) error
 	Register func(context.Context, store.Snapshot) error
@@ -54,7 +59,8 @@ type Owner struct {
 	Options  Options
 	Request  Request
 	Guard    *TurnGuard
-	Adapter  *agent.Direct
+	Adapter  review.TurnAdapter
+	Gashki   *gashkiAdapter
 }
 
 func Run(ctx context.Context, request Request, options Options) (map[string]any, error) {
@@ -119,9 +125,6 @@ func Run(ctx context.Context, request Request, options Options) (map[string]any,
 			return nil, failure("INVALID_CONFIG", "Fresh run needs resolved settings", nil)
 		}
 		settings := request.Resolved.Settings
-		if settings.Backend != "cli" {
-			return nil, failure("INVALID_CONFIG", "This review slice requires the direct backend", nil)
-		}
 		if err = o.preflight(); err != nil {
 			return nil, err
 		}
@@ -153,12 +156,30 @@ func Run(ctx context.Context, request Request, options Options) (map[string]any,
 			err = o.attach(ctx, m)
 		}
 		if err != nil {
+			if e := o.clearGashkiRecovery(m); e != nil {
+				return Data(m), e
+			}
 			return Data(m), err
 		}
 	}
-	o.Guard = &TurnGuard{Store: s, Gate: o.Prepared.Gate}
-	o.Adapter, err = agent.NewDirect(agent.DirectOptions{Prepared: o.Prepared, Store: s, Runner: options.Runner, Env: options.Env, InheritedChecked: true, Register: o.Guard.Register, OnWrite: o.Guard.Authorize})
+	o.Guard = &TurnGuard{Store: s, Gate: o.Prepared.Gate, RunID: o.State.RunID}
+	if o.State.Settings.Backend == "gashki" {
+		o.Guard.AllowedHistory = []string{"*"}
+		current, e := o.snapshot()
+		if e != nil {
+			return nil, e
+		}
+		if current.String("status") != "approved" {
+			o.Gashki, err = o.newGashkiAdapter()
+			o.Adapter = o.Gashki
+		}
+	} else {
+		o.Adapter, err = agent.NewDirect(agent.DirectOptions{Prepared: o.Prepared, Store: s, Runner: options.Runner, Env: options.Env, InheritedChecked: true, Register: o.Guard.Register, OnWrite: o.Guard.Authorize})
+	}
 	if err != nil {
+		if e := o.clearGashkiRecovery(m); e != nil {
+			return Data(m), e
+		}
 		return Data(m), err
 	}
 	indexWarning := false
@@ -171,6 +192,14 @@ func Run(ctx context.Context, request Request, options Options) (map[string]any,
 	ctx, stopMonitor := watchStop(ctx, s.Path, o.State.RunID)
 	defer stopMonitor()
 	err = o.drive(ctx)
+	if o.Gashki != nil && ctx.Err() == nil {
+		current, e := o.snapshot()
+		if e == nil && (current.String("status") == "approved" || current.String("status") == "impasse") {
+			if cleanupErr := o.cleanupGashki(ctx, current); cleanupErr != nil && err == nil {
+				err = cleanupErr
+			}
+		}
+	}
 	if ctx.Err() != nil {
 		err = o.interrupted(ctx)
 	}
@@ -368,14 +397,25 @@ func (o *Owner) create(ctx context.Context, m store.Snapshot) error {
 	if len(m.Object("preparation")) > 0 {
 		p, err = agent.DecodePreparation(s, m)
 		if err == nil {
-			err = p.CheckResume(agent.CaptureIdentity(o.Options.Env), nil, p.Record.Executables)
+			err = p.CheckResume(agent.CaptureIdentity(o.Options.Env), p.Record.Server, p.Record.Executables)
 		}
 		if err == nil {
 			err = frozenPreparedSettings(s, &p, *o.Request.Resolved)
 		}
 	} else {
 
-		p, err = agent.Prepare(ctx, agent.PrepareOptions{Resolved: *o.Request.Resolved, Store: s, Runner: o.Options.Runner, Env: o.Options.Env, Billing: agent.BillingSelection{Allowed: o.Request.Resolved.Settings.AllowAPIKey, Explicit: o.Request.Explicit["allow_api_key"] != nil}})
+		prepare := agent.PrepareOptions{Resolved: *o.Request.Resolved, Store: s, Runner: o.Options.Runner, Env: o.Options.Env, Billing: agent.BillingSelection{Allowed: o.Request.Resolved.Settings.AllowAPIKey, Explicit: o.Request.Explicit["allow_api_key"] != nil}}
+		if prepare.Resolved.Settings.Backend == "gashki" {
+			prepare.TmuxPath, err = o.tmuxPath()
+			if err != nil {
+				return err
+			}
+			prepare.CallerWindow, err = o.callerWindow(ctx, prepare.TmuxPath, prepare.Resolved.Settings.Placement)
+			if err != nil {
+				return err
+			}
+		}
+		p, err = agent.Prepare(ctx, prepare)
 		if err != nil {
 			return err
 		}
@@ -576,7 +616,7 @@ func (o *Owner) attach(ctx context.Context, m store.Snapshot) error {
 	}
 	if len(m.Object("current_turn")) == 0 {
 		// Approved attachments make no external calls, including metadata probes.
-		if err = p.CheckResume(agent.CaptureIdentity(o.Options.Env), nil, p.Record.Executables); err != nil {
+		if err = p.CheckResume(agent.CaptureIdentity(o.Options.Env), p.Record.Server, p.Record.Executables); err != nil {
 			return err
 		}
 	} else if err = p.Gate.Check(); err != nil {
@@ -771,6 +811,9 @@ func (o *Owner) interrupted(ctx context.Context) error {
 	m, err := o.snapshot()
 	if err == nil {
 		status := m.String("status")
+		if e := o.saveGashkiHandoverGuard(m); e != nil {
+			return e
+		}
 		m["status"] = "handover"
 		if stopped, ok := context.Cause(ctx).(stopControl); ok {
 			code = "CONTROLLER_STOPPED"
@@ -797,6 +840,12 @@ func (o *Owner) handover(m store.Snapshot, err error) error {
 	var typed *contract.Error
 	if errors.As(err, &typed) {
 		code = typed.Code
+	}
+	if o.Gashki != nil && m["recovery"] != nil {
+		m["recovery"] = map[string]any{"code": code, "missing_receipt": false, "bindings_verified": false}
+	}
+	if e := o.saveGashkiHandoverGuard(m); e != nil {
+		return e
 	}
 	m["status"] = "handover"
 	m["errors"] = append(stringsOf(m["errors"]), code)

@@ -128,6 +128,9 @@ func (o *Owner) turn(ctx context.Context, m store.Snapshot) error {
 		directives, inputs = nil, nil
 	}
 	provider := fmt.Sprint(m.Object("roles")[role])
+	if purpose == prompt.Advisory {
+		provider = fmt.Sprint(m.Object("roles")["planner"])
+	}
 	constraints, err := o.Store.ReadText("CONSTRAINTS.md")
 	if err != nil && o.State.Bindings["CONSTRAINTS.md"].Kind != "absent" {
 		return err
@@ -140,7 +143,11 @@ func (o *Owner) turn(ctx context.Context, m store.Snapshot) error {
 	if purpose == prompt.Closing && o.State.Auxiliary.AdvisoryDone {
 		advisoryPath = filepath.Join(o.Store.Path, "rounds/second-opinion.md")
 	}
-	rendered, err := prompt.Render(prompt.Request{Purpose: purpose, Role: role, Provider: provider, Backend: o.State.Settings.Backend, Round: number(m["round"]), AttemptID: id, PreviousAttemptID: o.State.LastTurn, Constraints: string(constraints), ContextPath: o.State.Settings.ContextDir, Directives: directives, Rubric: o.State.Settings.Rubric, SecondOpinionPath: advisoryPath, ApprovedReviewPath: filepath.Join(o.Store.Path, o.State.LastCritique)})
+	criticSink := ""
+	if o.State.Settings.Backend == "gashki" && role == "critic" {
+		criticSink = filepath.Join(o.Store.Path, "rounds/gk-"+id+".pending.md")
+	}
+	rendered, err := prompt.Render(prompt.Request{Purpose: purpose, Role: role, Provider: provider, Backend: o.State.Settings.Backend, Round: number(m["round"]), AttemptID: id, PreviousAttemptID: o.State.LastTurn, Constraints: string(constraints), ContextPath: o.State.Settings.ContextDir, Directives: directives, Rubric: o.State.Settings.Rubric, SecondOpinionPath: advisoryPath, ApprovedReviewPath: filepath.Join(o.Store.Path, o.State.LastCritique), CriticOutputPath: criticSink})
 	if err != nil {
 		return err
 	}
@@ -169,6 +176,9 @@ func (o *Owner) turn(ctx context.Context, m store.Snapshot) error {
 		q.ExpectedArtifacts = []string{critiquePath(q)}
 		if purpose == prompt.Advisory {
 			q.ExpectedArtifacts = []string{"rounds/second-opinion.md"}
+		}
+		if criticSink != "" {
+			q.ExpectedArtifacts = []string{"rounds/gk-" + id + ".pending.md"}
 		}
 	}
 	p, err := o.Adapter.Prepare(ctx, q)
@@ -205,7 +215,14 @@ func (o *Owner) turn(ctx context.Context, m store.Snapshot) error {
 	if err = o.hook("engine.intent.committed"); err != nil {
 		return err
 	}
-	out, err := o.Adapter.Execute(ctx, p, o.Guard)
+	out, err := o.Guard.Execute(ctx, p.Request, func(ctx context.Context) (review.TurnOutcome, error) { return o.Adapter.Perform(ctx, p) })
+	if o.Gashki != nil && o.Guard.Proof != nil {
+		current, e := o.snapshot()
+		if e != nil {
+			return e
+		}
+		m = current
+	}
 	if ctx.Err() != nil {
 		return o.interrupted(ctx)
 	}
@@ -288,12 +305,21 @@ func (o *Owner) receipt(q review.TurnRequest, out review.TurnOutcome, inputs []s
 	if inputs == nil {
 		inputs = []string{}
 	}
+	source, paneUUID, identityReason := "owned-direct-process", "", "owned process completion"
+	stdoutPath, stderrPath, protocolPath := "state/turns/"+q.TurnID+"/stdout.pending", "state/turns/"+q.TurnID+"/stderr.pending", "state/turns/"+q.TurnID+"/direct-result.json"
+	if o.State.Settings.Backend == "gashki" {
+		source, paneUUID, identityReason = "qualified-gashki-hook", out.Delivery.PaneUUID, "public Gashki contract has no vendor session ID"
+		protocolPath = "state/turns/" + q.TurnID + "/gk-send-completion.json"
+		if len(out.Completion.EvidencePaths) >= 2 {
+			stdoutPath, stderrPath = out.Completion.EvidencePaths[0], out.Completion.EvidencePaths[1]
+		}
+	}
 	return map[string]any{"record_version": 1, "run_id": q.RunID, "turn_id": q.TurnID, "purpose": q.Purpose, "role": q.Role, "round": q.Round, "prompt_hash": q.PromptHash, "spec_before_hash": q.SpecBeforeHash,
 		"delivery":   map[string]any{"kind": string(out.Delivery.Kind), "cursor": out.Delivery.Cursor, "payload_hash": out.Delivery.PayloadHash, "pane_uuid": out.Delivery.PaneUUID, "replayed": out.Delivery.Replayed},
-		"completion": map[string]any{"kind": string(out.Kind), "exit": out.Completion.Exit, "signal": "", "deadline": false, "settled": out.Completion.Settled, "cursor": out.Completion.Cursor, "source": "owned-direct-process"},
-		"artifacts":  artifacts, "identity": map[string]any{"session_id": out.Completion.SessionID, "pane_uuid": "", "reason": "owned process completion"}, "reply": out.Reply.Record(),
+		"completion": map[string]any{"kind": string(out.Kind), "exit": out.Completion.Exit, "signal": "", "deadline": false, "settled": out.Completion.Settled, "cursor": out.Completion.Cursor, "source": source},
+		"artifacts":  artifacts, "identity": map[string]any{"session_id": out.Completion.SessionID, "pane_uuid": paneUUID, "reason": identityReason}, "reply": out.Reply.Record(),
 		"retention":         map[string]any{"kind": "retain", "reason": "Keep owned evidence", "panes": []string{}, "processes": []any{}},
-		"evidence":          map[string]any{"stdout_path": "state/turns/" + q.TurnID + "/stdout.pending", "stderr_path": "state/turns/" + q.TurnID + "/stderr.pending", "protocol_path": "state/turns/" + q.TurnID + "/direct-result.json", "upstream_code": "", "upstream_exit": out.Completion.Exit},
+		"evidence":          map[string]any{"stdout_path": stdoutPath, "stderr_path": stderrPath, "protocol_path": protocolPath, "upstream_code": "", "upstream_exit": out.Completion.Exit},
 		"input_receipt_ids": inputs, "guard": map[string]any{"path": proofPath, "sha256": proofHash}}, nil
 }
 
@@ -458,6 +484,12 @@ func (o *Owner) finishTurn(ctx context.Context, m store.Snapshot, q review.TurnR
 	}
 	o.State.LastTurn = q.TurnID
 	o.State.LastReceipt = &ref
+	if o.Gashki != nil {
+		if err = o.recordGashkiPane(m, q, out); err != nil {
+			return err
+		}
+		delete(m, "recovery")
+	}
 	if o.State.Settings.Persistent && out.Completion.SessionID != "" && q.Purpose != "advisory" {
 		session, _ := m.Object("sessions")[q.Role].(map[string]any)
 		session["observed_id"] = out.Completion.SessionID
@@ -547,7 +579,7 @@ func (o *Owner) checkTurn(ctx context.Context, m store.Snapshot, extraPaths ...s
 		if q.RunID != m.String("run_id") || q.TurnID != id || q.Purpose != turn["purpose"] || q.Role != turn["role"] || q.PromptHash != turn["prompt_hash"] || q.SpecBeforeHash != m.String("spec_hash") {
 			return failure("STATE_INVALID", "Recovery request binding differs", nil)
 		}
-		changes := append([]store.AuthorizedChange{}, proof.Guard.Changes...)
+		changes := immutableCheckpointChanges(proof.Guard.Changes)
 		for _, extra := range append([]string{path, r.Receipt.Path}, extraPaths...) {
 			obs, err := observation(o.Store, extra)
 			if err != nil {
@@ -578,6 +610,15 @@ func (o *Owner) checkTurn(ctx context.Context, m store.Snapshot, extraPaths ...s
 	return result, err
 }
 func (o *Owner) recoverTurn(ctx context.Context, m store.Snapshot) error {
+	if o.Gashki != nil {
+		recovered, err := o.Store.Recover()
+		if err != nil {
+			return o.handover(m, err)
+		}
+		if recovered.Receipt == nil {
+			return o.recoverGashkiTurn(ctx, m)
+		}
+	}
 	checked, err := o.checkTurn(ctx, m)
 	if err != nil {
 		return o.handover(m, err)

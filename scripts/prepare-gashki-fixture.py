@@ -23,6 +23,7 @@ def main():
     p.add_argument("--source", type=Path, required=True)
     p.add_argument("--output", type=Path, required=True)
     p.add_argument("--target", choices=["darwin/arm64", "linux/arm64", "darwin/amd64", "linux/amd64"], required=True)
+    p.add_argument("--engine-work", type=Path, help="Owned review-loop stub extension")
     a = p.parse_args()
     out = a.output.resolve()
     out.mkdir(mode=0o700)  # Refuse reuse of an existing artifact directory.
@@ -62,6 +63,12 @@ def main():
     if stub.count(seam) != 1:
         raise SystemExit("Pinned hook instrumentation seam changed")
     stub = stub.replace(seam, seam + '  put("$agent.hooks", "$ev\\n");\n')
+    if a.engine_work:
+        seam = "      fire('Stop');"
+        if stub.count(seam) != 1:
+            raise SystemExit("Pinned turn completion seam changed")
+        work = a.engine_work.read_text()
+        stub = stub.replace(seam, "      engine_work($p);\n" + seam) + "\n" + work
     (out / "agent-stub").write_text(stub)
     (out / "agent-stub").chmod(0o700)
     caps = json.loads((source / "internal/contract/capabilities.json").read_text())

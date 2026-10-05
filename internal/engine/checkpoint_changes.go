@@ -13,6 +13,19 @@ import (
 	"github.com/TheEditor/volley/internal/store"
 )
 
+// A checked chain validates the mutable head. Keep immutable checkpoint
+// records from older proofs, then add the chain's current head once.
+func immutableCheckpointChanges(changes []store.AuthorizedChange) []store.AuthorizedChange {
+	result := make([]store.AuthorizedChange, 0, len(changes))
+	for _, change := range changes {
+		if change.Kind == "checked handover checkpoint" && (change.Path == "state/manifest.json" || change.Path == "state/events.jsonl") {
+			continue
+		}
+		result = append(result, change)
+	}
+	return result
+}
+
 // A handover can change controller records after the checked turn. Admit only
 // exact records from a checked chain that preserves the turn and engine state.
 func checkpointChanges(s *store.Store, before store.Inventory) ([]store.AuthorizedChange, error) {
@@ -47,6 +60,13 @@ func checkpointChanges(s *store.Store, before store.Inventory) ([]store.Authoriz
 		}
 		if turn := copy.Object("current_turn"); len(turn) > 0 {
 			delete(turn, "delivery_uncertain")
+			gk, _ := copy.Object("config_records")["gashki"].(map[string]any)
+			if gk["type"] == "file" {
+				delete(copy, "recovery")
+				for _, key := range []string{"recovery_guard", "cursor", "operation", "remaining", "pane_uuid"} {
+					delete(turn, key)
+				}
+			}
 		}
 		if engine := copy.Object("engine"); len(engine) > 0 {
 			delete(engine, "path")
@@ -73,8 +93,21 @@ func checkpointChanges(s *store.Store, before store.Inventory) ([]store.Authoriz
 		if e != nil {
 			return nil, e
 		}
-		if tx.Kind != "control" || len(tx.Artifacts) > 0 || tx.Receipt != nil || next.String("status") != "handover" || !bytes.Equal(oldData, nextData) {
+		gk, _ := next.Object("config_records")["gashki"].(map[string]any)
+		operation := next.Object("current_turn")["operation"]
+		delivery := gk["type"] == "file" && next.String("status") == "running" && (operation == "delivery_confirmed" || operation == "send_prepared")
+		if tx.Kind != "control" || len(tx.Artifacts) > 0 || tx.Receipt != nil || next.String("status") != "handover" && !delivery || !bytes.Equal(oldData, nextData) {
 			return nil, failure("TURN_UNCERTAIN", "Checkpoint changed after the checked turn", nil)
+		}
+		if gk["type"] == "file" && next.Object("current_turn")["recovery_guard"] != nil {
+			ref, _ := next.Object("current_turn")["recovery_guard"].(map[string]any)
+			path, _ := ref["path"].(string)
+			if !recoveryGuardPath(fmt.Sprint(next.Object("current_turn")["id"]), path) {
+				return nil, failure("STATE_INVALID", "Delivery guard binding differs", nil)
+			}
+			if err = add(path, fmt.Sprint(ref["sha256"])); err != nil {
+				return nil, err
+			}
 		}
 		encoded, e := contract.Canonical(tx)
 		if e != nil {

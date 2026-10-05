@@ -32,6 +32,9 @@ func (o *Owner) validateFinal(m store.Snapshot) error {
 }
 
 func (o *Owner) validateHistory() error {
+	if _, err := o.Store.Events(); err != nil {
+		return err
+	}
 	history, err := o.Store.History()
 	if err != nil {
 		return err
@@ -58,6 +61,11 @@ func (o *Owner) validateHistory() error {
 			return e
 		}
 		for _, change := range proof.Guard.Changes {
+			// Delivery checkpoints bind the checked chain. Later controller
+			// transactions legitimately replace its head and append its events.
+			if change.Kind == "checked handover checkpoint" && (change.Path == "state/manifest.json" || change.Path == "state/events.jsonl") {
+				continue
+			}
 			obs, e := observation(o.Store, change.Path)
 			if e != nil {
 				return e

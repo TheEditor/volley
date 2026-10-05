@@ -193,6 +193,11 @@ func (o *Owner) awaitAnswer(ctx context.Context, m store.Snapshot) error {
 		}()
 	}
 	for {
+		if o.Gashki != nil {
+			if err = o.settleGashkiAnswer(ctx, *g, m); err != nil {
+				return err
+			}
+		}
 		if err = checkBindings(o.Store, o.State); err != nil {
 			return err
 		}

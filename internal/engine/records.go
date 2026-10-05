@@ -174,7 +174,7 @@ func initialize(s *store.Store, settings config.Settings, creation Creation) (st
 		"request_keys": []string{}, "request_hash": "", "status": "ready", "phase": "prepare", "round": 1, "completed_rounds": 0, "max_rounds": settings.MaxRounds,
 		"amendments": []any{}, "setting_sources": sources, "config_records": map[string]any{"volley": absent(), "gashki": absent()},
 		"prompt_hashes": map[string]any{"template": "", "rendered": ""}, "executables": map[string]any{"claude": exe(), "codex": exe(), "gashki": exe()},
-		"roles": map[string]any{"planner": settings.Planner, "critic": critic}, "backend_capabilities": map[string]any{"process_per_turn": true, "exact_resume_id": true, "read_only_critic": critic == "codex"},
+		"roles": map[string]any{"planner": settings.Planner, "critic": critic}, "backend_capabilities": map[string]any{"process_per_turn": settings.Backend == "cli", "exact_resume_id": settings.Backend == "cli", "read_only_critic": settings.Backend == "cli" && critic == "codex"},
 		"sessions": map[string]any{"planner": session(), "critic": session()}, "panes": map[string]any{"planner": pane(), "critic": pane(), "second": pane()},
 		"server":   map[string]any{"socket_path": nil, "caller_window": "", "identity_reason": "direct backend", "home": nil, "claude_root": variable(), "codex_root": variable(), "state_dir": "", "socket_device": 0, "socket_inode": 0, "socket_kind": "absent"},
 		"identity": map[string]any{"home": nil, "claude_root": variable(), "codex_root": variable()}, "current_turn": nil, "spec_hash": "", "reviewed_spec_hash": "",

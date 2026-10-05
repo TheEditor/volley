@@ -34,6 +34,8 @@ type ClientOptions struct {
 	// effective identity before each subprocess. Registration names exact files.
 	Gate     func(context.Context, string) error
 	Register func([]string) error
+	// OnWrite confirms exact controller bytes after a successful owned write.
+	OnWrite func(string, store.FileObservation) error
 	// BeforeMutation must commit and validate the outer engine intent. It runs
 	// after the primitive intent is durable and before releasing the process.
 	BeforeMutation func(context.Context, CallIntent) error
@@ -149,8 +151,28 @@ func (c *Client) save(path string, v any) error {
 	if e != nil {
 		return e
 	}
-	_, e = c.options.Store.StagePrivateText(path, b)
-	return e
+	return c.writeText(path, b)
+}
+
+func (c *Client) writeText(path string, b []byte) error {
+	if _, e := c.options.Store.StagePrivateText(path, b); e != nil {
+		return e
+	}
+	return c.authorize(path, contract.HashBytes(b))
+}
+
+func (c *Client) authorize(path, expected string) error {
+	if c.options.OnWrite == nil {
+		return nil
+	}
+	_, observed, e := c.options.Store.ReadRaw(path)
+	if e != nil {
+		return e
+	}
+	if observed.Hash != expected {
+		return NativeError(decision("ARTIFACT_CHANGED", "controller_sink_changed"), map[string]any{"path": path})
+	}
+	return c.options.OnWrite(path, observed)
 }
 func decodeClosed(b []byte, v any) error {
 	if _, e := parse(b); e != nil {
@@ -299,7 +321,12 @@ func (c *Client) Call(ctx context.Context, q CallRequest) (CheckedCall, error) {
 	}
 	errout, e := c.options.Store.BeginOutput(paths[3])
 	if e != nil {
-		out.Close()
+		if finish := c.options.Store.FinishOutput(paths[2], out); finish != nil {
+			return result, finish
+		}
+		if checked := c.authorize(paths[2], contract.HashBytes(nil)); checked != nil {
+			return result, checked
+		}
 		return result, e
 	}
 	result = CheckedCall{ID: q.ID, Intent: intent, RawPath: paths[2], StderrPath: paths[3]}
@@ -310,8 +337,17 @@ func (c *Client) Call(ctx context.Context, q CallRequest) (CheckedCall, error) {
 		request.ElapsedBefore = 0
 	}
 	if e := c.options.Gate(ctx, gateKind(q.Verb)); e != nil {
-		out.Close()
-		errout.Close()
+		// No process started. Confirm the two exact empty controller files so
+		// the protected-file guard preserves the actual gate failure.
+		for i, file := range []*os.File{out, errout} {
+			path := paths[2+i]
+			if finish := c.options.Store.FinishOutput(path, file); finish != nil {
+				return result, finish
+			}
+			if checked := c.authorize(path, contract.HashBytes(nil)); checked != nil {
+				return result, checked
+			}
+		}
 		return result, e
 	}
 	result.Process, e = c.options.Runner.Run(ctx, request)
@@ -337,6 +373,12 @@ func (c *Client) Call(ctx context.Context, q CallRequest) (CheckedCall, error) {
 	result.StderrHash = contract.HashBytes(stderr)
 	if result.RawHash != hex.EncodeToString(outSink.Digest.Sum(nil)) || result.StderrHash != hex.EncodeToString(errSink.Digest.Sum(nil)) {
 		return result, NativeError(decision("ARTIFACT_CHANGED", "captured_upstream_output_changed"), nil)
+	}
+	if e := c.authorize(paths[2], result.RawHash); e != nil {
+		return result, e
+	}
+	if e := c.authorize(paths[3], result.StderrHash); e != nil {
+		return result, e
 	}
 	if e := c.save(paths[4], processReturn{result.Process, result.RawHash, result.StderrHash, result.RunnerError}); e != nil {
 		return result, e

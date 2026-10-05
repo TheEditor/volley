@@ -72,6 +72,25 @@
             },
             "remaining": {
               "type": "string"
+            },
+            "recovery_guard": {
+              "type": "object",
+              "additionalProperties": false,
+              "properties": {
+                "path": {
+                  "type": "string"
+                },
+                "sha256": {
+                  "type": "string"
+                }
+              },
+              "required": [
+                "path",
+                "sha256"
+              ]
+            },
+            "pane_uuid": {
+              "type": "string"
             }
           },
           "required": [

@@ -12,6 +12,7 @@ import (
 
 	"github.com/TheEditor/volley/internal/agent"
 	"github.com/TheEditor/volley/internal/contract"
+	"github.com/TheEditor/volley/internal/gashki"
 	"github.com/TheEditor/volley/internal/review"
 	"github.com/TheEditor/volley/internal/store"
 )
@@ -20,11 +21,15 @@ type TurnGuard struct {
 	Store          *store.Store
 	Gate           interface{ Check() error }
 	AllowedHistory []string
+	RunID          string
+	expected       []string
 	mu             sync.Mutex
 	active         string
 	paths          map[string]string
 	confirmed      map[string]store.FileObservation
 	Proof          *GuardProof
+	before         store.Inventory
+	checkpoints    []store.AuthorizedChange
 }
 
 type GuardProof struct {
@@ -54,8 +59,23 @@ func (g *TurnGuard) Register(r agent.PrimitiveRegistration) error {
 	}
 	for i, group := range [][]string{r.ControllerPaths, r.AgentPaths} {
 		for _, path := range group {
-			if filepath.Clean(path) != path || strings.ContainsRune(path, 0) ||
-				!(strings.HasPrefix(path, "state/turns/"+g.active+"/") || strings.HasPrefix(path, "state/control/session-")) {
+			allowed := strings.HasPrefix(path, "state/turns/"+g.active+"/") || strings.HasPrefix(path, "state/control/session-")
+			if i == 0 && r.Operation == "checked Gashki primitive" {
+				allowed = allowed || gashki.ControllerSink(g.RunID, g.active, path)
+			}
+			if i == 1 && r.Operation == "checked Gashki artifact" {
+				for _, expected := range g.expected {
+					if path == expected {
+						allowed = true
+					}
+				}
+			}
+			if i == 0 && r.Operation == "checked pane answer candidate" {
+				prefix := "state/human/pane-candidate-" + g.active + "-"
+				tail := strings.TrimSuffix(strings.TrimPrefix(path, prefix), ".json")
+				allowed = allowed || strings.HasPrefix(path, prefix) && strings.HasSuffix(path, ".json") && len(tail) == 64 && strings.Trim(tail, "0123456789abcdef") == ""
+			}
+			if filepath.Clean(path) != path || strings.ContainsRune(path, 0) || !allowed {
 				return failure("STATE_INVALID", "Invalid primitive sink", map[string]any{"path": path})
 			}
 			kind := r.Operation
@@ -91,7 +111,11 @@ func (g *TurnGuard) Execute(ctx context.Context, q review.TurnRequest, op review
 	if err = g.Gate.Check(); err != nil {
 		return out, err
 	}
-	before, err := g.Store.Inspect(ctx, store.Protection{Actor: q.Role, AnswerTurn: q.Purpose == "answer_record", AllowedHistory: g.AllowedHistory})
+	history := g.AllowedHistory
+	if q.Role == "critic" || q.Purpose == "answer_record" {
+		history = nil
+	}
+	before, err := g.Store.Inspect(ctx, store.Protection{Actor: q.Role, AnswerTurn: q.Purpose == "answer_record", AllowedHistory: history})
 	if err != nil {
 		return out, err
 	}
@@ -101,9 +125,12 @@ func (g *TurnGuard) Execute(ctx context.Context, q review.TurnRequest, op review
 		return out, fmt.Errorf("Concurrent guarded turn")
 	}
 	g.active = q.TurnID
+	g.expected = append([]string{}, q.ExpectedArtifacts...)
 	g.paths = make(map[string]string)
 	g.confirmed = make(map[string]store.FileObservation)
 	g.Proof = nil
+	g.before = before
+	g.checkpoints = nil
 	g.mu.Unlock()
 	defer func() {
 		// Use an uncancelled context for the comparison after an interrupt. A
@@ -112,6 +139,7 @@ func (g *TurnGuard) Execute(ctx context.Context, q review.TurnRequest, op review
 		g.mu.Lock()
 		paths := g.paths
 		confirmed := g.confirmed
+		checkpoints := append([]store.AuthorizedChange{}, g.checkpoints...)
 		g.active = ""
 		g.paths = nil
 		g.confirmed = nil
@@ -132,6 +160,13 @@ func (g *TurnGuard) Execute(ctx context.Context, q review.TurnRequest, op review
 			}
 			changes = append(changes, store.AuthorizedChange{Path: path, Before: before.Files[path], After: after, Kind: kind})
 		}
+		for _, change := range checkpoints {
+			_, observed, e := g.Store.ReadObserved(change.Path, store.TextLimit)
+			observed.Path = filepath.Join(g.Store.Path, change.Path)
+			if e == nil && observed == change.After {
+				changes = append(changes, change)
+			}
+		}
 		mutation, compareErr := g.Store.Compare(checkCtx, before, changes)
 		if mutation != nil {
 			code := "PLANNER_MUTATION"
@@ -149,4 +184,27 @@ func (g *TurnGuard) Execute(ctx context.Context, q review.TurnRequest, op review
 		return out, err
 	}
 	return op(ctx)
+}
+
+// CurrentProof freezes controller writes at a delivery boundary. Agent outputs
+// remain covered by the original inventory until qualified completion.
+func (g *TurnGuard) CurrentProof() (GuardProof, error) {
+	g.mu.Lock()
+	defer g.mu.Unlock()
+	proof := GuardProof{Before: g.before, Changes: []store.AuthorizedChange{}}
+	if g.active == "" {
+		return proof, failure("STATE_INVALID", "No active guard", nil)
+	}
+	for path, obs := range g.confirmed {
+		after, err := g.Store.Observe(path)
+		if err != nil {
+			return proof, err
+		}
+		after.Path = filepath.Join(g.Store.Path, path)
+		if after != obs {
+			return proof, failure("ARTIFACT_CHANGED", "Controller evidence changed before delivery checkpoint", map[string]any{"path": path})
+		}
+		proof.Changes = append(proof.Changes, store.AuthorizedChange{Path: path, Before: g.before.Files[path], After: after, Kind: g.paths[path]})
+	}
+	return proof, nil
 }

@@ -37,6 +37,35 @@ type sendAttempt struct {
 	Reason       string `json:"reason"`
 }
 
+// MissingReceiptRecovery supplies advice only for a source-bound, settled
+// missing response. Resume must repeat all binding checks before its call.
+func (m *PaneManager) MissingReceiptRecovery(ctx context.Context, plan SendIntent, budget Budget) (bool, error) {
+	if !m.Client.SourceChecked() {
+		return false, nil
+	}
+	attempts, err := m.attempts(plan)
+	if err != nil || len(attempts) == 0 {
+		return false, err
+	}
+	missing := false
+	for i, attempt := range attempts {
+		call, exists, err := m.Client.LoadCall(attempt.CallID)
+		if err != nil || !exists || !call.Process.Settled {
+			return false, err
+		}
+		if i == len(attempts)-1 {
+			missing = call.Missing
+		}
+	}
+	if !missing {
+		return false, nil
+	}
+	if err = m.CheckSend(ctx, plan, budget); err != nil {
+		return false, err
+	}
+	return true, nil
+}
+
 func sendBase(turnID string) string { return "state/turns/" + turnID + "/gk-send" }
 func intentHash(v any) string       { return contract.HashBytes(mustOwnedJSON(v)) }
 func sendKey(plan SendIntent) string {
@@ -74,7 +103,7 @@ func (m *PaneManager) PrepareSend(ctx context.Context, turnID string, pane PaneB
 		}
 	} else if !os.IsNotExist(e) {
 		return plan, e
-	} else if _, e := m.Client.options.Store.StagePrivateText(path, prompt); e != nil {
+	} else if e := m.Client.writeText(path, prompt); e != nil {
 		return plan, e
 	}
 	if e := m.Client.saveExact(sendBase(turnID)+"-intent.json", plan); e != nil {
