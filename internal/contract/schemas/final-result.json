@@ -1,0 +1,230 @@
+{
+  "type": "object",
+  "additionalProperties": false,
+  "properties": {
+    "meaning": {
+      "type": "string"
+    },
+    "basis": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "spec_hash": {
+          "type": "string"
+        },
+        "reviewed_hash": {
+          "type": "string"
+        },
+        "inputs_hash": {
+          "type": "string"
+        },
+        "receipt_path": {
+          "type": "string"
+        },
+        "basis": {
+          "type": "string"
+        },
+        "meaning": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "spec_hash",
+        "reviewed_hash",
+        "inputs_hash",
+        "receipt_path",
+        "basis"
+      ]
+    },
+    "ordinary_verdict": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "value": {
+          "type": "string"
+        },
+        "hash": {
+          "type": "string"
+        },
+        "line": {
+          "type": "integer"
+        },
+        "parser_version": {
+          "type": "integer"
+        }
+      },
+      "required": [
+        "value",
+        "hash",
+        "line",
+        "parser_version"
+      ]
+    },
+    "auxiliary": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "second_opinion": {
+          "type": "string"
+        },
+        "closing": {
+          "type": "string"
+        },
+        "confirmation": {
+          "type": "string"
+        },
+        "approved_hash": {
+          "type": "string"
+        },
+        "rejected_hash": {
+          "type": "string"
+        },
+        "skip_reason": {
+          "type": "string"
+        },
+        "restoration_intent": {
+          "type": "string"
+        },
+        "restoration_receipt": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "second_opinion",
+        "closing",
+        "confirmation",
+        "approved_hash",
+        "rejected_hash",
+        "skip_reason",
+        "restoration_intent",
+        "restoration_receipt"
+      ]
+    },
+    "closing_result": {
+      "enum": [
+        "disabled",
+        "skipped_no_round_left",
+        "unchanged",
+        "confirmed",
+        "rejected_at_cap"
+      ]
+    },
+    "advisory": {
+      "anyOf": [
+        {
+          "type": "null"
+        },
+        {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "path": {
+              "type": "string"
+            },
+            "sha256": {
+              "type": "string"
+            },
+            "reviewed_spec_hash": {
+              "type": "string"
+            },
+            "receipt": {
+              "type": "object",
+              "additionalProperties": false,
+              "properties": {
+                "path": {
+                  "type": "string"
+                },
+                "hash": {
+                  "type": "string"
+                }
+              },
+              "required": [
+                "path",
+                "hash"
+              ]
+            },
+            "scope": {
+              "type": "string"
+            }
+          },
+          "required": [
+            "path",
+            "sha256",
+            "reviewed_spec_hash",
+            "receipt",
+            "scope"
+          ]
+        }
+      ]
+    },
+    "rejected_review_evidence": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "path": {
+            "type": "string"
+          },
+          "sha256": {
+            "type": "string"
+          },
+          "reviewed_spec_hash": {
+            "type": "string"
+          },
+          "verdict": {
+            "type": "string"
+          },
+          "round": {
+            "type": "integer"
+          },
+          "receipt": {
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "path": {
+                "type": "string"
+              },
+              "hash": {
+                "type": "string"
+              }
+            },
+            "required": [
+              "path",
+              "hash"
+            ]
+          }
+        },
+        "required": [
+          "path",
+          "sha256",
+          "reviewed_spec_hash",
+          "verdict",
+          "round",
+          "receipt"
+        ]
+      }
+    },
+    "rejected_review_meaning": {
+      "type": "string"
+    },
+    "warnings": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    }
+  },
+  "required": [
+    "meaning",
+    "basis",
+    "ordinary_verdict",
+    "auxiliary",
+    "closing_result",
+    "advisory",
+    "rejected_review_evidence",
+    "warnings"
+  ],
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://volley.invalid/schema/1/final-result"
+}

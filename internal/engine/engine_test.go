@@ -13,6 +13,7 @@ import (
 	"runtime"
 	"strconv"
 	"strings"
+	"sync"
 	"testing"
 	"time"
 
@@ -23,13 +24,15 @@ import (
 )
 
 type AgentPlan struct {
-	Critiques       []string `json:"critiques"`
-	QuestionPurpose string   `json:"question_purpose"`
-	MutationPath    string   `json:"mutation_path"`
-	MutationRole    string   `json:"mutation_role"`
-	MutationPurpose string   `json:"mutation_purpose"`
-	Fail            bool     `json:"fail"`
-	Hold            bool     `json:"hold"`
+	Advisory         string   `json:"advisory"`
+	ClosingUnchanged bool     `json:"closing_unchanged"`
+	Critiques        []string `json:"critiques"`
+	QuestionPurpose  string   `json:"question_purpose"`
+	MutationPath     string   `json:"mutation_path"`
+	MutationRole     string   `json:"mutation_role"`
+	MutationPurpose  string   `json:"mutation_purpose"`
+	Fail             bool     `json:"fail"`
+	Hold             bool     `json:"hold"`
 }
 
 func TestEngineAgentChild(t *testing.T) {
@@ -111,7 +114,7 @@ func TestEngineAgentChild(t *testing.T) {
 	}
 	reply := "Owned planner reply.\n"
 	if role == "planner" {
-		if os.WriteFile(filepath.Join(cwd, "SPEC.md"), []byte("# SPEC\nChecked "+purpose+" result.\n"), 0600) != nil {
+		if !(purpose == "closing" && plan.ClosingUnchanged) && os.WriteFile(filepath.Join(cwd, "SPEC.md"), []byte("# SPEC\nChecked "+purpose+" result.\n"), 0600) != nil {
 			os.Exit(99)
 		}
 		if plan.QuestionPurpose == purpose {
@@ -122,7 +125,7 @@ func TestEngineAgentChild(t *testing.T) {
 	} else {
 		index := 0
 		for _, line := range strings.Split(string(prior), "\n") {
-			if strings.Contains(line, " critic ") {
+			if strings.Contains(line, " critic ") && !strings.HasSuffix(line, " advisory") {
 				index++
 			}
 		}
@@ -130,12 +133,13 @@ func TestEngineAgentChild(t *testing.T) {
 		if index < len(plan.Critiques) {
 			reply = plan.Critiques[index]
 		}
+		if purpose == "advisory" && plan.Advisory != "" {
+			reply = plan.Advisory
+		}
 	}
 	if provider == "codex" {
-		session := "11111111-2222-4333-8444-555555555555"
-		if role == "critic" {
-			session = "99999999-2222-4333-8444-555555555555"
-		}
+		hexID := contract.HashBytes([]byte(id))
+		session := hexID[:8] + "-" + hexID[8:12] + "-4" + hexID[13:16] + "-8" + hexID[17:20] + "-" + hexID[20:32]
 		if len(args) > 2 && args[1] == "resume" {
 			session = args[2]
 		}
@@ -186,7 +190,8 @@ func newFixture(t *testing.T, planner string, persistent, seed bool, plan AgentP
 			break
 		}
 	}
-	if root == "" {
+	retained := root != ""
+	if !retained {
 		root = t.TempDir()
 	}
 	for _, name := range []string{"ws", "home", "tmp", "config", "state", "data", "cache", "runtime", "tools", "capture"} {
@@ -224,7 +229,9 @@ func newFixture(t *testing.T, planner string, persistent, seed bool, plan AgentP
 	}
 	f.Options = Options{Runner: process.UnixRunner{}, Clock: quickClock{}, Env: []string{"HOME=" + filepath.Join(root, "home"), "TMPDIR=" + filepath.Join(root, "tmp"), "PATH=" + filepath.Join(root, "tools"), "XDG_CONFIG_HOME=" + filepath.Join(root, "config"), "XDG_STATE_HOME=" + filepath.Join(root, "state"), "XDG_DATA_HOME=" + filepath.Join(root, "data"), "XDG_CACHE_HOME=" + filepath.Join(root, "cache"), "XDG_RUNTIME_DIR=" + filepath.Join(root, "runtime"), "F_ENGINE_CAPTURE=" + f.Capture, "F_ENGINE_PLAN=" + f.Plan, "GORACE=atexit_sleep_ms=0"}}
 	f.setPlan(t, plan)
-	t.Cleanup(func() { f.evidence(t) })
+	if retained {
+		t.Cleanup(func() { f.evidence(t) })
+	}
 	t.Log("owned engine evidence", root)
 	return f
 }
@@ -278,27 +285,49 @@ func requireCode(t *testing.T, err error, code string) {
 	}
 	t.Fatalf("wanted %s, got %v", code, err)
 }
+
+var evidenceBinaryHash = sync.OnceValues(func() (string, error) {
+	exe, err := os.Executable()
+	if err != nil {
+		return "", err
+	}
+	b, err := os.ReadFile(exe)
+	return contract.HashBytes(b), err
+})
+
 func (f *fixture) evidence(t *testing.T) {
 	hashes := make(map[string]any)
 	_ = filepath.WalkDir(f.Root, func(path string, d os.DirEntry, err error) error {
-		if err != nil || d.IsDir() {
+		if err != nil {
+			t.Error(err)
+			return nil
+		}
+		if d.IsDir() {
 			return nil
 		}
 		info, e := d.Info()
-		if e != nil || !info.Mode().IsRegular() {
+		if e != nil {
+			t.Error(e)
+			return nil
+		}
+		if !info.Mode().IsRegular() {
 			return nil
 		}
 		b, e := os.ReadFile(path)
 		if e != nil {
+			t.Error(e)
 			return nil
 		}
 		rel, _ := filepath.Rel(f.Root, path)
 		hashes[rel] = map[string]any{"sha256": contract.HashBytes(b), "bytes": len(b)}
 		return nil
 	})
-	exe, _ := os.Executable()
-	binary, _ := os.ReadFile(exe)
-	e := map[string]any{"case": t.Name(), "tier": "A", "fixture": "F-DIRECT/F-FILES", "target_os": runtime.GOOS, "settings": f.Settings, "owned_agent_launches": len(f.calls()), "calls": f.calls(), "artifact_hashes": hashes, "test_binary_sha256": contract.HashBytes(binary), "passed": !t.Failed()}
+	binaryHash, err := evidenceBinaryHash()
+	if err != nil {
+		t.Error(err)
+		return
+	}
+	e := map[string]any{"case": t.Name(), "tier": "A", "fixture": "F-DIRECT/F-FILES", "target_os": runtime.GOOS, "settings": f.Settings, "owned_agent_launches": len(f.calls()), "calls": f.calls(), "artifact_hashes": hashes, "test_binary_sha256": binaryHash, "passed": !t.Failed()}
 	b, err := contract.Canonical(e)
 	if err != nil {
 		t.Error(err)

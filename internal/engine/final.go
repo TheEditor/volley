@@ -3,10 +3,11 @@
 package engine
 
 import (
+	"bytes"
 	"context"
-	"fmt"
 
 	"github.com/TheEditor/volley/internal/contract"
+	"github.com/TheEditor/volley/internal/human"
 	"github.com/TheEditor/volley/internal/store"
 )
 
@@ -24,6 +25,13 @@ func (o *Owner) validateFinal(m store.Snapshot) error {
 	if receipt["role"] != "critic" || receipt["spec_before_hash"] != m["spec_hash"] || completion["kind"] != "completed" || completion["settled"] != true {
 		return failure("STATE_INVALID", "Final critic receipt is not a checked approval", nil)
 	}
+	if err := o.validateHistory(); err != nil {
+		return err
+	}
+	return checkBindings(o.Store, o.State)
+}
+
+func (o *Owner) validateHistory() error {
 	history, err := o.Store.History()
 	if err != nil {
 		return err
@@ -63,7 +71,7 @@ func (o *Owner) validateFinal(m store.Snapshot) error {
 			return e
 		}
 	}
-	return checkBindings(o.Store, o.State)
+	return nil
 }
 
 func (o *Owner) finalize(ctx context.Context, m store.Snapshot) error {
@@ -80,13 +88,28 @@ func (o *Owner) finalize(ctx context.Context, m store.Snapshot) error {
 	if m.String("phase") != "commit_final" {
 		return nil
 	}
+	question, _, err := human.StableRead(ctx, o.Store, "QUESTIONS.md", o.Options.Clock)
+	if err != nil {
+		return err
+	}
+	if len(bytes.TrimSpace(question)) != 0 {
+		if err = o.commitImpasse(); err != nil {
+			return err
+		}
+		return failure("REVIEW_IMPASSE", "An open question blocks final approval", nil)
+	}
+	if scheduled, err := o.scheduleAuxiliary(m); err != nil {
+		return err
+	} else if scheduled {
+		return nil
+	}
 	if err = checkBindings(o.Store, o.State); err != nil {
 		return err
 	}
-	if m.String("spec_hash") != m.String("reviewed_spec_hash") || m.Object("verdict")["value"] != "APPROVE" || o.State.LastReceipt == nil {
+	if m.String("spec_hash") != m.String("reviewed_spec_hash") || m.Object("verdict")["value"] != "APPROVE" || o.ordinaryReceipt() == nil {
 		return failure("STATE_INVALID", "Approval does not review the current spec", nil)
 	}
-	inputBytes, err := contract.Canonical(map[string]any{"bindings": o.State.Bindings, "applications": m["applications"], "prompt_hashes": m["prompt_hashes"], "context": o.State.Settings.ContextDir})
+	inputsHash, err := o.inputBasis(m)
 	if err != nil {
 		return err
 	}
@@ -102,7 +125,7 @@ func (o *Owner) finalize(ctx context.Context, m store.Snapshot) error {
 			changed = true
 			return nil
 		}
-		m["approval"] = map[string]any{"spec_hash": m["spec_hash"], "reviewed_hash": m["reviewed_spec_hash"], "inputs_hash": contract.HashBytes(inputBytes), "receipt_path": o.State.LastReceipt.Path, "basis": "ordinary-critic"}
+		m["approval"] = map[string]any{"spec_hash": m["spec_hash"], "reviewed_hash": m["reviewed_spec_hash"], "inputs_hash": inputsHash, "receipt_path": o.ordinaryReceipt().Path, "basis": "ordinary-critic", "meaning": approvalMeaning}
 		m["status"] = "approved"
 		m["phase"] = "cleanup"
 		return saveState(o.Store, m, o.State, "final", nil, nil)
@@ -135,12 +158,18 @@ func (o *Owner) PendingInputs(ctx context.Context) ([]string, error) {
 			pending = append(pending, entry.ReceiptHash)
 		}
 	}
-	_, obs, err := o.Store.ReadObserved("HUMAN.md", 1<<20)
-	if err != nil {
-		return nil, err
-	}
-	if obs.Kind == "file" && obs.Bytes > 0 {
-		pending = append(pending, fmt.Sprintf("legacy-file:%s", obs.Hash))
+	for _, path := range []string{"HUMAN.md", "QUESTIONS.md"} {
+		b, obs, err := o.Store.ReadObserved(path, 1<<20)
+		if err != nil {
+			return nil, err
+		}
+		if obs.Kind == "file" && len(bytes.TrimSpace(b)) > 0 {
+			prefix := "legacy-file:"
+			if path == "QUESTIONS.md" {
+				prefix = "legacy-question-file:"
+			}
+			pending = append(pending, prefix+obs.Hash)
+		}
 	}
 	return pending, nil
 }

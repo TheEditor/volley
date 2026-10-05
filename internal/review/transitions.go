@@ -13,6 +13,9 @@ const (
 	CritiqueRetry  Phase = "critique_retry"
 	Revise         Phase = "revise"
 	AwaitAnswer    Phase = "await_answer"
+	SecondOpinion  Phase = "second_opinion"
+	Closing        Phase = "closing"
+	ConfirmClosing Phase = "confirm_closing"
 	CommitFinal    Phase = "commit_final"
 	Cleanup        Phase = "cleanup"
 )
@@ -93,14 +96,14 @@ func AfterTurn(s Snapshot, verdict string, questions bool) (Snapshot, error) {
 		next.Phase = Critique
 	case ApplyDirective:
 		next.Phase = Critique
-	case Critique, CritiqueRetry:
+	case Critique, CritiqueRetry, ConfirmClosing:
 		switch verdict {
 		case "APPROVE":
 			next.Phase = CommitFinal
 		case "REVISE":
 			next.Phase = Revise
 		case "MISSING":
-			if s.Phase == Critique {
+			if s.Phase == Critique || s.Phase == ConfirmClosing {
 				next.Phase = CritiqueRetry
 			} else {
 				next.Phase = Revise
@@ -123,6 +126,30 @@ func AfterTurn(s Snapshot, verdict string, questions bool) (Snapshot, error) {
 		}
 	}
 	return next, nil
+}
+
+// AfterAuxiliary never accepts an advisory verdict as ordinary approval.
+func AfterAuxiliary(s Snapshot, changed, questions bool) (Snapshot, error) {
+	n := s
+	n.Status, n.CurrentTurn = Ready, ""
+	switch s.Phase {
+	case SecondOpinion:
+		n.Phase = CommitFinal
+	case Closing:
+		n.Phase = CommitFinal
+		if changed || questions {
+			n.Round++
+			n.Phase = ConfirmClosing
+			if n.Round > n.Cap {
+				n.Status = Impasse
+			} else if questions {
+				n.Status, n.Phase = AwaitingAnswer, AwaitAnswer
+			}
+		}
+	default:
+		return s, fmt.Errorf("Phase has no auxiliary transition")
+	}
+	return n, nil
 }
 
 // Attachment makes the status table explicit. A saved active intent always

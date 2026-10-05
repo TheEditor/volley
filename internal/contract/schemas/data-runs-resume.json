@@ -219,6 +219,9 @@
       "items": {
         "type": "string"
       }
+    },
+    "final_result": {
+      "$ref": "final-result.json"
     }
   },
   "required": [

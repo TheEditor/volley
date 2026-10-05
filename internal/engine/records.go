@@ -29,6 +29,8 @@ type State struct {
 	ActiveApplications []string                         `json:"active_applications"`
 	QuestionPending    bool                             `json:"question_pending"`
 	QuestionObserved   store.FileObservation            `json:"question_observed"`
+	OrdinaryReceipt    *store.ReceiptRef                `json:"ordinary_receipt,omitempty"`
+	Auxiliary          Auxiliary                        `json:"auxiliary"`
 }
 
 func decode(b []byte, target any) error {
@@ -118,7 +120,7 @@ func checkBindings(s *store.Store, state State) error {
 
 func promptSetHash() (string, error) {
 	hashes := make(map[string]string)
-	for _, name := range []string{"planner-init.md", "planner-revise.md", "directive-apply.md", "critic.md", "verdict-reminder.md", "advisory-review.md", "closing-pass.md", "confirm-closing.md", "answer-record.md", "questions-cli.md", "questions-gashki.md", "planner-boundary.md", "critic-boundary.md", "common-review-rule.md", "profiles/security.md", "profiles/data.md", "profiles/decision-memo.md", "profiles/plan-spec.md"} {
+	for _, name := range []string{"planner-init.md", "planner-revise.md", "directive-apply.md", "critic.md", "verdict-reminder.md", "advisory-review.md", "closing-pass.md", "closing-native.md", "confirm-closing.md", "answer-record.md", "questions-cli.md", "questions-gashki.md", "planner-boundary.md", "critic-boundary.md", "common-review-rule.md", "profiles/security.md", "profiles/data.md", "profiles/decision-memo.md", "profiles/plan-spec.md"} {
 		b, err := prompt.Template(name)
 		if err != nil {
 			return "", err

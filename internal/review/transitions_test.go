@@ -67,3 +67,49 @@ func TestALOOPTransitions(t *testing.T) {
 		}
 	}
 }
+
+func TestAFINALTransitions(t *testing.T) {
+	for _, changed := range []bool{false, true} {
+		for _, questions := range []bool{false, true} {
+			s := Snapshot{Status: Running, Phase: Closing, Round: 1, Cap: 2, CurrentTurn: "active"}
+			n, err := AfterAuxiliary(s, changed, questions)
+			if err != nil || n.CurrentTurn != "" {
+				t.Fatal(n, err)
+			}
+			if changed || questions {
+				if n.Round != 2 {
+					t.Fatal(n)
+				}
+				if questions {
+					if n.Status != AwaitingAnswer || n.Phase != AwaitAnswer {
+						t.Fatal(n)
+					}
+				} else if n.Phase != ConfirmClosing {
+					t.Fatal(n)
+				}
+			} else if n.Phase != CommitFinal || n.Round != 1 {
+				t.Fatal(n)
+			}
+		}
+	}
+	n, err := AfterAuxiliary(Snapshot{Status: Running, Phase: SecondOpinion, Round: 1, Cap: 1}, true, true)
+	if err != nil || n.Phase != CommitFinal || n.Round != 1 {
+		t.Fatal(n, err)
+	}
+	for _, v := range []string{"APPROVE", "REVISE", "MISSING"} {
+		n, err = AfterTurn(Snapshot{Status: Running, Phase: ConfirmClosing, Round: 2, Cap: 2}, v, false)
+		if err != nil {
+			t.Fatal(err)
+		}
+		want := CommitFinal
+		if v == "REVISE" {
+			want = Revise
+		}
+		if v == "MISSING" {
+			want = CritiqueRetry
+		}
+		if n.Phase != want {
+			t.Fatal(n)
+		}
+	}
+}

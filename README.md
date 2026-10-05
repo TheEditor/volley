@@ -6,6 +6,10 @@ The planner drafts a spec from your brief; the critic reviews it; the planner
 revises or rebuts; repeat until the critic approves. The loop waits when a
 decision needs the user's answer.
 
+The Go engine is in development. The Bash command remains the default.
+See [the Go review result guide](docs/go-review.md) for exact approval,
+additional reviews, and restoration after rejected closing changes.
+
 ## Usage
 
 1. Write `BRIEF.md` — the human instruction you would give manually. It can

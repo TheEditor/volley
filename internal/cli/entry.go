@@ -182,7 +182,7 @@ func Execute(ctx context.Context, args []string, out, stderr io.Writer, opts Opt
 }
 
 func usage() string {
-	return "volley — specification review\n\nUSAGE: volley [GLOBAL_FLAGS] COMMAND\n\nAvailable: run, runs resume, human answer, human steer, human skip, capabilities, schema, --help, --version.\nThis review slice uses direct agents with auxiliary passes disabled.\nAutomation: volley capabilities --json\n"
+	return "volley — specification review\n\nUSAGE: volley [GLOBAL_FLAGS] COMMAND\n\nAvailable: run, runs resume, human answer, human steer, human skip, capabilities, schema, --help, --version.\nThis review slice uses direct agents.\nAutomation: volley capabilities --json\n"
 }
 
 // Initial handlers expose only the working declaration/asset boundary.

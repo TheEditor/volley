@@ -83,6 +83,16 @@ func (o *Owner) turn(ctx context.Context, m store.Snapshot) error {
 	case review.Critique:
 		role = "critic"
 		purpose = prompt.Critique
+		if o.State.Auxiliary.ConfirmationPending {
+			purpose = prompt.Confirmation
+			m["phase"] = string(review.ConfirmClosing)
+		}
+	case review.ConfirmClosing:
+		role, purpose = "critic", prompt.Confirmation
+	case review.SecondOpinion:
+		role, purpose = "critic", prompt.Advisory
+	case review.Closing:
+		purpose = prompt.Closing
 	case review.CritiqueRetry:
 		role = "critic"
 		purpose = prompt.Reminder
@@ -111,6 +121,9 @@ func (o *Owner) turn(ctx context.Context, m store.Snapshot) error {
 		directives = nil
 		inputs = nil
 	}
+	if purpose == prompt.Advisory {
+		directives, inputs = nil, nil
+	}
 	provider := fmt.Sprint(m.Object("roles")[role])
 	constraints, err := o.Store.ReadText("CONSTRAINTS.md")
 	if err != nil && o.State.Bindings["CONSTRAINTS.md"].Kind != "absent" {
@@ -120,7 +133,11 @@ func (o *Owner) turn(ctx context.Context, m store.Snapshot) error {
 	if purpose == prompt.Reminder {
 		attempt = 2
 	}
-	rendered, err := prompt.Render(prompt.Request{Purpose: purpose, Role: role, Provider: provider, Backend: o.State.Settings.Backend, Round: number(m["round"]), AttemptID: id, PreviousAttemptID: o.State.LastTurn, Constraints: string(constraints), ContextPath: o.State.Settings.ContextDir, Directives: directives, Rubric: o.State.Settings.Rubric})
+	advisoryPath := ""
+	if purpose == prompt.Closing && o.State.Auxiliary.AdvisoryDone {
+		advisoryPath = filepath.Join(o.Store.Path, "rounds/second-opinion.md")
+	}
+	rendered, err := prompt.Render(prompt.Request{Purpose: purpose, Role: role, Provider: provider, Backend: o.State.Settings.Backend, Round: number(m["round"]), AttemptID: id, PreviousAttemptID: o.State.LastTurn, Constraints: string(constraints), ContextPath: o.State.Settings.ContextDir, Directives: directives, Rubric: o.State.Settings.Rubric, SecondOpinionPath: advisoryPath, ApprovedReviewPath: filepath.Join(o.Store.Path, o.State.LastCritique)})
 	if err != nil {
 		return err
 	}
@@ -137,7 +154,7 @@ func (o *Owner) turn(ctx context.Context, m store.Snapshot) error {
 		return err
 	}
 	q := review.TurnRequest{RunID: m.String("run_id"), TurnID: id, Purpose: string(purpose), Role: role, Provider: provider, Round: number(m["round"]), Attempt: attempt, Workspace: o.Store.Path, Prompt: rendered.Text, PromptHash: rendered.RenderedHash, SpecBeforeHash: m.String("spec_hash"), Timeout: timeout}
-	if o.State.Settings.Persistent {
+	if o.State.Settings.Persistent && purpose != prompt.Advisory {
 		session, _ := m.Object("sessions")[role].(map[string]any)
 		q.SessionID, _ = session["observed_id"].(string)
 		if q.SessionID == "" {
@@ -147,6 +164,9 @@ func (o *Owner) turn(ctx context.Context, m store.Snapshot) error {
 	q.ExpectedArtifacts = []string{"SPEC.md"}
 	if role == "critic" {
 		q.ExpectedArtifacts = []string{critiquePath(q)}
+		if purpose == prompt.Advisory {
+			q.ExpectedArtifacts = []string{"rounds/second-opinion.md"}
+		}
 	}
 	p, err := o.Adapter.Prepare(ctx, q)
 	if err != nil {
@@ -164,8 +184,17 @@ func (o *Owner) turn(ctx context.Context, m store.Snapshot) error {
 	m["status"] = "running"
 	m["current_turn"] = map[string]any{"id": id, "purpose": q.Purpose, "role": role, "round": q.Round, "attempt": attempt, "intent_hash": requestHash, "prompt_path": promptPath, "prompt_hash": q.PromptHash, "operation": "intent_committed", "delivery_uncertain": false, "receipt_path": "", "cursor": "", "started_at": time.Now().UTC().Format(time.RFC3339Nano), "budget": timeout.String(), "remaining": timeout.String()}
 	m["prompt_hashes"] = map[string]any{"template": rendered.SourceBundleHash, "rendered": rendered.RenderedHash}
-	if err = saveState(o.Store, m, o.State, "intent", nil, nil); err != nil {
+	artifacts, err := o.prepareAuxiliaryIntent(m, q)
+	if err != nil {
 		return err
+	}
+	if err = saveState(o.Store, m, o.State, "intent", artifacts, nil); err != nil {
+		return err
+	}
+	if purpose == prompt.Closing {
+		if err = o.hook("closing.approved.after"); err != nil {
+			return err
+		}
 	}
 	if err = o.Store.ReadyIntent(m.String("last_transaction_id")); err != nil {
 		return err
@@ -270,7 +299,18 @@ func (o *Owner) finishTurn(ctx context.Context, m store.Snapshot, q review.TurnR
 	}
 	verdict := ""
 	questions := false
-	if q.Role == "critic" {
+	if q.Purpose == "advisory" {
+		b, err := o.Store.ReadText(out.Reply.Path)
+		if err != nil {
+			return err
+		}
+		if err = add("rounds/second-opinion.md", b); err != nil {
+			return err
+		}
+		a := &o.State.Auxiliary
+		a.AdvisoryDone, a.AdvisoryHash, a.AdvisorySpecHash, a.AdvisoryReceipt = true, contract.HashBytes(b), q.SpecBeforeHash, &ref
+		m.Object("auxiliary")["second_opinion"] = "completed"
+	} else if q.Role == "critic" {
 		b, err := o.Store.ReadText(out.Reply.Path)
 		if err != nil {
 			return err
@@ -284,6 +324,17 @@ func (o *Owner) finishTurn(ctx context.Context, m store.Snapshot, q review.TurnR
 			return err
 		}
 		o.State.LastCritique = critiquePath(q)
+		o.State.OrdinaryReceipt = &ref
+		if verdict == "APPROVE" && o.State.Auxiliary.ClosingDone && o.State.Auxiliary.Changed {
+			o.State.Auxiliary.Result = "confirmed"
+		}
+		if a := &o.State.Auxiliary; a.ClosingDone && a.Changed {
+			a.RejectedReviews = append(a.RejectedReviews, RejectedReview{Path: critiquePath(q), Hash: v.Hash, SpecHash: q.SpecBeforeHash, Verdict: v.Value, Round: q.Round, Receipt: ref})
+		}
+		if o.State.Auxiliary.ConfirmationPending && (verdict != "MISSING" || q.Purpose == "reminder") {
+			o.State.Auxiliary.ConfirmationPending = false
+			m.Object("auxiliary")["confirmation"] = verdict
+		}
 		if q.Purpose == "reminder" && verdict == "MISSING" {
 			if err = add(fmt.Sprintf("rounds/r%02d.verdict-missing.md", q.Round), []byte("MISSING: Both critic attempts lack a valid final verdict. Use the actual saved critiques for a conservative revision. This is not a received REVISE or approval.\n")); err != nil {
 				return err
@@ -302,10 +353,26 @@ func (o *Owner) finishTurn(ctx context.Context, m store.Snapshot, q review.TurnR
 		}
 		o.State.Bindings["SPEC.md"] = obs
 		m["spec_hash"] = obs.Hash
+		if a := &o.State.Auxiliary; a.ClosingDone && a.Original != nil && obs.Hash != a.Original.SpecHash {
+			a.Changed = true
+		}
 		if q.Purpose == "draft" || q.Purpose == "revision" {
 			if err = add(fmt.Sprintf("rounds/r%02d.spec.md", q.Round), b); err != nil {
 				return err
 			}
+		}
+		if q.Purpose == "closing" {
+			if err = add("rounds/closing.spec.md", b); err != nil {
+				return err
+			}
+			a := &o.State.Auxiliary
+			a.ClosingDone, a.Changed = true, obs.Hash != q.SpecBeforeHash
+			a.ConfirmationPending = a.Changed
+			a.Result = "unchanged"
+			if a.Changed {
+				a.Result = "confirmation_pending"
+			}
+			m.Object("auxiliary")["closing"] = "completed"
 		}
 		if out.Reply.Kind == "found" {
 			reply, err := o.Store.ReadText(out.Reply.Path)
@@ -316,9 +383,15 @@ func (o *Owner) finishTurn(ctx context.Context, m store.Snapshot, q review.TurnR
 			if q.Purpose == "directive" {
 				target = "rounds/input-" + q.TurnID + ".response.md"
 			}
+			if q.Purpose == "closing" {
+				target = "rounds/closing-response.md"
+			}
 			if err = add(target, reply); err != nil {
 				return err
 			}
+		}
+		if out.Reply.Kind != "found" {
+			o.State.Auxiliary.Warnings = append(o.State.Auxiliary.Warnings, "Planner reply unavailable: "+out.Reply.Reason)
 		}
 		qb, qobs, err := human.StableRead(ctx, o.Store, "QUESTIONS.md", o.Options.Clock)
 		if err != nil {
@@ -326,8 +399,17 @@ func (o *Owner) finishTurn(ctx context.Context, m store.Snapshot, q review.TurnR
 		}
 		questions = len(bytes.TrimSpace(qb)) > 0
 		o.State.QuestionObserved = qobs
+		if q.Purpose == "closing" && questions {
+			o.State.Auxiliary.ConfirmationPending = true
+		}
 	}
-	next, err := review.AfterTurn(pure(m), verdict, questions)
+	var next review.Snapshot
+	var err error
+	if q.Purpose == "advisory" || q.Purpose == "closing" {
+		next, err = review.AfterAuxiliary(pure(m), o.State.Auxiliary.Changed, questions)
+	} else {
+		next, err = review.AfterTurn(pure(m), verdict, questions)
+	}
 	if err != nil {
 		return err
 	}
@@ -344,7 +426,7 @@ func (o *Owner) finishTurn(ctx context.Context, m store.Snapshot, q review.TurnR
 	}
 	o.State.LastTurn = q.TurnID
 	o.State.LastReceipt = &ref
-	if o.State.Settings.Persistent && out.Completion.SessionID != "" {
+	if o.State.Settings.Persistent && out.Completion.SessionID != "" && q.Purpose != "advisory" {
 		session, _ := m.Object("sessions")[q.Role].(map[string]any)
 		session["observed_id"] = out.Completion.SessionID
 	}

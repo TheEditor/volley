@@ -1556,6 +1556,9 @@
         },
         "basis": {
           "type": "string"
+        },
+        "meaning": {
+          "type": "string"
         }
       },
       "required": [

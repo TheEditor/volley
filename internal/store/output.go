@@ -7,9 +7,82 @@ import (
 	"io"
 	"os"
 	"path/filepath"
+	"strings"
 
 	"golang.org/x/sys/unix"
 )
+
+// ReplaceForRestoration moves one private prepared inode to SPEC.md. The
+// caller's committed control intent binds both observations. Recovery accepts
+// only the recorded candidate inode, not merely matching approved bytes.
+func (s *Store) ReplaceForRestoration(candidate, before FileObservation) (FileObservation, error) {
+	if err := s.checkOwner(); err != nil {
+		return FileObservation{}, err
+	}
+	if before.Path != "SPEC.md" || !strings.HasPrefix(candidate.Path, "state/control/restoration-candidate-") || candidate.Kind != "file" || before.Kind != "file" {
+		return FileObservation{}, fail("STATE_INVALID", "SPEC.md", "Invalid restoration observations")
+	}
+	_, current, err := s.ReadObserved("SPEC.md", TextLimit)
+	if err != nil {
+		return FileObservation{}, err
+	}
+	installed := candidate
+	installed.Path = "SPEC.md"
+	if current == installed {
+		if err = s.syncParent(candidate.Path, "restoration.source-dir-fsync"); err != nil {
+			return FileObservation{}, err
+		}
+		if err = s.syncParent("SPEC.md", "restoration.target-dir-fsync"); err != nil {
+			return FileObservation{}, err
+		}
+		return current, nil
+	}
+	if current != before {
+		return FileObservation{}, fail("ARTIFACT_CHANGED", "SPEC.md", "Restoration target changed")
+	}
+	_, staged, err := s.ReadObserved(candidate.Path, TextLimit)
+	if err != nil || staged != candidate {
+		return FileObservation{}, fail("ARTIFACT_CHANGED", candidate.Path, "Restoration candidate changed")
+	}
+	if err = s.site("restoration.replace.before"); err != nil {
+		return FileObservation{}, err
+	}
+	sourceDir, sourceName, err := s.parent(candidate.Path)
+	if err != nil {
+		return FileObservation{}, err
+	}
+	defer sourceDir.Close()
+	targetDir, targetName, err := s.parent("SPEC.md")
+	if err != nil {
+		return FileObservation{}, err
+	}
+	defer targetDir.Close()
+	_, current, err = s.ReadObserved("SPEC.md", TextLimit)
+	if err != nil || current != before {
+		return FileObservation{}, fail("ARTIFACT_CHANGED", "SPEC.md", "Restoration target changed before replacement")
+	}
+	_, staged, err = s.ReadObserved(candidate.Path, TextLimit)
+	if err != nil || staged != candidate {
+		return FileObservation{}, fail("ARTIFACT_CHANGED", candidate.Path, "Restoration candidate changed before replacement")
+	}
+	if err = unix.Renameat(int(sourceDir.Fd()), sourceName, int(targetDir.Fd()), targetName); err != nil {
+		return FileObservation{}, err
+	}
+	if err = s.site("restoration.replace.after"); err != nil {
+		return FileObservation{}, err
+	}
+	if err = s.syncParent(candidate.Path, "restoration.source-dir-fsync"); err != nil {
+		return FileObservation{}, err
+	}
+	if err = s.syncParent("SPEC.md", "restoration.target-dir-fsync"); err != nil {
+		return FileObservation{}, err
+	}
+	_, current, err = s.ReadObserved("SPEC.md", TextLimit)
+	if err != nil || current != installed {
+		return FileObservation{}, fail("ARTIFACT_CHANGED", "SPEC.md", "Restored inode differs")
+	}
+	return current, nil
+}
 
 // RootObservation uses the retained workspace descriptor, not a path lookup.
 func (s *Store) RootObservation() (FileObservation, error) {

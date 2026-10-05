@@ -111,9 +111,6 @@ func Run(ctx context.Context, request Request, options Options) (map[string]any,
 		if settings.Backend != "cli" {
 			return nil, failure("INVALID_CONFIG", "This review slice requires the direct backend", nil)
 		}
-		if settings.ClosingPass || settings.SecondOpinion {
-			return nil, failure("INVALID_CONFIG", "Auxiliary passes are not available in this review slice; set both to false", nil)
-		}
 		if err = o.preflight(); err != nil {
 			return nil, err
 		}
@@ -154,11 +151,17 @@ func Run(ctx context.Context, request Request, options Options) (map[string]any,
 	}
 	data := Data(m)
 	if m.String("status") == "approved" {
+		if err == nil {
+			data["final_result"] = o.auxiliaryData(m)
+		}
+	}
+	if m.String("status") == "approved" || m.String("status") == "impasse" {
 		pending, e := o.PendingInputs(context.WithoutCancel(ctx))
 		if e != nil {
-			return data, e
-		}
-		if len(pending) > 0 {
+			if err == nil {
+				return data, e
+			}
+		} else if len(pending) > 0 {
 			data["pending_inputs"] = pending
 		}
 	}
@@ -378,10 +381,10 @@ func (o *Owner) attach(ctx context.Context, m store.Snapshot) error {
 		return conflict("Prompt set differs from the saved run")
 	}
 	bound := state
-	if len(m.Object("current_turn")) > 0 {
+	if len(m.Object("current_turn")) > 0 || state.Auxiliary.Restoration != nil {
 		bound.Bindings = make(map[string]store.FileObservation)
 		for path, obs := range state.Bindings {
-			if path != "SPEC.md" || m.Object("current_turn")["role"] != "planner" {
+			if path != "SPEC.md" || (m.Object("current_turn")["role"] != "planner" && state.Auxiliary.Restoration == nil) {
 				bound.Bindings[path] = obs
 			}
 		}
@@ -572,6 +575,12 @@ func (o *Owner) drive(ctx context.Context) error {
 			}
 			continue
 		}
+		if o.State.Auxiliary.Restoration != nil {
+			if err = o.finishRestoration(ctx, m); err != nil {
+				return err
+			}
+			continue
+		}
 		if err = o.repairDeliveries(); err != nil {
 			return err
 		}
@@ -610,6 +619,11 @@ func (o *Owner) drive(ctx context.Context) error {
 		case "saved-result":
 			return o.validateFinal(m)
 		case "impasse":
+			if restored, e := o.tryRestoration(ctx, m); e != nil {
+				return e
+			} else if restored {
+				continue
+			}
 			return failure("REVIEW_IMPASSE", "No reviewed approval within the round cap", nil)
 		case "fresh-workspace":
 			return failure("CONFIG_CONFLICT", "Stopped run requires a fresh workspace", nil)

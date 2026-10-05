@@ -41,6 +41,7 @@ type Request struct {
 	Rubric                       string
 	SecondOpinionPath            string
 	CriticOutputPath             string
+	ApprovedReviewPath           string
 }
 type Rendered struct {
 	Text             []byte
@@ -110,7 +111,7 @@ func purposeTemplate(p Purpose) (string, string, error) {
 	case ApplyDirective:
 		return "directive-apply.md", "planner", nil
 	case Closing:
-		return "closing-pass.md", "planner", nil
+		return "closing-native.md", "planner", nil
 	case AnswerRecord:
 		return "answer-record.md", "planner", nil
 	case Critique:
@@ -214,6 +215,16 @@ func Render(q Request) (Rendered, error) {
 	}
 	var out bytes.Buffer
 	out.Write(text)
+	if q.Purpose == Closing {
+		path := q.ApprovedReviewPath
+		if path == "" {
+			path = fmt.Sprintf("rounds/r%02d.critique.md", q.Round)
+		}
+		if !utf8.ValidString(path) || strings.ContainsRune(path, 0) {
+			return result, fmt.Errorf("Invalid approved review path")
+		}
+		out.WriteString("\n\nRead the accepted ordinary review at " + strconv.Quote(path) + ".")
+	}
 	// The short baseline draft and closing templates have no HUMAN marker.
 	if !bytes.Contains(base, []byte("{{HUMAN}}")) {
 		out.WriteString(human)
