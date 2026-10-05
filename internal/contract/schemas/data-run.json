@@ -213,6 +213,12 @@
           "type": "null"
         }
       ]
+    },
+    "pending_inputs": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
     }
   },
   "required": [

@@ -78,7 +78,7 @@ func replyFixture(t *testing.T, provider string) (TranscriptRequest, *replyFakeC
 	q := TranscriptRequest{Provider: provider, Root: root, Workspace: workspace, SessionID: replySession, PromptPath: prompt, CheckedCompletion: true, CompletedAt: time.Unix(100, 0)}
 	dir := filepath.Join(root, "sessions", "2026", "10", "04")
 	if provider == "claude" {
-		dir = filepath.Join(root, "projects", projectEscape.ReplaceAllString(workspace, "-"))
+		dir = filepath.Join(root, "projects", escapedProject(workspace))
 	}
 	if err := os.MkdirAll(dir, 0700); err != nil {
 		t.Fatal(err)

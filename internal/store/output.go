@@ -11,6 +11,14 @@ import (
 	"golang.org/x/sys/unix"
 )
 
+// RootObservation uses the retained workspace descriptor, not a path lookup.
+func (s *Store) RootObservation() (FileObservation, error) {
+	if err := s.CheckIdentity(); err != nil {
+		return FileObservation{}, err
+	}
+	return observationOf(s.Path, nil, s.identity), nil
+}
+
 func (s *Store) PrepareTurn(id string) error {
 	if !validID(id) {
 		return fail("INVALID_INPUT", id, "Invalid turn identity")
@@ -57,6 +65,27 @@ func (s *Store) FinishOutput(path string, f *os.File) error {
 		return err
 	}
 	return s.syncParent(path, "output.dir-fsync")
+}
+
+// CheckOutput binds a controller stream to the opened sink and its incremental
+// writer hash. A replaced path or an outside write cannot become that stream.
+func (s *Store) CheckOutput(path string, f *os.File, expectedHash string) (FileObservation, error) {
+	info, err := f.Stat()
+	if err != nil {
+		return FileObservation{}, err
+	}
+	current, err := s.lstat(path)
+	if err != nil || !os.SameFile(info, current) {
+		return FileObservation{}, fail("ARTIFACT_CHANGED", path, "Owned output inode changed")
+	}
+	_, obs, err := s.ReadRaw(path)
+	if err != nil {
+		return obs, err
+	}
+	if obs.Hash != expectedHash || obs.Bytes != info.Size() {
+		return obs, fail("ARTIFACT_CHANGED", path, "Owned output differs from the controller stream")
+	}
+	return obs, nil
 }
 
 // ReadText uses the same descriptor-relative, bounded, regular UTF-8 reader

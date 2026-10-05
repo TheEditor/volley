@@ -436,12 +436,38 @@ func TestADIRECT02InterruptionsAndProtocol(t *testing.T) {
 		t.Run("interrupt/"+variant, func(t *testing.T) {
 			f := newDirectFixture(t, "codex", "planner", true, false)
 			f.variant(variant)
-			f.Request.Timeout = 250 * time.Millisecond
+			f.Request.Timeout = 0
 			p, err := f.Adapter.Prepare(context.Background(), f.Request)
 			if err != nil {
 				t.Fatal(err)
 			}
-			out, err := f.Adapter.Perform(context.Background(), p)
+			ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
+			defer cancel()
+			type result struct {
+				out review.TurnOutcome
+				err error
+			}
+			completed := make(chan result, 1)
+			go func() { out, err := f.Adapter.Perform(ctx, p); completed <- result{out, err} }()
+			ready := false
+			for ctx.Err() == nil {
+				if variant == "hold-before-event" {
+					ready = f.calls() == 1
+				} else {
+					_, e := f.Options.Store.ReadText("state/turns/" + f.Request.TurnID + "/session-created.json")
+					ready = e == nil
+				}
+				if ready {
+					break
+				}
+				time.Sleep(10 * time.Millisecond)
+			}
+			cancel()
+			r := <-completed
+			out, err := r.out, r.err
+			if !ready {
+				t.Fatal("Owned interruption boundary was not reached", err)
+			}
 			if err == nil || out.Kind == review.Completed {
 				t.Fatal("Interrupted turn completed", err)
 			}

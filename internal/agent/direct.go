@@ -6,10 +6,12 @@ import (
 	"bytes"
 	"context"
 	"crypto/rand"
+	"crypto/sha256"
 	"encoding/hex"
 	"encoding/json"
 	"errors"
 	"fmt"
+	stdhash "hash"
 	"io"
 	"os"
 	"path/filepath"
@@ -42,6 +44,7 @@ type DirectOptions struct {
 	AdditionalPermissionSources []string
 	Register                    func(PrimitiveRegistration) error
 	OnIdentity                  func(context.Context, string, string) error
+	OnWrite                     func(string, store.FileObservation) error
 }
 type Direct struct {
 	options     DirectOptions
@@ -158,7 +161,35 @@ func (d *Direct) save(path string, value any) error {
 		return err
 	}
 	_, err = d.options.Store.StagePrivateText(path, b)
-	return err
+	if err != nil {
+		return err
+	}
+	return d.authorize(path, contract.HashBytes(b))
+}
+
+func (d *Direct) authorize(path, hash string) error {
+	if d.options.OnWrite == nil {
+		return nil
+	}
+	_, obs, err := d.options.Store.ReadRaw(path)
+	if err != nil {
+		return err
+	}
+	if obs.Hash != hash {
+		return safeError("ARTIFACT_CHANGED", "Controller output bytes differ", map[string]any{"path": path})
+	}
+	return d.options.OnWrite(path, obs)
+}
+
+type hashSink struct {
+	sink io.Writer
+	hash stdhash.Hash
+}
+
+func (s *hashSink) Write(b []byte) (int, error) {
+	n, err := s.sink.Write(b)
+	_, _ = s.hash.Write(b[:n])
+	return n, err
 }
 func (d *Direct) session(q review.TurnRequest, id string) sessionRecord {
 	o := d.options
@@ -411,8 +442,10 @@ func (d *Direct) Perform(ctx context.Context, p review.PreparedTurn) (review.Tur
 		stdout.Close()
 		return out, err
 	}
-	writer := &codexWriter{sink: stdout, session: p.IntendedIdentity, onIdentity: func(id string) error { return d.saveIdentity(ctx, q, id) }}
-	var stdoutWriter io.Writer = &limitedWriter{sink: stdout}
+	outSink := &hashSink{stdout, sha256.New()}
+	errSink := &hashSink{stderr, sha256.New()}
+	writer := &codexWriter{sink: outSink, session: p.IntendedIdentity, onIdentity: func(id string) error { return d.saveIdentity(ctx, q, id) }}
+	var stdoutWriter io.Writer = &limitedWriter{sink: outSink}
 	if q.Provider == "codex" {
 		stdoutWriter = writer
 	}
@@ -428,9 +461,22 @@ func (d *Direct) Perform(ctx context.Context, p review.PreparedTurn) (review.Tur
 			}
 		}
 		var runErr error
-		result, runErr = d.options.Runner.Run(ctx, process.Request{Path: p.Argv[0], Args: p.Argv[1:], Cwd: q.Workspace, Env: env, Timeout: q.Timeout, ElapsedBefore: q.ElapsedBefore + time.Since(began), Stdout: stdoutWriter, Stderr: &limitedWriter{sink: stderr}, OnStart: func(id process.Identity) error { return d.save(dir+"/process-start.json", id) }})
+		result, runErr = d.options.Runner.Run(ctx, process.Request{Path: p.Argv[0], Args: p.Argv[1:], Cwd: q.Workspace, Env: env, Timeout: q.Timeout, ElapsedBefore: q.ElapsedBefore + time.Since(began), Stdout: stdoutWriter, Stderr: &limitedWriter{sink: errSink}, OnStart: func(id process.Identity) error { return d.save(dir+"/process-start.json", id) }})
 		return runErr
 	})
+	for _, sink := range []struct {
+		path string
+		file *os.File
+		hash stdhash.Hash
+	}{{dir + "/stdout.pending", stdout, outSink.hash}, {dir + "/stderr.pending", stderr, errSink.hash}} {
+		obs, checkErr := d.options.Store.CheckOutput(sink.path, sink.file, hex.EncodeToString(sink.hash.Sum(nil)))
+		if checkErr == nil && d.options.OnWrite != nil {
+			checkErr = d.options.OnWrite(sink.path, obs)
+		}
+		if err == nil {
+			err = checkErr
+		}
+	}
 	finishOut := d.options.Store.FinishOutput(dir+"/stdout.pending", stdout)
 	finishErr := d.options.Store.FinishOutput(dir+"/stderr.pending", stderr)
 	if err == nil {
@@ -555,7 +601,10 @@ func (d *Direct) Perform(ctx context.Context, p review.PreparedTurn) (review.Tur
 }
 func (d *Direct) saveText(path string, b []byte) error {
 	_, err := d.options.Store.StagePrivateText(path, b)
-	return err
+	if err != nil {
+		return err
+	}
+	return d.authorize(path, contract.HashBytes(b))
 }
 
 // Execute uses the engine's guard. The adapter does not implement a second

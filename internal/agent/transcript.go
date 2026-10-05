@@ -113,7 +113,9 @@ func baseCapture(q TranscriptRequest) ReplyCapture {
 	return ReplyCapture{Reply: review.Reply{Kind: "missing", Reason: "prompt_not_found", Root: q.Root, PromptPath: q.PromptPath}}
 }
 
-var projectEscape = regexp.MustCompile(`[^A-Za-z0-9]`)
+func escapedProject(path string) string {
+	return regexp.MustCompile(`[^A-Za-z0-9]`).ReplaceAllString(path, "-")
+}
 
 func discoverTranscript(ctx context.Context, q TranscriptRequest, expired func() bool) ReplyCapture {
 	result := baseCapture(q)
@@ -141,7 +143,7 @@ func discoverTranscript(ctx context.Context, q TranscriptRequest, expired func()
 	}
 	start := "sessions"
 	if q.Provider == "claude" {
-		start = filepath.Join("projects", projectEscape.ReplaceAllString(q.Workspace, "-"))
+		start = filepath.Join("projects", escapedProject(q.Workspace))
 	}
 	var files []string
 	var walk func(string, int) error

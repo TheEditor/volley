@@ -17,15 +17,19 @@ import (
 	"time"
 
 	"github.com/TheEditor/volley/internal/contract"
+	"github.com/TheEditor/volley/internal/engine"
 )
 
 type Options struct {
 	Now       func() time.Time
 	RequestID func() (string, error)
 	// Hooks are explicit unit seams. No release environment variable enables them.
-	Entry   func()
-	Stage   func(string)
-	Command func(context.Context, []string, *contract.Registry) (any, error)
+	Entry      func()
+	Stage      func(string)
+	Command    func(context.Context, []string, *contract.Registry) (any, error)
+	Input      io.Reader
+	Terminal   *bool
+	RunOptions *engine.Options
 }
 
 // MachineMode is the complete infallible bootstrap: lexical mode selection,
@@ -119,6 +123,8 @@ func Execute(ctx context.Context, args []string, out, stderr io.Writer, opts Opt
 	if opts.Entry != nil {
 		opts.Entry()
 	}
+	ctx, stopSignals := controllerContext(ctx)
+	defer stopSignals()
 	var err error
 	reg, err = contract.Load()
 	if err != nil {
@@ -155,7 +161,9 @@ func Execute(ctx context.Context, args []string, out, stderr io.Writer, opts Opt
 		}
 		command := opts.Command
 		if command == nil {
-			command = initialCommand
+			command = func(ctx context.Context, args []string, r *contract.Registry) (any, error) {
+				return dispatch(ctx, args, r, opts)
+			}
 		}
 		result.Data, err = command(ctx, args, reg)
 	}
@@ -174,7 +182,7 @@ func Execute(ctx context.Context, args []string, out, stderr io.Writer, opts Opt
 }
 
 func usage() string {
-	return "volley — specification review\n\nUSAGE: volley [GLOBAL_FLAGS] COMMAND\n\nThe Go implementation is under construction.\nAvailable: capabilities, schema, --help, --version.\nAutomation: volley capabilities --json\n"
+	return "volley — specification review\n\nUSAGE: volley [GLOBAL_FLAGS] COMMAND\n\nAvailable: run, runs resume, human answer, human steer, human skip, capabilities, schema, --help, --version.\nThis review slice uses direct agents with auxiliary passes disabled.\nAutomation: volley capabilities --json\n"
 }
 
 // Initial handlers expose only the working declaration/asset boundary.
@@ -220,7 +228,7 @@ func initialCommand(_ context.Context, args []string, r *contract.Registry) (any
 		}
 		commands := v["commands"].(map[string]any)
 		for name := range commands {
-			if name != "capabilities" && name != "schema" {
+			if name != "capabilities" && name != "schema" && name != "run" && name != "runs resume" && name != "human answer" && name != "human steer" && name != "human skip" {
 				delete(commands, name)
 			}
 		}

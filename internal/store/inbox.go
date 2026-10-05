@@ -116,6 +116,31 @@ func (s *Store) inboxLocked(ctx context.Context, wait time.Duration) (*os.File, 
 }
 
 // ReadInbox holds the short lock. Pending receipts never appear as submissions.
+// InboxBoundary serializes the final checkpoint with command submissions. The
+// callback must not acquire the inbox lock again and must stay short.
+func (s *Store) InboxBoundary(ctx context.Context, commit func(Inbox) error) error {
+	lock, err := s.inboxLocked(ctx, time.Second)
+	if err != nil {
+		return err
+	}
+	defer lock.Close()
+	m, _, err := s.LoadSnapshot()
+	if err != nil {
+		return err
+	}
+	inbox, err := s.readInbox(m.String("run_id"))
+	if err != nil {
+		return err
+	}
+	if err = s.normalizeInbox(inbox); err != nil {
+		return err
+	}
+	if err = commit(inbox); err != nil {
+		return err
+	}
+	return s.checkLock("state/inputs/inbox.lock", lock)
+}
+
 func (s *Store) ReadInbox(ctx context.Context, runID string, wait time.Duration) (Inbox, error) {
 	lock, err := s.inboxLocked(ctx, wait)
 	if err != nil {

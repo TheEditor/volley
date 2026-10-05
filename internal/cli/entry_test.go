@@ -60,7 +60,7 @@ func TestAARCH01HandlerFaults(t *testing.T) {
 		})
 	}
 }
-func TestInitialCapabilitiesOnlyWorkingHandlers(t *testing.T) {
+func TestCapabilitiesOnlyWorkingHandlers(t *testing.T) {
 	var out, stderr bytes.Buffer
 	if Execute(context.Background(), []string{"capabilities", "--json"}, &out, &stderr, fixed()) != 0 {
 		t.Fatal(stderr.String())
@@ -73,7 +73,7 @@ func TestInitialCapabilitiesOnlyWorkingHandlers(t *testing.T) {
 	if err := json.Unmarshal(out.Bytes(), &result); err != nil {
 		t.Fatal(err)
 	}
-	if len(result.Data.Commands) != 2 || result.Data.Commands["run"] != nil {
+	if len(result.Data.Commands) != 7 || result.Data.Commands["run"] == nil || result.Data.Commands["runs stop"] != nil {
 		t.Fatal("unimplemented handler advertised")
 	}
 }
