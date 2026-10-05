@@ -20,7 +20,7 @@ func inputFixture(t *testing.T, s *Store, key string) InputReceipt {
 		t.Fatal(err)
 	}
 	generation, _ := NewID()
-	return InputReceipt{1, m.String("run_id"), "answer", key, &generation, "Exact answer\n", "2026-10-04T00:00:00Z"}
+	return InputReceipt{RecordVersion: 1, RunID: m.String("run_id"), Kind: "answer", Key: key, GenerationID: &generation, Text: "Exact answer\n", CreatedAt: "2026-10-04T00:00:00Z"}
 }
 func TestASTATE04Inbox(t *testing.T) {
 	prep := func(t *testing.T, s *Store) func() error {

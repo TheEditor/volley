@@ -3,9 +3,11 @@
 package store
 
 import (
+	"bytes"
 	"context"
 	"fmt"
 	"os"
+	"reflect"
 	"strings"
 	"time"
 	"unicode/utf8"
@@ -15,13 +17,17 @@ import (
 )
 
 type InputReceipt struct {
-	RecordVersion int     `json:"record_version"`
-	RunID         string  `json:"run_id"`
-	Kind          string  `json:"kind"`
-	Key           string  `json:"key"`
-	GenerationID  *string `json:"generation_id"`
-	Text          string  `json:"text"`
-	CreatedAt     string  `json:"created_at"`
+	RecordVersion  int              `json:"record_version"`
+	RunID          string           `json:"run_id"`
+	Kind           string           `json:"kind"`
+	Key            string           `json:"key"`
+	GenerationID   *string          `json:"generation_id"`
+	Text           string           `json:"text"`
+	CreatedAt      string           `json:"created_at"`
+	Channel        string           `json:"channel,omitempty"`
+	Source         *FileObservation `json:"source,omitempty"`
+	Withdrawn      bool             `json:"withdrawn,omitempty"`
+	PriorDirective string           `json:"prior_directive,omitempty"`
 }
 type InboxEntry struct {
 	RecordVersion int     `json:"record_version"`
@@ -46,6 +52,9 @@ func inputPath(kind, key string) string {
 }
 func generationEqual(a, b *string) bool {
 	return a == nil && b == nil || a != nil && b != nil && *a == *b
+}
+func sameInput(a, b InputReceipt) bool {
+	return a.RunID == b.RunID && a.Kind == b.Kind && a.Key == b.Key && a.Text == b.Text && generationEqual(a.GenerationID, b.GenerationID) && a.Channel == b.Channel && a.Withdrawn == b.Withdrawn && a.PriorDirective == b.PriorDirective && reflect.DeepEqual(a.Source, b.Source)
 }
 func (s *Store) checkLock(path string, f *os.File) error {
 	observed, err := s.lstat(path)
@@ -120,6 +129,15 @@ func (s *Store) ReadInbox(ctx context.Context, runID string, wait time.Duration)
 	return inbox, s.checkLock("state/inputs/inbox.lock", lock)
 }
 func (s *Store) SubmitInput(ctx context.Context, receipt InputReceipt, wait time.Duration) (InboxEntry, error) {
+	return s.submitInput(ctx, receipt, wait, false)
+}
+
+// SubmitCurrentInput checks question identity under the same short inbox lock
+// that commits the submission. It does not require controller ownership.
+func (s *Store) SubmitCurrentInput(ctx context.Context, receipt InputReceipt, wait time.Duration) (InboxEntry, error) {
+	return s.submitInput(ctx, receipt, wait, true)
+}
+func (s *Store) submitInput(ctx context.Context, receipt InputReceipt, wait time.Duration, checked bool) (InboxEntry, error) {
 	var zero InboxEntry
 	if !validID(receipt.RunID) || receipt.Key == "" || len(receipt.Key) > 1024 || !utf8.ValidString(receipt.Key) || !utf8.ValidString(receipt.Text) || len(receipt.Text) > TextLimit {
 		return zero, fail("INVALID_INPUT", "", "Invalid input identity, key or text")
@@ -150,6 +168,12 @@ func (s *Store) SubmitInput(ctx context.Context, receipt InputReceipt, wait time
 	if m.String("run_id") != receipt.RunID {
 		return zero, fail("STATE_INVALID", "state/inputs", "Input run identity differs")
 	}
+	if checked && receipt.Kind == "answer" {
+		question := m.Object("question")
+		if receipt.GenerationID == nil || question["id"] != *receipt.GenerationID {
+			return zero, fail("ANSWER_CONFLICT", "state/inputs", "Question generation is no longer current")
+		}
+	}
 	inbox, err := s.readInbox(receipt.RunID)
 	if err != nil {
 		return zero, err
@@ -160,7 +184,7 @@ func (s *Store) SubmitInput(ctx context.Context, receipt InputReceipt, wait time
 		if err := decodeRecord("input-receipt", b, &prior); err != nil {
 			return zero, err
 		}
-		if prior.RunID != receipt.RunID || prior.Kind != receipt.Kind || prior.Key != receipt.Key || prior.Text != receipt.Text || !generationEqual(prior.GenerationID, receipt.GenerationID) {
+		if !sameInput(prior, receipt) {
 			return zero, fail("IDEMPOTENCY_CONFLICT", path, "Input key has different content")
 		}
 		// The first created-at value is retained for an identical retry.
@@ -168,6 +192,36 @@ func (s *Store) SubmitInput(ctx context.Context, receipt InputReceipt, wait time
 		encoded = b
 	} else if !os.IsNotExist(err) {
 		return zero, err
+	} else {
+		// A crash can leave the fully written receipt before publication. Its
+		// first timestamp is part of the retained record, not a new retry time.
+		names, err := s.names("state/inputs")
+		if err != nil {
+			return zero, err
+		}
+		var pendingBytes []byte
+		for _, name := range names {
+			if !strings.HasPrefix(name, strings.TrimPrefix(path, "state/inputs/")+".pending-") {
+				continue
+			}
+			b, _, err := s.read("state/inputs/"+name, RecordLimit)
+			if err != nil {
+				return zero, err
+			}
+			var pending InputReceipt
+			if err := decodeRecord("input-receipt", b, &pending); err != nil {
+				return zero, err
+			}
+			if !sameInput(pending, receipt) {
+				return zero, fail("IDEMPOTENCY_CONFLICT", path, "Interrupted input has different content")
+			}
+			if pendingBytes != nil && !bytes.Equal(pendingBytes, b) {
+				return zero, fail("STATE_INVALID", path, "Interrupted input records disagree")
+			}
+			receipt = pending
+			encoded = b
+			pendingBytes = b
+		}
 	}
 	if err := s.immutable(path, encoded, 0600, "input-receipt"); err != nil {
 		return zero, err

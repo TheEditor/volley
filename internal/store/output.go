@@ -66,6 +66,87 @@ func (s *Store) ReadText(path string) ([]byte, error) {
 	return b, err
 }
 
+// ReadObserved returns one bounded descriptor read with its kernel identity.
+// An absent file is an explicit observation. The caller supplies a second
+// equal read after its declared poll interval before consuming external input.
+func (s *Store) ReadObserved(path string, limit int) ([]byte, FileObservation, error) {
+	if limit < 1 || limit > TextLimit {
+		return nil, FileObservation{}, fail("INVALID_INPUT", path, "Invalid read limit")
+	}
+	b, info, err := s.read(path, limit)
+	if os.IsNotExist(err) {
+		return nil, FileObservation{Path: path, Kind: "absent"}, nil
+	}
+	if err != nil {
+		return nil, FileObservation{}, err
+	}
+	current, err := s.lstat(path)
+	if err != nil || !os.SameFile(info, current) {
+		return nil, FileObservation{}, fail("ARTIFACT_CHANGED", path, "File identity changed during read")
+	}
+	return b, observationOf(path, b, info), nil
+}
+
+// RemoveObserved runs only after the archive checkpoint commits. It preserves
+// changed or replaced input and keeps removed inodes in private quarantine.
+// Exact concurrent submissions use the inbox command path.
+func (s *Store) RemoveObserved(expected FileObservation) (bool, error) {
+	if expected.Path != "HUMAN.md" && expected.Path != "QUESTIONS.md" {
+		return false, fail("STATE_INVALID", expected.Path, "Only legacy input sources can be removed")
+	}
+	if err := s.checkOwner(); err != nil {
+		return false, err
+	}
+	if err := s.site("input-source.remove.before"); err != nil {
+		return false, err
+	}
+	_, observed, err := s.ReadObserved(expected.Path, 1<<20)
+	if err != nil {
+		return false, err
+	}
+	if observed.Kind == "absent" {
+		return false, nil
+	}
+	if observed != expected {
+		return false, nil
+	}
+	// Keep the removed inode in an owned quarantine. A writer with an open
+	// descriptor can still append; those bytes must not be lost by unlink.
+	id, err := NewID()
+	if err != nil {
+		return false, err
+	}
+	retained := "state/human/removed-source-" + id + ".md"
+	if err := s.mkdir("state/human", 0700); err != nil {
+		return false, err
+	}
+	if err := s.rename(expected.Path, retained, "input-source.removal-rename"); err != nil {
+		return false, err
+	}
+	_, moved, readErr := s.ReadObserved(retained, 1<<20)
+	moved.Path = expected.Path
+	if readErr != nil || moved != expected {
+		// A path replacement between observation and rename is restored only
+		// if no newer source exists. Both inodes remain when restoration loses.
+		if err := s.link(retained, expected.Path, "input-source.restore"); err != nil && !os.IsExist(err) {
+			return false, err
+		}
+		_ = s.syncParent(expected.Path, "input-source.restore-dir-fsync")
+		_ = s.syncParent(retained, "input-source.retained-dir-fsync")
+		return false, fail("ANSWER_CONFLICT", retained, "Changed source remains pending and retained")
+	}
+	if err := s.site("input-source.remove.after"); err != nil {
+		return false, err
+	}
+	if err := s.syncParent(expected.Path, "input-source.remove-dir-fsync"); err != nil {
+		return true, err
+	}
+	if err := s.syncParent(retained, "input-source.retained-dir-fsync"); err != nil {
+		return true, err
+	}
+	return true, nil
+}
+
 // ReadRaw retains invalid protocol bytes as evidence, without interpreting
 // them as a state record or an acceptable text artifact.
 func (s *Store) ReadRaw(path string) ([]byte, FileObservation, error) {

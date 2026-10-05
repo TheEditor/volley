@@ -267,6 +267,12 @@
         "upstream_code",
         "upstream_exit"
       ]
+    },
+    "input_receipt_ids": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
     }
   },
   "required": [

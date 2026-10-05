@@ -335,7 +335,7 @@ func (s *Store) mkdir(path string, mode uint32) error {
 	return nil
 }
 func (s *Store) Prepare() error {
-	for _, path := range []string{"state", "state/control", "state/transactions", "state/turns", "state/prompts", "state/inputs", "state/logs", "rounds"} {
+	for _, path := range []string{"state", "state/control", "state/transactions", "state/turns", "state/prompts", "state/inputs", "state/human", "state/human/archive", "state/logs", "rounds"} {
 		mode := uint32(0700)
 		if path == "rounds" {
 			mode = 0777

@@ -278,7 +278,7 @@ func (s *Store) Compare(ctx context.Context, expected Inventory, changes []Autho
 	}
 	if expected.AnswerTurn {
 		b, _, err := s.read("HUMAN.md", TextLimit)
-		if err != nil || !bytes.HasPrefix(b, expected.HumanBefore) {
+		if err != nil && (!os.IsNotExist(err) || len(expected.HumanBefore) > 0) || err == nil && !bytes.HasPrefix(b, expected.HumanBefore) {
 			changed = append(changed, "HUMAN.md")
 		}
 	}

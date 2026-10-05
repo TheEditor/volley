@@ -31,6 +31,47 @@
     },
     "created_at": {
       "type": "string"
+    },
+    "channel": {
+      "type": "string"
+    },
+    "withdrawn": {
+      "type": "boolean"
+    },
+    "prior_directive": {
+      "type": "string"
+    },
+    "source": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "path": {
+          "type": "string"
+        },
+        "hash": {
+          "type": "string"
+        },
+        "kind": {
+          "type": "string"
+        },
+        "device": {
+          "type": "integer"
+        },
+        "inode": {
+          "type": "integer"
+        },
+        "bytes": {
+          "type": "integer"
+        }
+      },
+      "required": [
+        "path",
+        "hash",
+        "kind",
+        "device",
+        "inode",
+        "bytes"
+      ]
     }
   },
   "required": [
