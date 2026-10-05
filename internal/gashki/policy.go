@@ -153,7 +153,10 @@ func NativeError(d Decision, evidence map[string]any) error {
 		return e
 	}
 	err := r.Error(d.Code, d.Reason)
-	err.Evidence = evidence
+	if evidence != nil {
+		err.Evidence = evidence
+	}
+	err.Evidence["reason"] = d.Reason
 	return err
 }
 

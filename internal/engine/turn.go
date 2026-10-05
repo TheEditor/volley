@@ -72,6 +72,9 @@ func (o *Owner) directives(m store.Snapshot, role string) ([]prompt.Directive, [
 }
 
 func (o *Owner) turn(ctx context.Context, m store.Snapshot) error {
+	if err := checkContextBinding(o.State.Settings.ContextDir, o.State.Context); err != nil {
+		return err
+	}
 	phase := review.Phase(m.String("phase"))
 	role, purpose := "planner", prompt.Draft
 	switch phase {
@@ -295,6 +298,18 @@ func (o *Owner) receipt(q review.TurnRequest, out review.TurnOutcome, inputs []s
 }
 
 func (o *Owner) finishTurn(ctx context.Context, m store.Snapshot, q review.TurnRequest, out review.TurnOutcome, ref store.ReceiptRef) error {
+	for _, code := range out.Warnings {
+		exists := false
+		for _, saved := range o.State.Warnings {
+			if saved.Code == code {
+				exists = true
+				break
+			}
+		}
+		if !exists {
+			o.State.Warnings = append(o.State.Warnings, contract.Warning{Code: code, Message: code, Evidence: map[string]any{"turn_id": q.TurnID, "path": ref.Path, "reason": "Checked turn evidence records this limit"}})
+		}
+	}
 	if err := oCheckReply(o.Store, out.Reply); err != nil {
 		return err
 	}

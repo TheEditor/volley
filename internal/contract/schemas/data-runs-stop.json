@@ -242,6 +242,12 @@
         "sha256",
         "applied"
       ]
+    },
+    "warning_records": {
+      "type": "array",
+      "items": {
+        "$ref": "warning.json"
+      }
     }
   },
   "required": [

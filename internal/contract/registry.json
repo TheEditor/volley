@@ -4572,6 +4572,11 @@
       "name": "VOLLEY_CODEX_EFFORT",
       "purpose": "retired setting warning only; never a setting source",
       "scope": "doctor"
+    },
+    {
+      "name": "VISUAL",
+      "purpose": "preferred argument-vector editor",
+      "scope": "config edit"
     }
   ],
   "retired_setting_variables": [
@@ -4612,14 +4617,14 @@
         "errors"
       ],
       "evidence_fields": [
+        "actor",
+        "artifact_paths",
+        "expected",
+        "observed",
         "path",
         "run_id",
         "turn_id",
-        "actor",
-        "expected",
-        "observed",
-        "upstream",
-        "artifact_paths"
+        "upstream"
       ],
       "fixture": "A-CONTRACT-R01",
       "precondition": "Bad planner enum or --json=false.",
@@ -4638,14 +4643,14 @@
         "errors"
       ],
       "evidence_fields": [
+        "actor",
+        "artifact_paths",
+        "expected",
+        "observed",
         "path",
         "run_id",
         "turn_id",
-        "actor",
-        "expected",
-        "observed",
-        "upstream",
-        "artifact_paths"
+        "upstream"
       ],
       "fixture": "A-CONTRACT-R02",
       "precondition": "--unknown on a declared command.",
@@ -4664,14 +4669,14 @@
         "errors"
       ],
       "evidence_fields": [
+        "actor",
+        "artifact_paths",
+        "expected",
+        "observed",
         "path",
         "run_id",
         "turn_id",
-        "actor",
-        "expected",
-        "observed",
-        "upstream",
-        "artifact_paths"
+        "upstream"
       ],
       "fixture": "A-CONTRACT-R03",
       "precondition": "Unknown runs subcommand; absent distance-1 top-level path.",
@@ -4691,14 +4696,14 @@
         "errors"
       ],
       "evidence_fields": [
+        "actor",
+        "artifact_paths",
+        "expected",
+        "observed",
         "path",
         "run_id",
         "turn_id",
-        "actor",
-        "expected",
-        "observed",
-        "upstream",
-        "artifact_paths"
+        "upstream"
       ],
       "fixture": "A-CONTRACT-R04",
       "precondition": "Missing selector/value; fresh run with neither brief nor non-empty spec.",
@@ -4717,14 +4722,14 @@
         "errors"
       ],
       "evidence_fields": [
+        "actor",
+        "artifact_paths",
+        "expected",
+        "observed",
         "path",
         "run_id",
         "turn_id",
-        "actor",
-        "expected",
-        "observed",
-        "upstream",
-        "artifact_paths"
+        "upstream"
       ],
       "fixture": "A-CONTRACT-R05",
       "precondition": "Bad typed TOML value or missing explicitly named config.",
@@ -4743,14 +4748,14 @@
         "errors"
       ],
       "evidence_fields": [
+        "actor",
+        "artifact_paths",
+        "expected",
+        "observed",
         "path",
         "run_id",
         "turn_id",
-        "actor",
-        "expected",
-        "observed",
-        "upstream",
-        "artifact_paths"
+        "upstream"
       ],
       "fixture": "A-CONTRACT-R06",
       "precondition": "Inject file read failure for selected config.",
@@ -4769,14 +4774,15 @@
         "errors"
       ],
       "evidence_fields": [
-        "path",
-        "run_id",
-        "turn_id",
         "actor",
+        "artifact_paths",
         "expected",
         "observed",
-        "upstream",
-        "artifact_paths"
+        "path",
+        "reason",
+        "run_id",
+        "turn_id",
+        "upstream"
       ],
       "fixture": "A-CONTRACT-R07",
       "precondition": "Active configured executable cannot be resolved.",
@@ -4795,14 +4801,14 @@
         "errors"
       ],
       "evidence_fields": [
+        "actor",
+        "artifact_paths",
+        "expected",
+        "observed",
         "path",
         "run_id",
         "turn_id",
-        "actor",
-        "expected",
-        "observed",
-        "upstream",
-        "artifact_paths"
+        "upstream"
       ],
       "fixture": "A-CONTRACT-R08",
       "precondition": "Inject unsupported process-control platform before execution.",
@@ -4821,14 +4827,16 @@
         "errors"
       ],
       "evidence_fields": [
+        "actor",
+        "artifact_paths",
+        "expected",
+        "indicator",
+        "observed",
         "path",
+        "reason",
         "run_id",
         "turn_id",
-        "actor",
-        "expected",
-        "observed",
-        "upstream",
-        "artifact_paths"
+        "upstream"
       ],
       "fixture": "A-CONTRACT-R09",
       "precondition": "Effective guard root has API key indicator and no override.",
@@ -4847,14 +4855,14 @@
         "errors"
       ],
       "evidence_fields": [
+        "actor",
+        "artifact_paths",
+        "expected",
+        "observed",
         "path",
         "run_id",
         "turn_id",
-        "actor",
-        "expected",
-        "observed",
-        "upstream",
-        "artifact_paths"
+        "upstream"
       ],
       "fixture": "A-CONTRACT-R10",
       "precondition": "Stop/prune/resolve mutation without required acknowledgment.",
@@ -4872,14 +4880,14 @@
         "errors"
       ],
       "evidence_fields": [
+        "actor",
+        "artifact_paths",
+        "expected",
+        "observed",
         "path",
         "run_id",
         "turn_id",
-        "actor",
-        "expected",
-        "observed",
-        "upstream",
-        "artifact_paths"
+        "upstream"
       ],
       "fixture": "A-CONTRACT-R11",
       "precondition": "Another process holds canonical owner/file lock past bounded acquisition.",
@@ -4897,14 +4905,14 @@
         "errors"
       ],
       "evidence_fields": [
+        "actor",
+        "artifact_paths",
+        "expected",
+        "observed",
         "path",
         "run_id",
         "turn_id",
-        "actor",
-        "expected",
-        "observed",
-        "upstream",
-        "artifact_paths"
+        "upstream"
       ],
       "fixture": "A-CONTRACT-R12",
       "precondition": "runs get wait expires with unchanged owner; events quiet timeout is the separate success case.",
@@ -4923,14 +4931,14 @@
         "errors"
       ],
       "evidence_fields": [
+        "actor",
+        "artifact_paths",
+        "expected",
+        "observed",
         "path",
         "run_id",
         "turn_id",
-        "actor",
-        "expected",
-        "observed",
-        "upstream",
-        "artifact_paths"
+        "upstream"
       ],
       "fixture": "A-CONTRACT-R13",
       "precondition": "Unknown run selector or absent requested read artifact.",
@@ -4949,14 +4957,14 @@
         "errors"
       ],
       "evidence_fields": [
+        "actor",
+        "artifact_paths",
+        "expected",
+        "observed",
         "path",
         "run_id",
         "turn_id",
-        "actor",
-        "expected",
-        "observed",
-        "upstream",
-        "artifact_paths"
+        "upstream"
       ],
       "fixture": "A-CONTRACT-R14",
       "precondition": "Attach with different settings and no bound conflicting key; attach to stopped run.",
@@ -4975,14 +4983,14 @@
         "errors"
       ],
       "evidence_fields": [
+        "actor",
+        "artifact_paths",
+        "expected",
+        "observed",
         "path",
         "run_id",
         "turn_id",
-        "actor",
-        "expected",
-        "observed",
-        "upstream",
-        "artifact_paths"
+        "upstream"
       ],
       "fixture": "A-CONTRACT-R15",
       "precondition": "Reuse bound key with different creation/answer/payload hash.",
@@ -5001,14 +5009,16 @@
         "errors"
       ],
       "evidence_fields": [
-        "path",
-        "run_id",
-        "turn_id",
         "actor",
+        "artifact_paths",
         "expected",
         "observed",
-        "upstream",
-        "artifact_paths"
+        "path",
+        "preserve",
+        "recipe",
+        "run_id",
+        "turn_id",
+        "upstream"
       ],
       "fixture": "A-CONTRACT-R16",
       "precondition": "Read manifest with unsupported record version.",
@@ -5027,14 +5037,14 @@
         "errors"
       ],
       "evidence_fields": [
+        "actor",
+        "artifact_paths",
+        "expected",
+        "observed",
         "path",
         "run_id",
         "turn_id",
-        "actor",
-        "expected",
-        "observed",
-        "upstream",
-        "artifact_paths"
+        "upstream"
       ],
       "fixture": "A-CONTRACT-R17",
       "precondition": "Deliver to differing existing file without force or detect concurrent config edit.",
@@ -5053,14 +5063,16 @@
         "errors"
       ],
       "evidence_fields": [
+        "actor",
+        "after",
+        "artifact_paths",
+        "before",
+        "expected",
+        "observed",
         "path",
         "run_id",
         "turn_id",
-        "actor",
-        "expected",
-        "observed",
-        "upstream",
-        "artifact_paths"
+        "upstream"
       ],
       "fixture": "A-CONTRACT-R18",
       "precondition": "External spec write during active turn.",
@@ -5079,14 +5091,14 @@
         "errors"
       ],
       "evidence_fields": [
+        "actor",
+        "artifact_paths",
+        "expected",
+        "observed",
         "path",
         "run_id",
         "turn_id",
-        "actor",
-        "expected",
-        "observed",
-        "upstream",
-        "artifact_paths"
+        "upstream"
       ],
       "fixture": "A-CONTRACT-R19",
       "precondition": "Recorded canonical context identity no longer matches.",
@@ -5105,14 +5117,15 @@
         "errors"
       ],
       "evidence_fields": [
-        "path",
-        "run_id",
-        "turn_id",
         "actor",
+        "artifact_paths",
         "expected",
         "observed",
-        "upstream",
-        "artifact_paths"
+        "path",
+        "reason",
+        "run_id",
+        "turn_id",
+        "upstream"
       ],
       "fixture": "A-CONTRACT-R20",
       "precondition": "Actual vendor root presence/value differs on resume.",
@@ -5131,14 +5144,15 @@
         "errors"
       ],
       "evidence_fields": [
-        "path",
-        "run_id",
-        "turn_id",
         "actor",
+        "artifact_paths",
         "expected",
         "observed",
-        "upstream",
-        "artifact_paths"
+        "path",
+        "reason",
+        "run_id",
+        "turn_id",
+        "upstream"
       ],
       "fixture": "A-CONTRACT-R21",
       "precondition": "Selected actual tmux server differs from saved server.",
@@ -5157,14 +5171,17 @@
         "errors"
       ],
       "evidence_fields": [
+        "actor",
+        "artifact_paths",
+        "expected",
+        "expected_uuid",
+        "observed",
+        "observed_uuid",
         "path",
+        "reason",
         "run_id",
         "turn_id",
-        "actor",
-        "expected",
-        "observed",
-        "upstream",
-        "artifact_paths"
+        "upstream"
       ],
       "fixture": "A-CONTRACT-R22",
       "precondition": "Reconciliation returns foreign UUID/provider/window.",
@@ -5182,14 +5199,14 @@
         "errors"
       ],
       "evidence_fields": [
+        "actor",
+        "artifact_paths",
+        "expected",
+        "observed",
         "path",
         "run_id",
         "turn_id",
-        "actor",
-        "expected",
-        "observed",
-        "upstream",
-        "artifact_paths"
+        "upstream"
       ],
       "fixture": "A-CONTRACT-R23",
       "precondition": "Last ordinary critique REVISE, with no available next round.",
@@ -5207,14 +5224,16 @@
         "errors"
       ],
       "evidence_fields": [
-        "path",
-        "run_id",
-        "turn_id",
         "actor",
+        "artifact_paths",
+        "commands",
         "expected",
         "observed",
-        "upstream",
-        "artifact_paths"
+        "path",
+        "question_id",
+        "run_id",
+        "turn_id",
+        "upstream"
       ],
       "fixture": "A-CONTRACT-R24",
       "precondition": "Native default run reaches unanswered question.",
@@ -5232,14 +5251,14 @@
         "errors"
       ],
       "evidence_fields": [
+        "actor",
+        "artifact_paths",
+        "expected",
+        "observed",
         "path",
         "run_id",
         "turn_id",
-        "actor",
-        "expected",
-        "observed",
-        "upstream",
-        "artifact_paths"
+        "upstream"
       ],
       "fixture": "A-CONTRACT-R25",
       "precondition": "Submit stale question ID or unstable/invalid answer file.",
@@ -5257,14 +5276,16 @@
         "errors"
       ],
       "evidence_fields": [
-        "path",
-        "run_id",
-        "turn_id",
         "actor",
+        "artifact_paths",
+        "call_id",
         "expected",
         "observed",
-        "upstream",
-        "artifact_paths"
+        "path",
+        "reason",
+        "run_id",
+        "turn_id",
+        "upstream"
       ],
       "fixture": "A-CONTRACT-R26",
       "precondition": "Malformed/empty-cursor/unverified send or replayed post-barrier interruption.",
@@ -5282,14 +5303,14 @@
         "errors"
       ],
       "evidence_fields": [
+        "actor",
+        "artifact_paths",
+        "expected",
+        "observed",
         "path",
         "run_id",
         "turn_id",
-        "actor",
-        "expected",
-        "observed",
-        "upstream",
-        "artifact_paths"
+        "upstream"
       ],
       "fixture": "A-CONTRACT-R27",
       "precondition": "Saved active direct turn has no trustworthy completion or process identity.",
@@ -5307,14 +5328,16 @@
         "errors"
       ],
       "evidence_fields": [
-        "path",
-        "run_id",
-        "turn_id",
         "actor",
+        "artifact_paths",
+        "call_id",
         "expected",
         "observed",
-        "upstream",
-        "artifact_paths"
+        "path",
+        "reason",
+        "run_id",
+        "turn_id",
+        "upstream"
       ],
       "fixture": "A-CONTRACT-R28",
       "precondition": "Required persistent vendor session or saved pane is absent.",
@@ -5332,14 +5355,16 @@
         "errors"
       ],
       "evidence_fields": [
-        "path",
-        "run_id",
-        "turn_id",
         "actor",
+        "artifact_paths",
+        "classification",
         "expected",
         "observed",
-        "upstream",
-        "artifact_paths"
+        "path",
+        "recipe",
+        "run_id",
+        "turn_id",
+        "upstream"
       ],
       "fixture": "A-CONTRACT-R29",
       "precondition": "Run on legacy-only workspace.",
@@ -5357,14 +5382,16 @@
         "errors"
       ],
       "evidence_fields": [
-        "path",
-        "run_id",
-        "turn_id",
         "actor",
+        "artifact_paths",
+        "call_id",
         "expected",
         "observed",
-        "upstream",
-        "artifact_paths"
+        "path",
+        "reason",
+        "run_id",
+        "turn_id",
+        "upstream"
       ],
       "fixture": "A-CONTRACT-R30",
       "precondition": "Vendor/Gashki non-send protocol is invalid after turn intent.",
@@ -5382,14 +5409,15 @@
         "errors"
       ],
       "evidence_fields": [
+        "actor",
+        "artifact_paths",
+        "exit",
+        "expected",
+        "observed",
         "path",
         "run_id",
         "turn_id",
-        "actor",
-        "expected",
-        "observed",
-        "upstream",
-        "artifact_paths"
+        "upstream"
       ],
       "fixture": "A-CONTRACT-R31",
       "precondition": "Owned agent returns checked failure and retained evidence.",
@@ -5407,14 +5435,15 @@
         "errors"
       ],
       "evidence_fields": [
+        "actor",
+        "artifact_paths",
+        "exit",
+        "expected",
+        "observed",
         "path",
         "run_id",
         "turn_id",
-        "actor",
-        "expected",
-        "observed",
-        "upstream",
-        "artifact_paths"
+        "upstream"
       ],
       "fixture": "A-CONTRACT-R32",
       "precondition": "Finite mutation budget expires; include sub-1s Gashki residual.",
@@ -5432,14 +5461,15 @@
         "errors"
       ],
       "evidence_fields": [
+        "actor",
+        "artifact_paths",
+        "exit",
+        "expected",
+        "observed",
         "path",
         "run_id",
         "turn_id",
-        "actor",
-        "expected",
-        "observed",
-        "upstream",
-        "artifact_paths"
+        "upstream"
       ],
       "fixture": "A-CONTRACT-R33",
       "precondition": "Completed turn lacks required valid spec/critique artifact.",
@@ -5457,14 +5487,17 @@
         "errors"
       ],
       "evidence_fields": [
-        "path",
-        "run_id",
-        "turn_id",
         "actor",
+        "after",
+        "artifact_paths",
+        "before",
         "expected",
         "observed",
-        "upstream",
-        "artifact_paths"
+        "path",
+        "paths",
+        "run_id",
+        "turn_id",
+        "upstream"
       ],
       "fixture": "A-CONTRACT-R34",
       "precondition": "Expected critic writes protected spec/input.",
@@ -5482,14 +5515,14 @@
         "errors"
       ],
       "evidence_fields": [
+        "actor",
+        "artifact_paths",
+        "expected",
+        "observed",
         "path",
         "run_id",
         "turn_id",
-        "actor",
-        "expected",
-        "observed",
-        "upstream",
-        "artifact_paths"
+        "upstream"
       ],
       "fixture": "A-CONTRACT-R35",
       "precondition": "Inject recoverable handler defect in test build.",
@@ -5507,14 +5540,14 @@
         "errors"
       ],
       "evidence_fields": [
+        "actor",
+        "artifact_paths",
+        "expected",
+        "observed",
         "path",
         "run_id",
         "turn_id",
-        "actor",
-        "expected",
-        "observed",
-        "upstream",
-        "artifact_paths"
+        "upstream"
       ],
       "fixture": "A-CONTRACT-R36",
       "precondition": "Inject failing conformance verdict.",
@@ -5533,14 +5566,14 @@
         "errors"
       ],
       "evidence_fields": [
+        "actor",
+        "artifact_paths",
+        "expected",
+        "observed",
         "path",
         "run_id",
         "turn_id",
-        "actor",
-        "expected",
-        "observed",
-        "upstream",
-        "artifact_paths"
+        "upstream"
       ],
       "fixture": "A-CONTRACT-R37",
       "precondition": "--deliver=webhook:URL before any sink write.",
@@ -5558,14 +5591,14 @@
         "errors"
       ],
       "evidence_fields": [
+        "actor",
+        "artifact_paths",
+        "expected",
+        "observed",
         "path",
         "run_id",
         "turn_id",
-        "actor",
-        "expected",
-        "observed",
-        "upstream",
-        "artifact_paths"
+        "upstream"
       ],
       "fixture": "A-CONTRACT-R39",
       "precondition": "SIGINT foreground owner; checkpoint/evidence and failure envelope retained when runtime permits.",
@@ -5583,14 +5616,14 @@
         "errors"
       ],
       "evidence_fields": [
+        "actor",
+        "artifact_paths",
+        "expected",
+        "observed",
         "path",
         "run_id",
         "turn_id",
-        "actor",
-        "expected",
-        "observed",
-        "upstream",
-        "artifact_paths"
+        "upstream"
       ],
       "fixture": "A-CONTRACT-R40",
       "precondition": "SIGTERM foreground owner; same best-effort boundary.",
@@ -5608,14 +5641,18 @@
         "errors"
       ],
       "evidence_fields": [
-        "path",
-        "run_id",
-        "turn_id",
         "actor",
+        "after",
+        "artifact_paths",
+        "before",
+        "checkpoint_error",
         "expected",
         "observed",
-        "upstream",
-        "artifact_paths"
+        "path",
+        "paths",
+        "run_id",
+        "turn_id",
+        "upstream"
       ],
       "fixture": "A-CONTRACT-R41",
       "precondition": "Expected planner changes state, frozen config, brief/constraints, or a committed earlier rounds artifact.",
@@ -5634,14 +5671,16 @@
         "errors"
       ],
       "evidence_fields": [
-        "path",
-        "run_id",
-        "turn_id",
         "actor",
+        "artifact_paths",
+        "call_id",
         "expected",
         "observed",
-        "upstream",
-        "artifact_paths"
+        "path",
+        "reason",
+        "run_id",
+        "turn_id",
+        "upstream"
       ],
       "fixture": "A-CONTRACT-R42",
       "precondition": "Gashki returns checked TMUX_SPLIT_FAILED with stderr and a too-small owned window before a new turn.",
@@ -5660,14 +5699,16 @@
         "errors"
       ],
       "evidence_fields": [
-        "path",
-        "run_id",
-        "turn_id",
         "actor",
+        "artifact_paths",
         "expected",
         "observed",
-        "upstream",
-        "artifact_paths"
+        "path",
+        "preserve",
+        "recipe",
+        "run_id",
+        "turn_id",
+        "upstream"
       ],
       "fixture": "A-CONTRACT-R43",
       "precondition": "Malformed/schema-invalid native manifest exists with or without legacy markers; no fallback creation or agent call.",

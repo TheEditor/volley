@@ -150,6 +150,7 @@ func Execute(ctx context.Context, args []string, out, stderr io.Writer, opts Opt
 			}
 		}
 	}()
+	injectFault("entry", environment(opts))
 	if opts.Entry != nil {
 		opts.Entry()
 	}
@@ -184,11 +185,6 @@ func Execute(ctx context.Context, args []string, out, stderr io.Writer, opts Opt
 		err = reg.Error("INTERNAL", "Cannot allocate request identity")
 	}
 	if err == nil {
-		for _, stage := range reg.DiagnosisOrder {
-			if opts.Stage != nil {
-				opts.Stage(stage)
-			}
-		}
 		command := opts.Command
 		if command == nil {
 			command = func(ctx context.Context, args []string, r *contract.Registry) (any, error) {
@@ -202,6 +198,16 @@ func Execute(ctx context.Context, args []string, out, stderr io.Writer, opts Opt
 			result.Warnings = append(result.Warnings, output.Warnings...)
 		}
 		if data, ok := result.Data.(map[string]any); ok {
+			if records, ok := data["warning_records"]; ok {
+				b, e := json.Marshal(records)
+				if e == nil {
+					var warnings []contract.Warning
+					if json.Unmarshal(b, &warnings) == nil {
+						result.Warnings = append(result.Warnings, warnings...)
+					}
+				}
+			}
+
 			if warnings, ok := data["warnings"].([]string); ok {
 				for _, code := range warnings {
 					message := ""
@@ -212,7 +218,17 @@ func Execute(ctx context.Context, args []string, out, stderr io.Writer, opts Opt
 						message = "Retired setting variable is ignored"
 					}
 					if message != "" {
-						result.Warnings = append(result.Warnings, contract.Warning{Code: code, Message: message, Evidence: map[string]any{"scope": "command"}})
+						exists := false
+						for _, w := range result.Warnings {
+							if w.Code == code {
+								exists = true
+								break
+							}
+						}
+						if exists {
+							continue
+						}
+						result.Warnings = append(result.Warnings, contract.Warning{Code: code, Message: message, Evidence: map[string]any{"reason": "Command observation"}})
 					}
 				}
 			}

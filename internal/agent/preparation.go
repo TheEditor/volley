@@ -164,10 +164,10 @@ func bindExecutable(ctx context.Context, options PrepareOptions, path string, be
 	}
 	resolved, err := lookup(path)
 	if err != nil {
-		return ExecutableBinding{}, err
+		return ExecutableBinding{}, safeError("DEPENDENCY_MISSING", "Active executable cannot be resolved", map[string]any{"path": path, "reason": err.Error()})
 	}
 	if !filepath.IsAbs(resolved) {
-		return ExecutableBinding{}, fmt.Errorf("Resolved executable is not absolute")
+		return ExecutableBinding{}, safeError("INVALID_CONFIG", "Resolved executable is not absolute", map[string]any{"path": resolved})
 	}
 	b, info, err := readRegular(resolved, 128<<20)
 	if err != nil {

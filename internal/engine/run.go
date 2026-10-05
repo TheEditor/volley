@@ -183,7 +183,8 @@ func Run(ctx context.Context, request Request, options Options) (map[string]any,
 	}
 	data := Data(m)
 	if indexWarning {
-		data["warnings"] = []string{"INDEX_UNAVAILABLE"}
+		warnings, _ := data["warnings"].([]string)
+		data["warnings"] = append(warnings, "INDEX_UNAVAILABLE")
 	}
 	if m.String("status") == "approved" {
 		if err == nil {
@@ -208,7 +209,22 @@ func Data(m store.Snapshot) map[string]any {
 	if q := m.Object("question"); len(q) > 0 && q["answered"] != true {
 		question = q["id"]
 	}
-	return map[string]any{"run_id": m["run_id"], "workspace": m["canonical_workspace"], "status": m["status"], "phase": m["phase"], "round": m["round"], "max_rounds": m["max_rounds"], "turn": m["current_turn"], "question_id": question, "spec_hash": m["spec_hash"], "owner": "foreground", "retention": m["retention"], "next_action": m["phase"], "recommended_action": nil}
+	data := map[string]any{"run_id": m["run_id"], "workspace": m["canonical_workspace"], "status": m["status"], "phase": m["phase"], "round": m["round"], "max_rounds": m["max_rounds"], "turn": m["current_turn"], "question_id": question, "spec_hash": m["spec_hash"], "owner": "foreground", "retention": m["retention"], "next_action": m["phase"], "recommended_action": nil}
+	if records, ok := m["warnings"]; ok {
+		data["warning_records"] = records
+		b, err := json.Marshal(records)
+		if err == nil {
+			var warnings []contract.Warning
+			if json.Unmarshal(b, &warnings) == nil {
+				codes := []string{}
+				for _, warning := range warnings {
+					codes = append(codes, warning.Code)
+				}
+				data["warnings"] = codes
+			}
+		}
+	}
+	return data
 }
 
 func readSeed(path string) ([]byte, store.FileObservation, error) {
@@ -275,7 +291,7 @@ func (o *Owner) preflight() error {
 		}
 	}
 	if !hasBasis {
-		return failure("INVALID_INPUT", "A run needs BRIEF.md or SPEC.md", nil)
+		return failure("MISSING_REQUIRED", "A run needs BRIEF.md or SPEC.md", nil)
 	}
 	return nil
 }
@@ -342,7 +358,7 @@ func (o *Owner) create(ctx context.Context, m store.Snapshot) error {
 		return err
 	}
 	if bindings["SPEC.md"].Kind == "absent" && bindings["BRIEF.md"].Kind == "absent" {
-		return failure("INVALID_INPUT", "A run needs BRIEF.md or SPEC.md", nil)
+		return failure("MISSING_REQUIRED", "A run needs BRIEF.md or SPEC.md", nil)
 	}
 	m, _, err = s.LoadSnapshot()
 	if err != nil {
@@ -376,7 +392,7 @@ func (o *Owner) create(ctx context.Context, m store.Snapshot) error {
 	if err != nil {
 		return err
 	}
-	o.State = State{RecordVersion: 1, RunID: m.String("run_id"), Settings: p.Settings.Settings, Bindings: bindings, Seeds: seeds, PromptSetHash: hash, ActiveApplications: []string{}}
+	o.State = State{Context: c.Context, RecordVersion: 1, RunID: m.String("run_id"), Settings: p.Settings.Settings, Bindings: bindings, Seeds: seeds, PromptSetHash: hash, ActiveApplications: []string{}}
 	m, _, err = s.LoadSnapshot()
 	if err != nil {
 		return err
@@ -547,6 +563,9 @@ func (o *Owner) attach(ctx context.Context, m store.Snapshot) error {
 	}
 	if m.String("status") == "stopped" {
 		return failure("CONFIG_CONFLICT", "Stopped run requires a fresh workspace", nil)
+	}
+	if err := checkContextBinding(state.Settings.ContextDir, state.Context); err != nil {
+		return err
 	}
 	requestHash, err := o.requestHash()
 	if err != nil {

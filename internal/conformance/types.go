@@ -2,21 +2,32 @@
 package conformance
 
 type Target struct {
-	Verb  string `json:"verb,omitempty"`
-	Flag  string `json:"flag,omitempty"`
-	Stage string `json:"stage,omitempty"`
-	Shape string `json:"shape,omitempty"`
-	Node  string `json:"node,omitempty"`
+	Verb  string `json:"verb"`
+	Flag  string `json:"flag"`
+	Stage string `json:"stage"`
+	Shape string `json:"shape"`
+	Node  string `json:"node"`
 }
 type Observation struct {
-	Exit int
-	OK   bool
-	Code string
+	Exit int    `json:"exit"`
+	OK   bool   `json:"ok"`
+	Code string `json:"code"`
 }
 type Verdict struct {
-	ID       string
-	Target   Target
-	Verdict  string
-	Reason   string
-	Observed Observation
+	ID        string      `json:"id"`
+	RequestID string      `json:"request_id"`
+	Target    Target      `json:"target"`
+	Verdict   string      `json:"verdict"`
+	Reason    string      `json:"reason"`
+	Observed  Observation `json:"observed"`
+}
+type Case struct {
+	ID          string
+	Target      Target
+	Args        []string
+	Want        Observation
+	Human       bool
+	Hint        bool
+	Fault       string
+	Unavailable string
 }

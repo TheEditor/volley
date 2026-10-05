@@ -1989,6 +1989,12 @@
         "path",
         "sha256"
       ]
+    },
+    "warnings": {
+      "type": "array",
+      "items": {
+        "$ref": "warning.json"
+      }
     }
   },
   "required": [

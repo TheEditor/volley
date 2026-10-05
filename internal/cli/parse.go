@@ -33,6 +33,15 @@ func syntax(r *contract.Registry, code, message, stage string) *contract.Error {
 // Parse performs no file, process, or settings-file access. The declaration
 // supplies every flag, positional and cross-flag constraint.
 func Parse(args []string, r *contract.Registry) (Invocation, error) {
+	return parseWithStage(args, r, nil)
+}
+func parseWithStage(args []string, r *contract.Registry, stage func(string)) (Invocation, error) {
+	checkStage := func(name string) {
+		if stage != nil {
+			stage(name)
+		}
+	}
+	checkStage("bootstrap_mode")
 	x := Invocation{Values: map[string]any{}, Settings: map[string]config.Override{}}
 	global := map[string]contract.Flag{}
 	all := map[string]contract.Flag{}
@@ -74,7 +83,7 @@ func Parse(args []string, r *contract.Registry) (Invocation, error) {
 				item.name = f.Name
 				if f.Arity == 1 && !attached {
 					if i+1 >= len(args) || strings.HasPrefix(args[i+1], "-") {
-						item.problem = r.Error("INVALID_INPUT", "Missing value for "+name)
+						item.problem = r.Error("MISSING_REQUIRED", "Missing value for "+name)
 					} else {
 						i++
 						item.raw = args[i]
@@ -89,7 +98,16 @@ func Parse(args []string, r *contract.Registry) (Invocation, error) {
 		}
 		positions = append(positions, positionalToken{arg, literal})
 	}
+	checkStage("global_flags")
 	// Global flags are checked before command selection, even after the verb.
+	for _, item := range flags {
+		if item.position <= first {
+			if _, known := all[item.name]; !known {
+				return x, syntax(r, "UNKNOWN_FLAG", "Unknown global flag: "+item.name, "global_flags")
+			}
+		}
+	}
+	var globalMissing *parsedFlag
 	seen := map[string]bool{}
 	for i := range flags {
 		item := &flags[i]
@@ -99,6 +117,12 @@ func Parse(args []string, r *contract.Registry) (Invocation, error) {
 				if _, known := all[item.name]; !known {
 					return x, syntax(r, "UNKNOWN_FLAG", "Unknown global flag: "+item.name, "global_flags")
 				}
+			}
+			continue
+		}
+		if item.problem != nil && item.problem.Code == "MISSING_REQUIRED" {
+			if globalMissing == nil {
+				globalMissing = item
 			}
 			continue
 		}
@@ -114,6 +138,7 @@ func Parse(args []string, r *contract.Registry) (Invocation, error) {
 		}
 		x.Values[f.Name] = value
 	}
+	checkStage("command_path")
 	if len(positions) > 0 {
 		first := positions[0]
 		if !first.literal {
@@ -135,7 +160,15 @@ func Parse(args []string, r *contract.Registry) (Invocation, error) {
 					x.Command = first.value + " " + positions[1].value
 					positions = positions[2:]
 					if _, known := r.Commands[x.Command]; !known {
-						return x, r.Error("UNKNOWN_COMMAND", "Unknown command: "+x.Command)
+						e := r.Error("UNKNOWN_COMMAND", "Unknown command: "+x.Command)
+						for _, hint := range names {
+							if oneEdit(x.Command, hint) {
+								h := hint
+								e.DidYouMean = &h
+								break
+							}
+						}
+						return x, e
 					}
 				}
 			}
@@ -147,9 +180,22 @@ func Parse(args []string, r *contract.Registry) (Invocation, error) {
 			}
 		}
 	}
+	checkStage("local_flags")
 	local := map[string]contract.Flag{}
 	for _, f := range r.Commands[x.Command].Flags {
 		local[f.Name] = f
+	}
+	for _, item := range flags {
+		if _, ok := global[item.name]; ok {
+			continue
+		}
+		if _, ok := local[item.name]; !ok {
+			return x, syntax(r, "UNKNOWN_FLAG", "Unknown flag: "+item.name, "local_flags")
+		}
+	}
+	if globalMissing != nil {
+		globalMissing.problem.Stage = "types_enums"
+		return x, globalMissing.problem
 	}
 	for i := range flags {
 		item := &flags[i]
@@ -164,6 +210,7 @@ func Parse(args []string, r *contract.Registry) (Invocation, error) {
 			return x, err
 		}
 	}
+	checkStage("types_enums")
 	for _, item := range flags {
 		if _, ok := global[item.name]; ok {
 			continue
@@ -193,9 +240,7 @@ func Parse(args []string, r *contract.Registry) (Invocation, error) {
 		}
 		x.Positionals = append(x.Positionals, p.value)
 	}
-	if x.Values["--help"] == true || x.Values["--version"] == true {
-		return x, nil
-	}
+
 	// Non-setting domains are checked before missing required selectors.
 	if value, ok := x.Values["--limit"].(int); ok && (value < 1 || value > 100) {
 		return x, r.Error("INVALID_INPUT", "Limit must be 1 through 100")
@@ -208,6 +253,11 @@ func Parse(args []string, r *contract.Registry) (Invocation, error) {
 			}
 		}
 	}
+	checkStage("required_arguments")
+	if x.Values["--help"] == true || x.Values["--version"] == true {
+		checkStage("semantic_checks")
+		return x, nil
+	}
 	cmd := r.Commands[x.Command]
 	minimum := 0
 	for _, p := range cmd.Positionals {
@@ -215,7 +265,10 @@ func Parse(args []string, r *contract.Registry) (Invocation, error) {
 			minimum++
 		}
 	}
-	if len(x.Positionals) < minimum || len(x.Positionals) > len(cmd.Positionals) {
+	if len(x.Positionals) < minimum {
+		return x, r.Error("MISSING_REQUIRED", "Required positional argument is absent")
+	}
+	if len(x.Positionals) > len(cmd.Positionals) {
 		return x, r.Error("INVALID_INPUT", "Invalid number of positional arguments")
 	}
 	if (x.Command == "config get" || x.Command == "config set") && len(x.Positionals) > 0 {
@@ -251,6 +304,7 @@ func Parse(args []string, r *contract.Registry) (Invocation, error) {
 			return x, r.Error(code, "Required flag: "+name)
 		}
 	}
+	checkStage("semantic_checks")
 	for _, c := range cmd.Constraints {
 		flag, _ := c["flag"].(string)
 		other, _ := c["other"].(string)
@@ -295,6 +349,9 @@ func Parse(args []string, r *contract.Registry) (Invocation, error) {
 func validateFlag(item *parsedFlag, f contract.Flag, seen map[string]bool, r *contract.Registry, stage string) error {
 	if item.problem != nil {
 		item.problem.Stage = stage
+		if item.problem.Code == "MISSING_REQUIRED" {
+			item.problem.Stage = "types_enums"
+		}
 		return item.problem
 	}
 	if seen[f.Name] && !f.Repeatable {
@@ -346,7 +403,14 @@ func flagValue(item parsedFlag, f contract.Flag, r *contract.Registry) (any, err
 			}
 		}
 		if !valid {
-			return nil, r.Error("INVALID_INPUT", fmt.Sprintf("Invalid value for %s; allowed: %s", f.Name, strings.Join(f.Enum, ", ")))
+			e := r.Error("INVALID_INPUT", fmt.Sprintf("Invalid value for %s; allowed: %s", f.Name, strings.Join(f.Enum, ", ")))
+			for _, choice := range f.Enum {
+				if oneEdit(raw, choice) {
+					e.DidYouMean = &choice
+					break
+				}
+			}
+			return nil, e
 		}
 	}
 	return value, nil

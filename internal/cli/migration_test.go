@@ -75,7 +75,7 @@ func TestAMIG02MigrationGrammar(t *testing.T) {
 		{[]string{"runs", "resolve", "absent", "--yes=true"}, "INVALID_INPUT"},
 		{[]string{"runs", "resolve", "absent", "--turn="}, "INVALID_INPUT"},
 		{[]string{"runs", "resolve", "absent", "--turn=t", "--turn=u", "--yes"}, "INVALID_INPUT"},
-		{[]string{"runs", "resolve", "absent", "--turn"}, "INVALID_INPUT"},
+		{[]string{"runs", "resolve", "absent", "--turn"}, "MISSING_REQUIRED"},
 	} {
 		var out, stderr bytes.Buffer
 		Execute(context.Background(), append(tc.args, "--json"), &out, &stderr, fixed())

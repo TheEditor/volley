@@ -18,6 +18,7 @@ import (
 )
 
 type Creation struct {
+	Context        *store.FileObservation           `json:"context,omitempty"`
 	RecordVersion  int                              `json:"record_version"`
 	RunID          string                           `json:"run_id"`
 	Resolved       config.Resolved                  `json:"resolved"`
@@ -46,6 +47,13 @@ func (o *Owner) creationRecord() (Creation, error) {
 			c.Seeds[target] = obs
 		}
 	}
+	if c.Resolved.Settings.ContextDir != "" {
+		obs, e := contextObservation(c.Resolved.Settings.ContextDir)
+		if e != nil {
+			return c, e
+		}
+		c.Context = &obs
+	}
 	return c, nil
 }
 func (o *Owner) recoverCreation(ctx context.Context, m store.Snapshot) error {
@@ -57,6 +65,9 @@ func (o *Owner) recoverCreation(ctx context.Context, m store.Snapshot) error {
 		return err
 	}
 	if err = agent.CompareIdentity(c.Caller, agent.CaptureIdentity(o.Options.Env), nil, nil); err != nil {
+		return err
+	}
+	if err := checkContextBinding(c.Resolved.Settings.ContextDir, c.Context); err != nil {
 		return err
 	}
 	saved, _ := contract.Canonical(c.Resolved.Settings)

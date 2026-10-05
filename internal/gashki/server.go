@@ -10,6 +10,7 @@ import (
 	"strings"
 	"time"
 
+	"github.com/TheEditor/volley/internal/contract"
 	"github.com/TheEditor/volley/internal/process"
 	"golang.org/x/sys/unix"
 )
@@ -172,7 +173,9 @@ func (m *PaneManager) selected(ctx context.Context, target string, budget Budget
 		return view, NativeError(decision("SERVER_CONFLICT", "saved_server_cannot_be_verified"), map[string]any{"observation_error": e.Error()})
 	}
 	if !sameServer(m.ExpectedServer, view.Server) {
-		return view, NativeError(decision("SERVER_CONFLICT", "selected_server_differs"), nil)
+		a, _ := contract.Canonical(m.ExpectedServer)
+		b, _ := contract.Canonical(view.Server)
+		return view, NativeError(decision("SERVER_CONFLICT", "selected_server_differs"), map[string]any{"expected": contract.HashBytes(a), "observed": contract.HashBytes(b), "path": view.Server.SocketPath})
 	}
 	return view, nil
 }

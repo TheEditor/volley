@@ -241,6 +241,12 @@
         "kind",
         "turn_id"
       ]
+    },
+    "warning_records": {
+      "type": "array",
+      "items": {
+        "$ref": "warning.json"
+      }
     }
   },
   "required": [

@@ -61,6 +61,7 @@ func TestALOOP05FailedCreationDoesNotBind(t *testing.T) {
 			code := "INVALID_INPUT"
 			switch variant {
 			case "missing-basis":
+				code = "MISSING_REQUIRED"
 				if err := os.Remove(path); err != nil {
 					t.Fatal(err)
 				}

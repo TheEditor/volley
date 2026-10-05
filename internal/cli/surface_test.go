@@ -101,7 +101,7 @@ func TestACLI04Diagnosis(t *testing.T) {
 		{[]string{"runs", "bad"}, "UNKNOWN_COMMAND"},
 		{[]string{"plan", "--persistent=maybe", "--missing"}, "UNKNOWN_FLAG"},
 		{[]string{"plan", "--persistent=maybe"}, "INVALID_INPUT"},
-		{[]string{"plan", "--max-rounds"}, "INVALID_INPUT"},
+		{[]string{"plan", "--max-rounds"}, "MISSING_REQUIRED"},
 		{[]string{"plan", "ws", "--max-rounds="}, "INVALID_INPUT"},
 		{[]string{"plan", "ws", "--max-rounds=2", "--max-rounds", "3"}, "INVALID_INPUT"},
 		{[]string{"-q", "plan", "ws", "--quiet"}, "INVALID_INPUT"},

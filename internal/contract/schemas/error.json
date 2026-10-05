@@ -176,6 +176,62 @@
         },
         "candidate_path": {
           "type": "string"
+        },
+        "commands": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "paths": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "recipe": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "question_id": {
+          "type": "string"
+        },
+        "checkpoint_error": {
+          "type": "string"
+        },
+        "preserve": {
+          "type": "string"
+        },
+        "classification": {
+          "type": "string"
+        },
+        "exit": {
+          "type": "integer"
+        },
+        "before": {
+          "type": "object",
+          "description": "Checked file observations or a protected workspace view."
+        },
+        "after": {
+          "type": "object",
+          "description": "Checked file observations or a protected workspace view."
+        },
+        "indicator": {
+          "type": "string"
+        },
+        "call_id": {
+          "type": "string"
+        },
+        "observation_error": {
+          "type": "string"
+        },
+        "expected_uuid": {
+          "type": "string"
+        },
+        "observed_uuid": {
+          "type": "string"
         }
       },
       "required": []

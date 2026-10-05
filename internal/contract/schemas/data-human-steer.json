@@ -16,9 +16,6 @@
     "receipt_path": {
       "type": "string"
     },
-    "question_id": {
-      "type": "string"
-    },
     "applied": {
       "type": "boolean"
     },
@@ -31,7 +28,6 @@
     "workspace",
     "receipt_id",
     "receipt_path",
-    "question_id",
     "applied",
     "duplicate"
   ]

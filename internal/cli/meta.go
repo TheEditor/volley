@@ -13,7 +13,6 @@ import (
 
 	"github.com/TheEditor/volley/internal/agent"
 	"github.com/TheEditor/volley/internal/config"
-	"github.com/TheEditor/volley/internal/conformance"
 	"github.com/TheEditor/volley/internal/contract"
 	"github.com/TheEditor/volley/internal/delivery"
 	"github.com/TheEditor/volley/internal/ops"
@@ -115,6 +114,13 @@ func metadata(ctx context.Context, x Invocation, r *contract.Registry, opts Opti
 				delete(commands, name)
 			}
 		}
+		if reads := testEnvironmentReads(); len(reads) > 0 {
+			items := v["environment_reads"].([]any)
+			for _, read := range reads {
+				items = append(items, read)
+			}
+			v["environment_reads"] = items
+		}
 		return v, nil
 	case "schema":
 		name := "envelope"
@@ -136,7 +142,12 @@ func metadata(ctx context.Context, x Invocation, r *contract.Registry, opts Opti
 		data, e := delivery.Feedback(ctx, ops.StateDir(environment(opts)), x.Positionals[0], key)
 		return data, translateError(r, e)
 	case "conformance":
-		return conformance.Declared(r, handlerKind)
+		if conformanceDefect(environment(opts)) {
+			c := r.Commands["run"]
+			c.ParserPath = ""
+			r.Commands["run"] = c
+		}
+		return generatedConformance(ctx, r)
 	}
 	return nil, r.Error("UNKNOWN_COMMAND", "Handler is not available")
 }
@@ -184,8 +195,11 @@ func handleConfig(ctx context.Context, x Invocation, r *contract.Registry, opts 
 	if err != nil {
 		var edit *config.EditError
 		var invalid *config.Invalid
+		var read *config.ReadFailure
 		code := "INVALID_CONFIG"
-		if errors.As(err, &edit) {
+		if errors.As(err, &read) {
+			code = "CONFIG_READ_FAILED"
+		} else if errors.As(err, &edit) {
 			code = edit.Code
 		} else if x.Command == "config get" || x.Command == "config set" || x.Command == "config patch" {
 			code = "INVALID_INPUT"
@@ -226,7 +240,7 @@ func plan(ctx context.Context, x Invocation, r *contract.Registry, opts Options)
 	named, _ := x.Values["--config"].(string)
 	resolved, warnings, err := config.Resolve(config.ResolveOptions{Cwd: cwd, Home: envValue(env, "HOME"), XDGRoot: envValue(env, "XDG_CONFIG_HOME"), NamedFile: named, Workspace: workspace, Flags: x.Settings})
 	if err != nil {
-		return nil, r.Error("INVALID_CONFIG", err.Error())
+		return nil, configFailure(r, err)
 	}
 	settings := resolved.Settings
 	dependencies := []any{}

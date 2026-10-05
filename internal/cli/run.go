@@ -82,6 +82,9 @@ func handleInvocation(ctx context.Context, x Invocation, r *contract.Registry, o
 	if opts.RunOptions != nil {
 		env = opts.RunOptions.Env
 	}
+	if (x.Command == "run" || x.Command == "runs resume") && unsupportedProcessEnvironment(env) {
+		return nil, r.Error("UNSUPPORTED_PLATFORM", "Unix process control is unavailable")
+	}
 	operator := ops.Options{IndexDir: ops.StateDir(env)}
 	selected := x.Positionals[0]
 	if x.Command != "run" {
@@ -147,7 +150,7 @@ func handleInvocation(ctx context.Context, x Invocation, r *contract.Registry, o
 	if os.IsNotExist(manifestErr) {
 		resolved, _, err := config.Resolve(config.ResolveOptions{Cwd: cwd, Home: envValue(options.Env, "HOME"), XDGRoot: envValue(options.Env, "XDG_CONFIG_HOME"), NamedFile: configPath, Workspace: workspace, Mutating: true, Flags: x.Settings})
 		if err != nil {
-			return nil, r.Error("INVALID_CONFIG", err.Error())
+			return nil, configFailure(r, err)
 		}
 		request.Resolved = &resolved
 	} else {
@@ -167,7 +170,7 @@ func handleInvocation(ctx context.Context, x Invocation, r *contract.Registry, o
 			if key == "claude_bin" || key == "codex_bin" || key == "gashki_bin" {
 				resolved, err := config.LookupExecutable(fmt.Sprint(value))
 				if err != nil {
-					return nil, r.Error("INVALID_CONFIG", err.Error())
+					return nil, configFailure(r, err)
 				}
 				explicit[key] = resolved
 			}
@@ -175,7 +178,7 @@ func handleInvocation(ctx context.Context, x Invocation, r *contract.Registry, o
 		if configPath != "" {
 			resolved, _, err := config.Resolve(config.ResolveOptions{Cwd: cwd, Home: envValue(options.Env, "HOME"), NamedFile: configPath, Workspace: workspace, Mutating: true, Flags: x.Settings})
 			if err != nil {
-				return nil, r.Error("INVALID_CONFIG", err.Error())
+				return nil, configFailure(r, err)
 			}
 			b, _ := contract.Canonical(resolved.Settings)
 			values, _ := decodeObject(b)
@@ -320,4 +323,12 @@ func handleHuman(ctx context.Context, x Invocation, workspace string, input io.R
 func isTerminal(f *os.File) bool {
 	_, err := unix.IoctlGetTermios(int(f.Fd()), terminalRequest())
 	return err == nil
+}
+
+func configFailure(r *contract.Registry, err error) error {
+	var read *config.ReadFailure
+	if errors.As(err, &read) {
+		return r.Error("CONFIG_READ_FAILED", err.Error())
+	}
+	return r.Error("INVALID_CONFIG", err.Error())
 }

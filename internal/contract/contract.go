@@ -22,6 +22,7 @@ type Flag struct {
 	AllowEmpty bool     `json:"allow_empty"`
 	Repeatable bool     `json:"repeatable"`
 	Aliases    []string `json:"aliases"`
+	Forms      []string `json:"forms"`
 	Scope      string   `json:"scope"`
 	Enum       []string `json:"enum,omitempty"`
 	Setting    string   `json:"setting,omitempty"`

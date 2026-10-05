@@ -26,6 +26,16 @@ func (e *Invalid) Error() string {
 	return fmt.Sprintf("%s:%d:%d: %s: %s", e.File, e.Line, e.Column, e.Key, e.Message)
 }
 
+type ReadFailure struct {
+	Path  string
+	Cause error
+}
+
+func (e *ReadFailure) Error() string {
+	return fmt.Sprintf("Cannot read config %s: %v", e.Path, e.Cause)
+}
+func (e *ReadFailure) Unwrap() error { return e.Cause }
+
 type Span struct{ Start, End, Line, Column int }
 type Document struct {
 	File   string
@@ -39,20 +49,29 @@ type Document struct {
 func ReadFile(path string) (*Document, error) {
 	fd, err := unix.Open(path, unix.O_RDONLY|unix.O_NONBLOCK|unix.O_CLOEXEC, 0)
 	if err != nil {
-		return nil, err
+		if os.IsNotExist(err) {
+			return nil, err
+		}
+		return nil, &ReadFailure{path, err}
 	}
 	f := os.NewFile(uintptr(fd), path)
 	defer f.Close()
 	st, err := f.Stat()
 	if err != nil {
-		return nil, err
+		if os.IsNotExist(err) {
+			return nil, err
+		}
+		return nil, &ReadFailure{path, err}
 	}
 	if !st.Mode().IsRegular() {
-		return nil, fmt.Errorf("Config input is not a regular file")
+		return nil, &ReadFailure{path, fmt.Errorf("Config input is not a regular file")}
 	}
 	b, err := input.Read(f)
 	if err != nil {
-		return nil, err
+		if os.IsNotExist(err) {
+			return nil, err
+		}
+		return nil, &ReadFailure{path, err}
 	}
 	return Parse(path, b)
 }

@@ -18,10 +18,17 @@ type rawOutput struct {
 }
 
 func dispatch(ctx context.Context, args []string, r *contract.Registry, opts Options) (any, error) {
-	x, err := Parse(args, r)
+	stage := func(name string) {
+		injectFault(name, environment(opts))
+		if opts.Stage != nil {
+			opts.Stage(name)
+		}
+	}
+	x, err := parseWithStage(args, r, stage)
 	if err != nil {
 		return nil, err
 	}
+	stage("execution")
 	value, err := handleInvocation(ctx, x, r, opts)
 	if err != nil {
 		return value, err

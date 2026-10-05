@@ -402,9 +402,10 @@ func TestADIRECT02InterruptionsAndProtocol(t *testing.T) {
 				t.Fatal(err)
 			}
 			_, err = f.Adapter.Perform(context.Background(), p)
-			requireErrorCode(t, err, "UPSTREAM_FAILURE")
+			code := "TURN_FAILED"
+			requireErrorCode(t, err, code)
 			_, err = f.Adapter.Perform(context.Background(), p)
-			requireErrorCode(t, err, "UPSTREAM_FAILURE")
+			requireErrorCode(t, err, code)
 			if p.IntendedIdentity != out.Completion.SessionID || f.calls() != 2 {
 				t.Fatal("Failed resume replaced", f.calls())
 			}

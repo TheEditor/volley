@@ -17,6 +17,7 @@ import (
 )
 
 type State struct {
+	Context            *store.FileObservation           `json:"context,omitempty"`
 	RecordVersion      int                              `json:"record_version"`
 	RunID              string                           `json:"run_id"`
 	Settings           config.Settings                  `json:"settings"`
@@ -30,6 +31,7 @@ type State struct {
 	QuestionPending    bool                             `json:"question_pending"`
 	QuestionObserved   store.FileObservation            `json:"question_observed"`
 	OrdinaryReceipt    *store.ReceiptRef                `json:"ordinary_receipt,omitempty"`
+	Warnings           []contract.Warning               `json:"warnings,omitempty"`
 	Auxiliary          Auxiliary                        `json:"auxiliary"`
 }
 
@@ -70,6 +72,9 @@ func stringsHasEnginePrefix(path string) bool {
 }
 
 func saveState(s *store.Store, m store.Snapshot, state State, kind string, artifacts []store.Artifact, receipt *store.ReceiptRef) error {
+	if len(state.Warnings) > 0 {
+		m["warnings"] = state.Warnings
+	}
 	id, err := store.NewID()
 	if err != nil {
 		return err

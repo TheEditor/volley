@@ -13,3 +13,6 @@ Declared inspection commands accept `--deliver=file:PATH` and `--deliver=null`. 
 `feedback TEXT --idempotency-key=KEY` saves only the supplied text locally. Repeating the same key and text succeeds. Changed text with that key refuses. It makes no network call.
 
 See [command proof](../internal/cli/CLI-PROOF.md) for the checked scope and remaining gates.
+
+The conformance command now runs generated probes and checks reviewed profile pins.
+See [contract proof](../internal/conformance/CONFORMANCE-PROOF.md) for the profile limits and response examples.

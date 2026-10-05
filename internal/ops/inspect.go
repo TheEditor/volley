@@ -169,7 +169,11 @@ func data(s *store.Store, m store.Snapshot) map[string]any {
 	}
 	owner := s.ObserveOwner()
 	a := action(m, owner)
-	return map[string]any{"run_id": m["run_id"], "workspace": s.Path, "status": m["status"], "phase": m["phase"], "round": m["round"], "max_rounds": m["max_rounds"], "turn": m["current_turn"], "question_id": q, "spec_hash": m["spec_hash"], "owner": owner, "retention": m["retention"], "next_action": a["rationale"], "recommended_action": a}
+	value := map[string]any{"run_id": m["run_id"], "workspace": s.Path, "status": m["status"], "phase": m["phase"], "round": m["round"], "max_rounds": m["max_rounds"], "turn": m["current_turn"], "question_id": q, "spec_hash": m["spec_hash"], "owner": owner, "retention": m["retention"], "next_action": a["rationale"], "recommended_action": a}
+	if warnings, ok := m["warnings"]; ok {
+		value["warning_records"] = warnings
+	}
+	return value
 }
 func probes(ctx context.Context, o Options, s *store.Store, m store.Snapshot) ([]Probe, error) {
 	if o.Probe != nil {

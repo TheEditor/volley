@@ -501,19 +501,22 @@ func (d *Direct) Perform(ctx context.Context, p review.PreparedTurn) (review.Tur
 		if errors.As(err, &typed) {
 			code = typed.Code
 		}
+	} else if result.Settled && result.TimedOut {
+		out.Kind = review.Failed
+		code = "TURN_TIMEOUT"
 	} else if !result.Settled || result.Outcome != process.Exited {
 		out.Kind = review.Uncertain
 		code = "TURN_UNCERTAIN"
 	} else if err != nil || result.Exit != 0 {
 		out.Kind = review.Failed
-		code = "UPSTREAM_FAILURE"
+		code = "TURN_FAILED"
 	} else {
 		out.Kind = review.Completed
 	}
 	if q.Provider == "codex" && result.Started {
 		writer.finish()
 		out.Completion.SessionID = writer.session
-		if out.Kind != review.Uncertain && (writer.err != nil || result.Exit == 0 && !writer.completed) {
+		if out.Kind != review.Uncertain && !result.TimedOut && result.Exit == 0 && (writer.err != nil || !writer.completed) {
 			out.Kind = review.Failed
 			code = "UPSTREAM_FAILURE"
 			out.Warnings = append(out.Warnings, "Invalid or incomplete Codex event protocol")

@@ -69,6 +69,9 @@
               "ok",
               "code"
             ]
+          },
+          "request_id": {
+            "type": "string"
           }
         },
         "required": [
@@ -76,7 +79,8 @@
           "target",
           "verdict",
           "reason",
-          "observed"
+          "observed",
+          "request_id"
         ]
       }
     },
@@ -105,12 +109,33 @@
       "items": {
         "type": "string"
       }
+    },
+    "limits": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "environment_reads": {
+          "type": "string"
+        },
+        "raw_output": {
+          "type": "string"
+        },
+        "registry_reproductions": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "environment_reads",
+        "raw_output",
+        "registry_reproductions"
+      ]
     }
   },
   "required": [
     "profile",
     "results",
     "counts",
-    "verdicts"
+    "verdicts",
+    "limits"
   ]
 }
