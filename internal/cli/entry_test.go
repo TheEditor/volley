@@ -73,7 +73,12 @@ func TestCapabilitiesOnlyWorkingHandlers(t *testing.T) {
 	if err := json.Unmarshal(out.Bytes(), &result); err != nil {
 		t.Fatal(err)
 	}
-	if len(result.Data.Commands) != 7 || result.Data.Commands["run"] == nil || result.Data.Commands["runs stop"] != nil {
+	for _, name := range []string{"run", "status", "doctor", "runs list", "runs get", "runs events", "runs stop", "runs prune", "human questions"} {
+		if result.Data.Commands[name] == nil {
+			t.Fatalf("working handler missing: %s", name)
+		}
+	}
+	if result.Data.Commands["runs resolve"] != nil || result.Data.Commands["workspace legacy-report"] != nil {
 		t.Fatal("unimplemented handler advertised")
 	}
 }

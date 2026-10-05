@@ -213,6 +213,33 @@
           "type": "null"
         }
       ]
+    },
+    "probes": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "name": {
+            "type": "string"
+          },
+          "effect": {
+            "type": "string"
+          },
+          "checked": {
+            "type": "boolean"
+          },
+          "detail": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "name",
+          "effect",
+          "checked",
+          "detail"
+        ]
+      }
     }
   },
   "required": [

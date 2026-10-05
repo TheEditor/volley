@@ -9,6 +9,8 @@ decision needs the user's answer.
 The Go engine is in development. The Bash command remains the default.
 See [the Go review result guide](docs/go-review.md) for exact approval,
 additional reviews, and restoration after rejected closing changes.
+See [the Go inspection guide](docs/go-inspection.md) for saved-state reads,
+event pages, stop requests, and index pruning.
 
 ## Usage
 

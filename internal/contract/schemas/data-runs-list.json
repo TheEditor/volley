@@ -28,10 +28,7 @@
         },
         "required": [
           "run_id",
-          "workspace",
-          "created_at",
-          "status",
-          "revision"
+          "workspace"
         ]
       }
     },

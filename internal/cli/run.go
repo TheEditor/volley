@@ -13,12 +13,14 @@ import (
 	"path/filepath"
 	"strconv"
 	"strings"
+	"time"
 	"unicode/utf8"
 
 	"github.com/TheEditor/volley/internal/config"
 	"github.com/TheEditor/volley/internal/contract"
 	"github.com/TheEditor/volley/internal/engine"
 	"github.com/TheEditor/volley/internal/human"
+	"github.com/TheEditor/volley/internal/ops"
 	"github.com/TheEditor/volley/internal/store"
 	"golang.org/x/sys/unix"
 )
@@ -167,8 +169,15 @@ func ParseRun(args []string, r *contract.Registry) (Invocation, error) {
 	if x.Values["--help"] == true {
 		return x, nil
 	}
-	if len(x.Positionals) != 1 {
-		return x, r.Error("INVALID_INPUT", "Exactly one workspace is required")
+	cmd := r.Commands[x.Command]
+	minimum := 0
+	for _, p := range cmd.Positionals {
+		if p.Required {
+			minimum++
+		}
+	}
+	if len(x.Positionals) < minimum || len(x.Positionals) > len(cmd.Positionals) {
+		return x, r.Error("INVALID_INPUT", "Invalid number of positional arguments")
 	}
 	if x.Values["--interactive"] == true && (x.Values["--wait"] != true || x.Values["--json"] == true) {
 		return x, r.Error("INVALID_INPUT", "Interactive requires --wait and human rendering")
@@ -201,7 +210,7 @@ func dispatch(ctx context.Context, args []string, r *contract.Registry, opts Opt
 			}
 			continue
 		}
-		isRun = arg == "run" || arg == "runs" || arg == "human"
+		isRun = arg == "run" || arg == "runs" || arg == "human" || arg == "status" || arg == "doctor"
 		break
 	}
 	if !isRun {
@@ -212,9 +221,35 @@ func dispatch(ctx context.Context, args []string, r *contract.Registry, opts Opt
 		return nil, err
 	}
 	if x.Values["--help"] == true {
-		return map[string]any{"usage": "volley " + x.Command + " WORKSPACE [FLAGS]\n--wait-timeout is a per-turn execution budget. Unanswered questions have no time limit.\n", "capabilities_command": "volley capabilities --json", "default_action": nil}, nil
+		text := "volley " + x.Command
+		for _, p := range r.Commands[x.Command].Positionals {
+			text += " " + p.Name
+		}
+		text += " [FLAGS]\n"
+		if x.Command == "run" || x.Command == "runs resume" {
+			text += "--wait-timeout is a per-turn execution budget. Unanswered questions have no time limit.\n"
+		}
+		if x.Command == "runs get" || x.Command == "runs events" {
+			text += "--wait-timeout limits inspection. It does not stop the owner.\n"
+		}
+		return map[string]any{"usage": text, "capabilities_command": "volley capabilities --json", "default_action": nil}, nil
 	}
-	workspace, err := filepath.Abs(x.Positionals[0])
+	if x.Command != "run" && x.Command != "runs resume" && x.Command != "human answer" && x.Command != "human steer" && x.Command != "human skip" {
+		return handleOps(ctx, x, r, opts)
+	}
+	env := os.Environ()
+	if opts.RunOptions != nil {
+		env = opts.RunOptions.Env
+	}
+	operator := ops.Options{IndexDir: ops.StateDir(env)}
+	selected := x.Positionals[0]
+	if x.Command != "run" {
+		selected, err = operator.Resolve(selected)
+	}
+	if err != nil {
+		return nil, translateError(r, err)
+	}
+	workspace, err := filepath.Abs(selected)
 	if err != nil {
 		return nil, r.Error("INVALID_INPUT", err.Error())
 	}
@@ -231,6 +266,9 @@ func dispatch(ctx context.Context, args []string, r *contract.Registry, opts Opt
 	options := engine.Options{Env: os.Environ()}
 	if opts.RunOptions != nil {
 		options = *opts.RunOptions
+	}
+	if options.Register == nil {
+		options.Register = operator.Register
 	}
 	terminal := false
 	if f, ok := input.(*os.File); ok {
@@ -304,6 +342,51 @@ func dispatch(ctx context.Context, args []string, r *contract.Registry, opts Opt
 	}
 	data, err := engine.Run(ctx, request, options)
 	return data, translateError(r, err)
+}
+
+func handleOps(ctx context.Context, x Invocation, r *contract.Registry, opts Options) (any, error) {
+	env := os.Environ()
+	if opts.RunOptions != nil {
+		env = opts.RunOptions.Env
+	}
+	named, _ := x.Values["--config"].(string)
+	o := ops.Options{IndexDir: ops.StateDir(env), Now: opts.Now, Env: env, ConfigFile: named}
+	request := ops.Request{Command: x.Command, Wait: x.Values["--wait"] == true, Probe: x.Values["--probe"] == true, DryRun: x.Values["--dry-run"] == true, Yes: x.Values["--yes"] == true, Limit: 25}
+	if len(x.Positionals) > 0 {
+		request.Selector = x.Positionals[0]
+	}
+	if v, ok := x.Values["--workspace"].(string); ok {
+		request.Selector = v
+	}
+	for flag, target := range map[string]*string{"--since-cursor": &request.Cursor, "--cursor": &request.Cursor, "--fields": &request.Fields} {
+		if v, ok := x.Values[flag].(string); ok {
+			*target = v
+		}
+	}
+	if v, ok := x.Values["--limit"].(int); ok {
+		request.Limit = v
+		if v < 1 || v > 100 {
+			return nil, r.Error("INVALID_INPUT", "Limit must be 1 through 100")
+		}
+	}
+	for flag, target := range map[string]*time.Duration{"--wait-timeout": &request.Timeout, "--older-than": &request.OlderThan} {
+		if v, ok := x.Values[flag].(string); ok {
+			duration, e := time.ParseDuration(v)
+			if e != nil || duration < 0 {
+				return nil, r.Error("INVALID_INPUT", "Invalid duration for "+flag)
+			}
+			*target = duration
+		}
+	}
+	value, err := o.Handle(ctx, request)
+	if ctx.Err() != nil {
+		code := "CONTROLLER_INTERRUPTED"
+		if fmt.Sprint(context.Cause(ctx)) == "SIGTERM" {
+			code = "CONTROLLER_STOPPED"
+		}
+		return value, r.Error(code, "Inspection was interrupted; the owner was not stopped")
+	}
+	return value, translateError(r, err)
 }
 
 func envValue(env []string, key string) string {

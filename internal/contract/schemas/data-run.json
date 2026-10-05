@@ -222,6 +222,12 @@
     },
     "final_result": {
       "$ref": "final-result.json"
+    },
+    "warnings": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
     }
   },
   "required": [

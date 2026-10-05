@@ -213,6 +213,35 @@
           "type": "null"
         }
       ]
+    },
+    "dry_run": {
+      "type": "boolean"
+    },
+    "effects": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "control_receipt": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "path": {
+          "type": "string"
+        },
+        "sha256": {
+          "type": "string"
+        },
+        "applied": {
+          "type": "boolean"
+        }
+      },
+      "required": [
+        "path",
+        "sha256",
+        "applied"
+      ]
     }
   },
   "required": [

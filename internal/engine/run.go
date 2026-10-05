@@ -42,7 +42,8 @@ type Options struct {
 	Clock  human.Clock
 	Fault  store.Fault
 	// Hook is a harness seam. Release builds have no environment trigger.
-	Hook func(string, *store.Store) error
+	Hook     func(string, *store.Store) error
+	Register func(context.Context, store.Snapshot) error
 }
 
 type Owner struct {
@@ -138,6 +139,15 @@ func Run(ctx context.Context, request Request, options Options) (map[string]any,
 	if err != nil {
 		return Data(m), err
 	}
+	indexWarning := false
+	if options.Register != nil {
+		current, _, e := s.LoadSnapshot()
+		if e == nil {
+			indexWarning = options.Register(ctx, current) != nil
+		}
+	}
+	ctx, stopMonitor := watchStop(ctx, s.Path, o.State.RunID)
+	defer stopMonitor()
 	err = o.drive(ctx)
 	if ctx.Err() != nil {
 		err = o.interrupted(ctx)
@@ -150,6 +160,9 @@ func Run(ctx context.Context, request Request, options Options) (map[string]any,
 		return nil, loadErr
 	}
 	data := Data(m)
+	if indexWarning {
+		data["warnings"] = []string{"INDEX_UNAVAILABLE"}
+	}
 	if m.String("status") == "approved" {
 		if err == nil {
 			data["final_result"] = o.auxiliaryData(m)
@@ -674,7 +687,22 @@ func (o *Owner) interrupted(ctx context.Context) error {
 	}
 	m, err := o.snapshot()
 	if err == nil {
+		status := m.String("status")
 		m["status"] = "handover"
+		if stopped, ok := context.Cause(ctx).(stopControl); ok {
+			code = "CONTROLLER_STOPPED"
+			if prior := m.Object("stop_control"); prior["sha256"] == stopped.Receipt.Hash && prior["applied"] == true {
+				return failure(code, "Controller stop is recorded", nil)
+			}
+			m["status"] = "stopped"
+			if status == "approved" || status == "impasse" {
+				m["status"] = status
+			}
+			m["stop_control"] = map[string]any{"path": stopped.Receipt.Path, "sha256": stopped.Receipt.Hash, "applied": true}
+			if turn := m.Object("current_turn"); len(turn) > 0 {
+				turn["delivery_uncertain"] = true
+			}
+		}
 		m["errors"] = append(stringsOf(m["errors"]), code)
 		_ = saveState(o.Store, m, o.State, "control", nil, nil)
 	}

@@ -166,6 +166,22 @@ func Execute(ctx context.Context, args []string, out, stderr io.Writer, opts Opt
 			}
 		}
 		result.Data, err = command(ctx, args, reg)
+		if data, ok := result.Data.(map[string]any); ok {
+			if warnings, ok := data["warnings"].([]string); ok {
+				for _, code := range warnings {
+					message := ""
+					switch code {
+					case "INDEX_UNAVAILABLE":
+						message = "Run index registration failed; workspace reads remain available"
+					case "ENV_SETTING_IGNORED":
+						message = "Retired setting variable is ignored"
+					}
+					if message != "" {
+						result.Warnings = append(result.Warnings, contract.Warning{Code: code, Message: message, Evidence: map[string]any{"scope": "command"}})
+					}
+				}
+			}
+		}
 	}
 	if err != nil {
 		var declared *contract.Error
@@ -182,7 +198,7 @@ func Execute(ctx context.Context, args []string, out, stderr io.Writer, opts Opt
 }
 
 func usage() string {
-	return "volley — specification review\n\nUSAGE: volley [GLOBAL_FLAGS] COMMAND\n\nAvailable: run, runs resume, human answer, human steer, human skip, capabilities, schema, --help, --version.\nThis review slice uses direct agents.\nAutomation: volley capabilities --json\n"
+	return "volley — specification review\n\nUSAGE: volley [GLOBAL_FLAGS] COMMAND\n\nAvailable: run, status, doctor, runs list/get/events/stop/prune/resume, human questions/answer/steer/skip, capabilities, schema, --help, --version.\nThis review slice uses direct agents.\nAutomation: volley capabilities --json\n"
 }
 
 // Initial handlers expose only the working declaration/asset boundary.
@@ -228,7 +244,8 @@ func initialCommand(_ context.Context, args []string, r *contract.Registry) (any
 		}
 		commands := v["commands"].(map[string]any)
 		for name := range commands {
-			if name != "capabilities" && name != "schema" && name != "run" && name != "runs resume" && name != "human answer" && name != "human steer" && name != "human skip" {
+			available := map[string]bool{"capabilities": true, "schema": true, "run": true, "runs resume": true, "human answer": true, "human steer": true, "human skip": true, "human questions": true, "status": true, "doctor": true, "runs list": true, "runs get": true, "runs events": true, "runs stop": true, "runs prune": true}
+			if !available[name] {
 				delete(commands, name)
 			}
 		}

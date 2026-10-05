@@ -1889,6 +1889,46 @@
         "path",
         "sha256"
       ]
+    },
+    "stop_control": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "path": {
+          "type": "string"
+        },
+        "sha256": {
+          "type": "string"
+        },
+        "applied": {
+          "type": "boolean"
+        }
+      },
+      "required": [
+        "path",
+        "sha256",
+        "applied"
+      ]
+    },
+    "recovery": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "code": {
+          "type": "string"
+        },
+        "missing_receipt": {
+          "type": "boolean"
+        },
+        "bindings_verified": {
+          "type": "boolean"
+        }
+      },
+      "required": [
+        "code",
+        "missing_receipt",
+        "bindings_verified"
+      ]
     }
   },
   "required": [

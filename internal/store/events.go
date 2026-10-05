@@ -130,6 +130,24 @@ func (s *Store) ProjectEvents() error {
 
 // Events exposes the validated committed prefix; a final partial line is hidden.
 func (s *Store) Events() ([]map[string]any, error) {
+	for range 4 {
+		_, before, err := s.LoadSnapshot()
+		if err != nil {
+			return nil, err
+		}
+		result, readErr := s.events()
+		_, after, err := s.LoadSnapshot()
+		if err != nil {
+			return nil, err
+		}
+		if before == after {
+			return result, readErr
+		}
+	}
+	return nil, fail("LOCKED", "state/events.jsonl", "Checkpoint changed during event inspection")
+}
+
+func (s *Store) events() ([]map[string]any, error) {
 	history, err := s.History()
 	if err != nil {
 		return nil, err
