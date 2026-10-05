@@ -10,8 +10,6 @@ import (
 	"fmt"
 	"io"
 	"os"
-	"runtime"
-	"runtime/debug"
 	"strconv"
 	"strings"
 	"time"
@@ -63,9 +61,9 @@ func Execute(ctx context.Context, args []string, out, stderr io.Writer, opts Opt
 		if opts.Entrypoint == "codex-volley" {
 			planner = "codex"
 		}
-		args = append([]string{"run"}, args...)
-		args = append(args, "--planner", planner)
+		args = append([]string{"run", "--planner", planner}, args...)
 	}
+	var raw []byte
 	var reg *contract.Registry
 	start := time.Now()
 	result := contract.Result{Warnings: []contract.Warning{}, Commands: []string{}, Errors: []*contract.Error{}}
@@ -88,7 +86,7 @@ func Execute(ctx context.Context, args []string, out, stderr io.Writer, opts Opt
 		result.Meta.ContractVersion = reg.ContractVersion
 		if wrapper {
 			result.Meta.Entrypoint = opts.Entrypoint
-			result.Meta.ExitSemantics = "legacy_wrapper"
+			result.Meta.ExitSemantics = "legacy"
 		}
 		result.Meta.SchemaVersion = "1"
 		result.Meta.ElapsedMS = time.Since(start).Milliseconds()
@@ -114,6 +112,11 @@ func Execute(ctx context.Context, args []string, out, stderr io.Writer, opts Opt
 			enc := json.NewEncoder(out)
 			enc.SetEscapeHTML(false)
 			if err := enc.Encode(result); err != nil {
+				fmt.Fprintln(stderr, "Cannot write response")
+				exit = reg.Error("INTERNAL", "Cannot write response").Exit
+			}
+		} else if result.OK && raw != nil {
+			if _, err := out.Write(raw); err != nil {
 				fmt.Fprintln(stderr, "Cannot write response")
 				exit = reg.Error("INTERNAL", "Cannot write response").Exit
 			}
@@ -193,6 +196,11 @@ func Execute(ctx context.Context, args []string, out, stderr io.Writer, opts Opt
 			}
 		}
 		result.Data, err = command(ctx, args, reg)
+		if output, ok := result.Data.(rawOutput); ok {
+			result.Data = output.Data
+			raw = output.Bytes
+			result.Warnings = append(result.Warnings, output.Warnings...)
+		}
 		if data, ok := result.Data.(map[string]any); ok {
 			if warnings, ok := data["warnings"].([]string); ok {
 				for _, code := range warnings {
@@ -225,78 +233,5 @@ func Execute(ctx context.Context, args []string, out, stderr io.Writer, opts Opt
 }
 
 func usage() string {
-	return "volley — specification review\n\nUSAGE: volley [GLOBAL_FLAGS] COMMAND\n\nAvailable: run, status, doctor, runs list/get/events/stop/prune/resume/resolve, workspace legacy-report, human questions/answer/steer/skip, capabilities, schema, --help, --version.\nThis review slice uses direct agents.\nAutomation: volley capabilities --json\n"
-}
-
-// Initial handlers expose only the working declaration/asset boundary.
-// Final command parsing and execution are supplied by later task handlers.
-func initialCommand(_ context.Context, args []string, r *contract.Registry) (any, error) {
-	filtered := []string{}
-	for _, a := range args {
-		if a == "--json" {
-			continue
-		}
-		if strings.HasPrefix(a, "--json=") {
-			return nil, r.Error("INVALID_INPUT", "--json takes no value")
-		}
-		filtered = append(filtered, a)
-	}
-	if len(filtered) == 0 || filtered[0] == "--help" || filtered[0] == "-h" {
-		return map[string]any{"usage": usage(), "capabilities_command": "volley capabilities --json", "default_action": nil}, nil
-	}
-	if filtered[0] == "--version" {
-		build := map[string]any{"commit": "", "date": "", "go": runtime.Version(), "platform": runtime.GOOS + "/" + runtime.GOARCH, "modified": nil}
-		if info, ok := debug.ReadBuildInfo(); ok {
-			for _, s := range info.Settings {
-				switch s.Key {
-				case "vcs.revision":
-					build["commit"] = s.Value
-				case "vcs.time":
-					build["date"] = s.Value
-				case "vcs.modified":
-					build["modified"] = s.Value == "true"
-				}
-			}
-		}
-		return map[string]any{"contract_version": r.ContractVersion, "build": build}, nil
-	}
-	switch filtered[0] {
-	case "capabilities":
-		if len(filtered) != 1 {
-			return nil, r.Error("UNKNOWN_FLAG", "Unsupported capabilities argument")
-		}
-		v, err := contract.RawRegistry()
-		if err != nil {
-			return nil, err
-		}
-		commands := v["commands"].(map[string]any)
-		for name := range commands {
-			available := map[string]bool{"capabilities": true, "schema": true, "run": true, "runs resume": true, "human answer": true, "human steer": true, "human skip": true, "human questions": true, "status": true, "doctor": true, "runs list": true, "runs get": true, "runs events": true, "runs stop": true, "runs prune": true, "runs resolve": true, "workspace legacy-report": true}
-			if !available[name] {
-				delete(commands, name)
-			}
-		}
-		return v, nil
-	case "schema":
-		name := "envelope"
-		if len(filtered) > 1 {
-			name = filtered[1]
-		}
-		if len(filtered) > 2 {
-			return nil, r.Error("INVALID_INPUT", "Too many schema arguments")
-		}
-		if strings.ContainsAny(name, "/\\") {
-			return nil, r.Error("INVALID_INPUT", "Schema name must not contain a path")
-		}
-		b, err := contract.Schema(name)
-		if err != nil {
-			return nil, r.Error("NOT_FOUND", "Unknown schema")
-		}
-		var v any
-		d := json.NewDecoder(strings.NewReader(string(b)))
-		d.UseNumber()
-		err = d.Decode(&v)
-		return v, err
-	}
-	return nil, r.Error("UNKNOWN_COMMAND", "This command has no Go handler yet")
+	return "volley — specification review\n\nUSAGE: volley [GLOBAL_FLAGS] COMMAND\n       volley WORKSPACE [RUN_FLAGS]\n\nplan WORKSPACE: preview; run WORKSPACE: execute; status WORKSPACE: inspect\nruns list/get/resume/stop/resolve/events/prune\nhuman questions/answer/steer/skip\nworkspace legacy-report WORKSPACE\nconfig show/get/validate/schema/set/patch/edit\ndoctor --workspace WORKSPACE; feedback TEXT\ncapabilities; schema [NAME]; robot-docs guide; conformance\n--help; --version\n\nAutomation: volley capabilities --json; volley schema; volley robot-docs guide\nBoolean settings take true or false. Selectors take no value.\nRun/resume --wait-timeout limits each turn. Get/events use a read-wait budget.\n"
 }

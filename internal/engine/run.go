@@ -125,11 +125,18 @@ func Run(ctx context.Context, request Request, options Options) (map[string]any,
 		if err = o.preflight(); err != nil {
 			return nil, err
 		}
-		m, err = initialize(s, settings)
+		creation, e := o.creationRecord()
+		if e != nil {
+			return nil, e
+		}
+		m, err = initialize(s, settings, creation)
 		if err != nil {
 			return nil, err
 		}
-		if err = o.create(ctx, m); err != nil {
+		if err = o.hook("engine.creation.committed"); err != nil {
+			return Data(m), err
+		}
+		if err = o.recoverCreation(ctx, m); err != nil {
 			return Data(m), err
 		}
 	} else {
@@ -140,7 +147,12 @@ func Run(ctx context.Context, request Request, options Options) (map[string]any,
 		if err != nil {
 			return nil, err
 		}
-		if err = o.attach(ctx, m); err != nil {
+		if m.String("phase") == "prepare" && len(m.Object("engine")) == 0 {
+			err = o.recoverCreation(ctx, m)
+		} else {
+			err = o.attach(ctx, m)
+		}
+		if err != nil {
 			return Data(m), err
 		}
 	}
@@ -270,6 +282,10 @@ func (o *Owner) preflight() error {
 
 func (o *Owner) create(ctx context.Context, m store.Snapshot) error {
 	s := o.Store
+	c, err := o.loadCreation(m)
+	if err != nil {
+		return err
+	}
 	seeds := make(map[string]store.FileObservation)
 	var artifacts []store.Artifact
 	for target, source := range map[string]string{"BRIEF.md": o.Request.Brief, "SPEC.md": o.Request.Seed} {
@@ -279,6 +295,9 @@ func (o *Owner) create(ctx context.Context, m store.Snapshot) error {
 		b, obs, err := readSeed(source)
 		if err != nil {
 			return err
+		}
+		if obs != c.Seeds[target] {
+			return failure("ARTIFACT_CHANGED", "Seed source changed during setup", map[string]any{"path": source})
 		}
 		seeds[target] = obs
 		old, err := observation(s, target)
@@ -325,10 +344,33 @@ func (o *Owner) create(ctx context.Context, m store.Snapshot) error {
 	if bindings["SPEC.md"].Kind == "absent" && bindings["BRIEF.md"].Kind == "absent" {
 		return failure("INVALID_INPUT", "A run needs BRIEF.md or SPEC.md", nil)
 	}
-	p, err := agent.Prepare(ctx, agent.PrepareOptions{Resolved: *o.Request.Resolved, Store: s, Runner: o.Options.Runner, Env: o.Options.Env, Billing: agent.BillingSelection{Allowed: o.Request.Resolved.Settings.AllowAPIKey, Explicit: o.Request.Explicit["allow_api_key"] != nil}})
+	m, _, err = s.LoadSnapshot()
 	if err != nil {
 		return err
 	}
+	var p agent.Prepared
+	if len(m.Object("preparation")) > 0 {
+		p, err = agent.DecodePreparation(s, m)
+		if err == nil {
+			err = p.CheckResume(agent.CaptureIdentity(o.Options.Env), nil, p.Record.Executables)
+		}
+		if err == nil {
+			err = frozenPreparedSettings(s, &p, *o.Request.Resolved)
+		}
+	} else {
+
+		p, err = agent.Prepare(ctx, agent.PrepareOptions{Resolved: *o.Request.Resolved, Store: s, Runner: o.Options.Runner, Env: o.Options.Env, Billing: agent.BillingSelection{Allowed: o.Request.Resolved.Settings.AllowAPIKey, Explicit: o.Request.Explicit["allow_api_key"] != nil}})
+		if err != nil {
+			return err
+		}
+	}
+	if err != nil {
+		return err
+	}
+	if err = o.hook("engine.preparation.committed"); err != nil {
+		return err
+	}
+
 	o.Prepared = p
 	hash, err := promptSetHash()
 	if err != nil {

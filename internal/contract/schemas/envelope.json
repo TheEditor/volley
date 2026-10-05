@@ -104,6 +104,9 @@
         },
         {
           "type": "null"
+        },
+        {
+          "$ref": "data-delivery.json"
         }
       ]
     },

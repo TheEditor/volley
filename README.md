@@ -11,6 +11,8 @@ See [the Go review result guide](docs/go-review.md) for exact approval,
 additional reviews, and restoration after rejected closing changes.
 See [the Go inspection guide](docs/go-inspection.md) for saved-state reads,
 event pages, stop requests, and index pruning.
+See [the Go command guide](docs/go-commands.md) for the native command tree,
+config commands, file output, and local feedback.
 
 ## Usage
 

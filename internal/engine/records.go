@@ -131,7 +131,7 @@ func promptSetHash() (string, error) {
 	return contract.HashBytes(b), err
 }
 
-func initialize(s *store.Store, settings config.Settings) (store.Snapshot, error) {
+func initialize(s *store.Store, settings config.Settings, creation Creation) (store.Snapshot, error) {
 	id, err := store.NewID()
 	if err != nil {
 		return nil, err
@@ -177,6 +177,10 @@ func initialize(s *store.Store, settings config.Settings) (store.Snapshot, error
 		"question": nil, "answers": []string{}, "steering": []string{}, "auxiliary": map[string]any{"second_opinion": "", "closing": "", "confirmation": "", "approved_hash": "", "rejected_hash": "", "skip_reason": "", "restoration_intent": "", "restoration_receipt": ""},
 		"retention": map[string]any{"kind": "retain", "reason": "Keep durable evidence", "panes": []string{}, "processes": []any{}}, "cleanup": map[string]any{"pending": false, "actions": []string{}},
 		"errors": []string{}, "recommended_commands": []string{}, "event_sequence": 0, "audit_pending": false, "index_registered": false, "preparation": nil,
+	}
+	m["creation"], err = stageCreation(s, id, creation)
+	if err != nil {
+		return nil, err
 	}
 	tx, err := s.NewTransaction("initialize", m, nil, nil)
 	if err != nil {

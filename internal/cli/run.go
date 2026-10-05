@@ -11,10 +11,8 @@ import (
 	"io"
 	"os"
 	"path/filepath"
-	"strconv"
 	"strings"
 	"time"
-	"unicode/utf8"
 
 	"github.com/TheEditor/volley/internal/config"
 	"github.com/TheEditor/volley/internal/contract"
@@ -28,221 +26,40 @@ import (
 
 type Invocation struct {
 	Command     string
+	Near        string
 	Positionals []string
 	Values      map[string]any
 	Settings    map[string]config.Override
 }
 
-// ParseRun uses the declared grammar for this runnable slice. The remaining
-// command tree and output delivery are completed in T20.
-func ParseRun(args []string, r *contract.Registry) (Invocation, error) {
-	x := Invocation{Values: make(map[string]any), Settings: make(map[string]config.Override)}
-	known := make(map[string]contract.Flag)
-	for _, f := range r.GlobalFlags {
-		if f.Name == "--json" || f.Name == "--config" || f.Name == "--help" {
-			known[f.Name] = f
+func handleInvocation(ctx context.Context, x Invocation, r *contract.Registry, opts Options) (any, error) {
+	var err error
+	if x.Values["--version"] == true {
+		return version(r), nil
+	}
+	if x.Command == "" || x.Values["--help"] == true {
+		return help(r, x.Command), nil
+	}
+	if x.Near != "" {
+		if _, e := os.Stat(x.Positionals[0]); os.IsNotExist(e) {
+			e := r.Error("UNKNOWN_COMMAND", "No workspace exists for the near command spelling")
+			e.DidYouMean = &x.Near
+			command := ops.Command("volley", x.Near)
+			e.Remediation = &command
+			return nil, e
+		} else if e != nil {
+			return nil, r.Error("INVALID_INPUT", e.Error())
 		}
 	}
-	seen := make(map[string]bool)
-	literal := false
-	for i := 0; i < len(args); i++ {
-		arg := args[i]
-		if !utf8.ValidString(arg) {
-			return x, r.Error("INVALID_INPUT", "Argument must be valid UTF-8")
-		}
-		if !literal && arg == "--" {
-			literal = true
-			continue
-		}
-		if !literal && strings.HasPrefix(arg, "-") {
-			name, raw, attached := strings.Cut(arg, "=")
-			if name == "-h" {
-				name = "--help"
-			}
-			f, ok := known[name]
-			if !ok {
-				return x, r.Error("UNKNOWN_FLAG", "Unknown flag: "+name)
-			}
-			if seen[name] && !f.Repeatable {
-				return x, r.Error("INVALID_INPUT", "Repeated flag: "+name)
-			}
-			seen[name] = true
-			var value any = true
-			if f.Arity == 0 {
-				if attached {
-					return x, r.Error("INVALID_INPUT", name+" takes no value")
-				}
-			} else {
-				if !attached {
-					if i+1 >= len(args) || strings.HasPrefix(args[i+1], "--") {
-						return x, r.Error("INVALID_INPUT", "Missing value for "+name)
-					}
-					i++
-					raw = args[i]
-				}
-				if raw == "" && !f.AllowEmpty {
-					return x, r.Error("INVALID_INPUT", "Empty value for "+name)
-				}
-				if !utf8.ValidString(raw) {
-					return x, r.Error("INVALID_INPUT", "Flag value must be valid UTF-8")
-				}
-				value = raw
-				switch f.Type {
-				case "integer":
-					n, err := strconv.Atoi(raw)
-					if err != nil {
-						return x, r.Error("INVALID_INPUT", "Invalid integer for "+name)
-					}
-					value = n
-				case "boolean":
-					if raw != "true" && raw != "false" {
-						return x, r.Error("INVALID_INPUT", "Boolean setting requires true or false")
-					}
-					value = raw == "true"
-				case "array":
-					var values []any
-					d := json.NewDecoder(strings.NewReader(raw))
-					if err := d.Decode(&values); err != nil {
-						return x, r.Error("INVALID_INPUT", "Array flag requires a JSON array")
-					}
-					if values == nil {
-						return x, r.Error("INVALID_INPUT", "Array flag requires a JSON array, not null")
-					}
-					var extra any
-					if d.Decode(&extra) != io.EOF {
-						return x, r.Error("INVALID_INPUT", "Array flag has trailing data")
-					}
-					value = values
-				}
-				if len(f.Enum) > 0 {
-					valid := false
-					for _, v := range f.Enum {
-						if v == raw {
-							valid = true
-						}
-					}
-					if !valid {
-						return x, r.Error("INVALID_INPUT", "Invalid value for "+name+"; allowed: "+strings.Join(f.Enum, ", "))
-					}
-				}
-			}
-			if strings.ContainsRune(raw, 0) {
-				return x, r.Error("INVALID_INPUT", "Flag value contains NUL")
-			}
-			x.Values[name] = value
-			if f.Setting != "" {
-				for _, s := range r.Settings {
-					if s.Key == f.Setting {
-						v, err := config.Validate(s, value)
-						if err != nil {
-							return x, r.Error("INVALID_INPUT", err.Error())
-						}
-						value = v
-					}
-				}
-				x.Settings[f.Setting] = config.Override{Value: value, Flag: name, Position: i + 1}
-			}
-			continue
-		}
-		if x.Command == "" {
-			x.Command = arg
-			if arg == "runs" || arg == "human" || arg == "workspace" {
-				if i+1 >= len(args) {
-					return x, r.Error("UNKNOWN_COMMAND", "Subcommand is required")
-				}
-				i++
-				x.Command += " " + args[i]
-			}
-			cmd, ok := r.Commands[x.Command]
-			if !ok {
-				return x, r.Error("UNKNOWN_COMMAND", "Unknown command: "+x.Command)
-			}
-			for _, f := range cmd.Flags {
-				known[f.Name] = f
-			}
-		} else {
-			if arg == "" {
-				return x, r.Error("INVALID_INPUT", "Empty workspace")
-			}
-			x.Positionals = append(x.Positionals, arg)
-		}
+	switch handlerKind(x.Command) {
+	case "meta":
+		return metadata(ctx, x, r, opts)
+	case "plan":
+		return plan(ctx, x, r, opts)
+	case "config":
+		return handleConfig(ctx, x, r, opts)
 	}
-	if x.Values["--help"] == true {
-		return x, nil
-	}
-	cmd := r.Commands[x.Command]
-	minimum := 0
-	for _, p := range cmd.Positionals {
-		if p.Required {
-			minimum++
-		}
-	}
-	if len(x.Positionals) < minimum || len(x.Positionals) > len(cmd.Positionals) {
-		return x, r.Error("INVALID_INPUT", "Invalid number of positional arguments")
-	}
-	if x.Values["--interactive"] == true && (x.Values["--wait"] != true || x.Values["--json"] == true) {
-		return x, r.Error("INVALID_INPUT", "Interactive requires --wait and human rendering")
-	}
-	if x.Values["--brief"] != nil && x.Values["--seed"] != nil {
-		return x, r.Error("INVALID_INPUT", "Brief and seed are mutually exclusive")
-	}
-	if x.Command == "human answer" && ((x.Values["--from-stdin"] == true) == (x.Values["--file"] != nil)) {
-		return x, r.Error("INVALID_INPUT", "Answer requires exactly one of --from-stdin or --file")
-	}
-	if (x.Command == "human answer" || x.Command == "human skip") && x.Values["--question-id"] == nil {
-		return x, r.Error("INVALID_INPUT", "Question ID is required")
-	}
-	if x.Command == "human steer" && x.Values["--from-stdin"] != true {
-		return x, r.Error("INVALID_INPUT", "Steering requires --from-stdin")
-	}
-	if x.Command == "runs resolve" {
-		if x.Values["--yes"] != true {
-			return x, r.Error("ACK_REQUIRED", "Resolution requires --yes")
-		}
-		if x.Values["--turn"] == nil || x.Values["--from-stdin"] != true {
-			return x, r.Error("MISSING_REQUIRED", "Resolution requires --turn and --from-stdin")
-		}
-	}
-	if x.Command == "human skip" && x.Values["--yes"] != true {
-		return x, r.Error("ACK_REQUIRED", "Question withdrawal requires --yes")
-	}
-	return x, nil
-}
 
-func dispatch(ctx context.Context, args []string, r *contract.Registry, opts Options) (any, error) {
-	isRun := false
-	for i := 0; i < len(args); i++ {
-		arg := args[i]
-		if strings.HasPrefix(arg, "-") {
-			if arg == "--config" {
-				i++
-			}
-			continue
-		}
-		isRun = arg == "run" || arg == "runs" || arg == "human" || arg == "status" || arg == "doctor" || arg == "workspace"
-		break
-	}
-	if !isRun {
-		return initialCommand(ctx, args, r)
-	}
-	x, err := ParseRun(args, r)
-	if err != nil {
-		return nil, err
-	}
-	if x.Values["--help"] == true {
-		text := "volley " + x.Command
-		for _, p := range r.Commands[x.Command].Positionals {
-			text += " " + p.Name
-		}
-		text += " [FLAGS]\n"
-		if x.Command == "run" || x.Command == "runs resume" {
-			text += "--wait-timeout is a per-turn execution budget. Unanswered questions have no time limit.\n"
-		}
-		if x.Command == "runs get" || x.Command == "runs events" {
-			text += "--wait-timeout limits inspection. It does not stop the owner.\n"
-		}
-		return map[string]any{"usage": text, "capabilities_command": "volley capabilities --json", "default_action": nil}, nil
-	}
 	if x.Command == "workspace legacy-report" {
 		d, e := migration.Report(x.Positionals[0])
 		return d, translateError(r, e)
@@ -498,4 +315,9 @@ func handleHuman(ctx context.Context, x Invocation, workspace string, input io.R
 		data["question_id"] = question
 	}
 	return data, nil
+}
+
+func isTerminal(f *os.File) bool {
+	_, err := unix.IoctlGetTermios(int(f.Fd()), terminalRequest())
+	return err == nil
 }

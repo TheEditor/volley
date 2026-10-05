@@ -1,0 +1,30 @@
+{
+  "type": "object",
+  "additionalProperties": false,
+  "properties": {
+    "target": {
+      "type": "string"
+    },
+    "path": {
+      "type": "string"
+    },
+    "sha256": {
+      "type": "string"
+    },
+    "bytes": {
+      "type": "integer"
+    },
+    "duplicate": {
+      "type": "boolean"
+    }
+  },
+  "required": [
+    "target",
+    "path",
+    "sha256",
+    "bytes",
+    "duplicate"
+  ],
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://volley.invalid/schema/1/data-delivery"
+}

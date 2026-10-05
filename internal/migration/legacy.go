@@ -118,7 +118,7 @@ func CheckStart(path string) error {
 		var e *contract.Error
 		if errors.As(err, &e) {
 			e.Path = &s.Path
-			command := ops.Command("volley", "doctor", s.Path)
+			command := ops.Command("volley", "doctor", "--workspace", s.Path)
 			e.Remediation = &command
 			e.Evidence = map[string]any{"recipe": Recipe(s.Path), "preserve": "Keep broken state. Restore a verified workspace copy or use a fresh workspace without old state or sessions."}
 		}
