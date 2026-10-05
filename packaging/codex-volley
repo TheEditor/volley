@@ -1,0 +1,21 @@
+#!/bin/bash
+# Prepared Go launcher. No download, build, or legacy-engine fallback.
+source_path=${BASH_SOURCE[0]}
+case "$source_path" in */*) launcher_dir=${source_path%/*} ;; *) launcher_dir=. ;; esac
+launcher_dir=$(cd -- "$launcher_dir" && pwd -P) || exit 1
+checkout=
+if [[ -f "$launcher_dir/go.mod" && -f "$launcher_dir/cmd/volley/main.go" ]]; then
+    checkout=$launcher_dir
+elif [[ ${launcher_dir##*/} == packaging && -f "$launcher_dir/../go.mod" && -f "$launcher_dir/../cmd/volley/main.go" ]]; then
+    checkout=$(cd -- "$launcher_dir/.." && pwd -P) || exit 1
+fi
+engine=$launcher_dir/volley
+if [[ -n "$checkout" ]]; then engine=$checkout/build/volley; fi
+if [[ ! -x "$engine" ]]; then
+    echo "Volley executable is missing: $engine" >&2
+    exit 1
+fi
+if [[ $# == 0 ]]; then
+    if [[ -n "$checkout" ]]; then set -- "$checkout"; else set -- run; fi
+fi
+exec -a codex-volley "$engine" --planner codex "$@"

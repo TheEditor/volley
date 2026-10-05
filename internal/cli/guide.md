@@ -34,3 +34,11 @@ Retired setting variables are ignored with a warning. `SOURCE_DATE_EPOCH` sets r
 Recoverable Go panics return INTERNAL. Runtime fatal errors, SIGKILL and failed output writes cannot guarantee a complete envelope. Saved storage records remain the recovery authority. No deep package exits the process.
 
 Real Gashki engine integration and generated conformance pins are separate checks in the implementation queue. Required live vendor checks need explicit approval for a concrete procedure with at most eight new conversations. A stub pass does not satisfy that gate. Publication needs separate approval. The source Bash launchers remain the default until the final gates pass.
+
+
+Prepared legacy launchers accept native commands. Historical positional use waits.
+Role launchers pass explicit planner flags. Installed launchers require an explicit
+workspace; source-checkout launchers with no arguments select the checkout.
+Legacy 0/2/1 mapping preserves native error evidence in JSON and leaves signal
+exits 130/143 unchanged. Live vendor enforcement and the default switch remain
+gated. See the repository migration guide for C01–C15 and D01–D06.

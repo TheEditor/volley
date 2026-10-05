@@ -18,6 +18,11 @@ type rawOutput struct {
 }
 
 func dispatch(ctx context.Context, args []string, r *contract.Registry, opts Options) (any, error) {
+	var err error
+	args, err = launcherArgs(args, r, opts)
+	if err != nil {
+		return nil, err
+	}
 	stage := func(name string) {
 		injectFault(name, environment(opts))
 		if opts.Stage != nil {

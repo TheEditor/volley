@@ -26,6 +26,7 @@ import (
 
 type Invocation struct {
 	Command     string
+	Shorthand   bool
 	Near        string
 	Positionals []string
 	Values      map[string]any

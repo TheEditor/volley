@@ -6,9 +6,9 @@ contract. It does not validate the premises, approve implementation, or prove
 that the proposed tool works. The engine does not add an approval badge to
 `SPEC.md`.
 
-The Bash command remains the default while Go integration tests are in progress.
-This page describes the Go direct backend. The Go Gashki loop has a separate
-integration task.
+The Bash command remains the default until the final gates pass.
+This page describes the Go direct and Gashki backends. Local integration
+checks passed. Live vendor behavior remains unverified.
 
 ## Read the additional reviews
 

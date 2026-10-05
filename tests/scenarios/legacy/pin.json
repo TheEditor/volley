@@ -1,0 +1,9 @@
+{
+  "revision": "a7252e474023f986d9912469b1e58742e644afc8",
+  "sha256": {
+    "volley.sh": "6793a28286de5969c219319ad7a0f7908cd252003c58da0b67597924ad452587",
+    "cc-volley": "22176168536df0dc9e5c57792c0ef4f571ef8d58b8d87343e93c78c2924c6fa6",
+    "codex-volley": "bd9a4b5d422a3c14acc78378644f63aade2d9759f66b8c4cbfc3a816d0643a97"
+  },
+  "scope": "Immutable Bash baseline. Owned stubs and isolated test roots only. Never installed or invoked with live providers."
+}

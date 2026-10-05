@@ -175,6 +175,7 @@ func parseWithStage(args []string, r *contract.Registry, stage func(string)) (In
 		}
 		if x.Command == "" {
 			x.Command = "run"
+			x.Shorthand = true
 			if !first.literal {
 				x.Near = nearCommand(first.value, names)
 			}

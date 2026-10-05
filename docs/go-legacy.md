@@ -32,6 +32,6 @@ All four fields are required. Unknown fields, duplicate fields, nulls, invalid v
 - `confirm_not_executed`: require independent proof of no delivery and no process start. A human statement alone cannot permit retry.
 - `abandon`: keep all partial files and save the run as stopped. A new review requires a fresh workspace.
 
-The command does not execute a model turn. A direct turn can advance from an existing checked completion receipt. It can permit later resume after a checkpoint-bound proof of failure to start. Missing or changed proof remains uncertain. The real Gashki evidence adapter is part of the integration work. The evidence and session interfaces have file-backed fake checks for that integration boundary.
+The command does not execute a model turn. A direct turn can advance from an existing checked completion receipt. It can permit later resume after a checkpoint-bound proof of failure to start. Missing or changed proof remains uncertain. The integrated Gashki evidence adapter rechecks exact sends, source proof and server bindings. Unverified evidence retains the turn for handover.
 
 The manifest binds the resolution record by hash, turn, choice, and completion source. Inspection rejects a changed bound record. A copied seed spec has a separate file identity from its immutable saved source. Later revisions preserve the source and transaction history.

@@ -2,7 +2,7 @@
 
 Build the development executable with `go build -o ./build/volley ./cmd/volley`. Use `./build/volley --help` for core commands. Use `./build/volley capabilities --json` for the complete declarations, `schema NAME --json` for schemas, and `robot-docs guide` for the command guide.
 
-Use `plan WORKSPACE` to read settings and proposed arguments. It creates no run and starts no process. Use `run WORKSPACE` for a foreground review. The Go engine uses saved settings for resume. The source Bash launchers remain the default while the final checks are incomplete.
+Use `plan WORKSPACE` to read settings and proposed arguments. It creates no run and starts no process. Use `run WORKSPACE` for a foreground review. The Go engine uses saved settings for resume. The source Bash launchers remain the default until the final gates pass.
 
 A bare workspace is shorthand for run. An exact command name selects that command. Use `run ./status` or `-- ./status` to select a path with a command name. Flags may occur before or after the command, before `--`. Boolean settings take `true` or `false`. Selectors such as `--json` take no value.
 
@@ -16,3 +16,6 @@ See [command proof](../internal/cli/CLI-PROOF.md) for the checked scope and rema
 
 The conformance command now runs generated probes and checks reviewed profile pins.
 See [contract proof](../internal/conformance/CONFORMANCE-PROOF.md) for the profile limits and response examples.
+
+See [migration changes and limits](go-migration.md) and
+[prepared distribution](../packaging/README.md) before changing entry points.

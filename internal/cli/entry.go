@@ -49,20 +49,7 @@ func MachineMode(args []string) bool {
 // All public output is written here. Deep packages return values and errors.
 func Execute(ctx context.Context, args []string, out, stderr io.Writer, opts Options) (exit int) {
 	machine := MachineMode(args)
-	wrapper := opts.Entrypoint == "cc-volley" || opts.Entrypoint == "codex-volley"
-	wrapperRun := false
-	for _, arg := range args {
-		if arg != "--json" && arg != "--help" && arg != "-h" && arg != "--version" {
-			wrapperRun = true
-		}
-	}
-	if wrapper && wrapperRun {
-		planner := "claude"
-		if opts.Entrypoint == "codex-volley" {
-			planner = "codex"
-		}
-		args = append([]string{"run", "--planner", planner}, args...)
-	}
+	wrapper := legacyEntrypoint(opts.Entrypoint)
 	var raw []byte
 	var reg *contract.Registry
 	start := time.Now()
@@ -126,6 +113,9 @@ func Execute(ctx context.Context, args []string, out, stderr io.Writer, opts Opt
 				if m, ok := result.Data.(map[string]any); ok {
 					if usage, ok := m["usage"].(string); ok {
 						text = usage
+					}
+					if text == "" {
+						text = finalMessage(m)
 					}
 				}
 				if text == "" {
