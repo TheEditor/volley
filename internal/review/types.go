@@ -87,11 +87,23 @@ type CompletionReceipt struct {
 	EvidencePaths []string
 }
 type Reply struct {
-	Kind   string
-	Path   string
-	Hash   string
-	Reason string
+	Kind       string
+	Path       string
+	Hash       string
+	Reason     string
+	Root       string
+	Source     string
+	Format     string
+	Version    string
+	SessionID  string
+	PromptPath string
 }
+
+// Record supplies the schema names for an authoritative turn receipt.
+func (r Reply) Record() map[string]any {
+	return map[string]any{"kind": r.Kind, "path": r.Path, "sha256": r.Hash, "reason": r.Reason, "root": r.Root, "source": r.Source, "format": r.Format, "version": r.Version, "session_id": r.SessionID, "prompt_path": r.PromptPath}
+}
+
 type RetentionDecision struct {
 	Kind         string
 	Reason       string

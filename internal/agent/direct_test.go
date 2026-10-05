@@ -286,6 +286,9 @@ func TestADIRECT01ActualProcesses(t *testing.T) {
 						if out.Reply.Kind != "found" || len(out.ArtifactHashes) != 1 {
 							t.Fatal("Output/artifact facts")
 						}
+						if out.Reply.Root != f.Options.Store.Path || out.Reply.Source == "" || out.Reply.Format != provider+"-owned-output-v1" || out.Reply.Version == "" {
+							t.Fatal("Reply source and format facts are missing", out.Reply)
+						}
 						if provider == "claude" {
 							if argumentValue(p.Argv, "--permission-mode") != "dontAsk" || argumentValue(p.Argv, "--output-format") != "text" {
 								t.Fatal("Claude print mode")

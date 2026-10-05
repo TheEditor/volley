@@ -1,0 +1,6 @@
+{"type":"user","sessionId":"11111111-2222-4333-8444-555555555555","cwd":"__WORKSPACE__","version":"2.1.285","message":{"role":"user","content":"__POINTER__"}}
+{"type":"assistant","sessionId":"11111111-2222-4333-8444-555555555555","cwd":"__WORKSPACE__","version":"2.1.285","message":{"role":"assistant","content":[{"type":"text","text":"Earlier working text."},{"type":"tool_use","id":"fixture-tool","name":"Read","input":{}}]}}
+{"type":"user","sessionId":"11111111-2222-4333-8444-555555555555","cwd":"__WORKSPACE__","version":"2.1.285","message":{"role":"user","content":[{"type":"tool_result","tool_use_id":"fixture-tool","content":"Synthetic tool result."}]}}
+{"type":"assistant","sessionId":"11111111-2222-4333-8444-555555555555","cwd":"__WORKSPACE__","version":"2.1.285","message":{"role":"assistant","content":[{"type":"text","text":"Matched final reply.\n"}]}}
+{"type":"user","sessionId":"11111111-2222-4333-8444-555555555555","cwd":"__WORKSPACE__","version":"2.1.285","message":{"role":"user","content":"An unrelated next prompt."}}
+{"type":"assistant","sessionId":"11111111-2222-4333-8444-555555555555","cwd":"__WORKSPACE__","version":"2.1.285","message":{"role":"assistant","content":[{"type":"text","text":"Private unrelated history must stay out."}]}}

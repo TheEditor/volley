@@ -1,0 +1,7 @@
+{"type":"session_meta","payload":{"id":"11111111-2222-4333-8444-555555555555","cwd":"__WORKSPACE__","cli_version":"0.159.0"}}
+{"type":"response_item","payload":{"type":"message","role":"user","content":[{"type":"input_text","text":"__POINTER__"}]}}
+{"type":"event_msg","payload":{"type":"task_started","turn_id":"fixture-turn"}}
+{"type":"response_item","payload":{"type":"message","role":"assistant","content":[{"type":"output_text","text":"Earlier working text."}]}}
+{"type":"event_msg","payload":{"type":"task_complete","turn_id":"fixture-turn","last_agent_message":"Matched final reply.\n"}}
+{"type":"response_item","payload":{"type":"message","role":"user","content":[{"type":"input_text","text":"An unrelated next prompt."}]}}
+{"type":"event_msg","payload":{"type":"task_complete","turn_id":"unrelated-turn","last_agent_message":"Private unrelated history must stay out."}}

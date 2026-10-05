@@ -162,6 +162,24 @@
         },
         "reason": {
           "type": "string"
+        },
+        "root": {
+          "type": "string"
+        },
+        "source": {
+          "type": "string"
+        },
+        "format": {
+          "type": "string"
+        },
+        "version": {
+          "type": "string"
+        },
+        "session_id": {
+          "type": "string"
+        },
+        "prompt_path": {
+          "type": "string"
         }
       },
       "required": [

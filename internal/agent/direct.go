@@ -486,12 +486,19 @@ func (d *Direct) Perform(ctx context.Context, p review.PreparedTurn) (review.Tur
 		if q.Provider == "codex" {
 			source = dir + "/final.pending"
 		}
+		out.Reply.Root = d.options.Store.Path
+		out.Reply.Source = source
+		out.Reply.Format = q.Provider + "-owned-output-v1"
+		out.Reply.Version = d.options.Prepared.Record.Executables[q.Provider].Version
+		out.Reply.SessionID = out.Completion.SessionID
 		reply, readErr := d.options.Store.ReadText(source)
 		if readErr == nil && len(bytes.TrimSpace(reply)) != 0 && !bytes.ContainsRune(reply, 0) {
 			if err := d.saveText(dir+"/final.txt", reply); err != nil {
 				return out, err
 			}
-			out.Reply = review.Reply{Kind: "found", Path: dir + "/final.txt", Hash: contract.HashBytes(reply)}
+			out.Reply.Kind = "found"
+			out.Reply.Path = dir + "/final.txt"
+			out.Reply.Hash = contract.HashBytes(reply)
 		} else {
 			out.Reply.Reason = "Final reply is absent, empty, invalid, or unreadable"
 			if readErr != nil && !os.IsNotExist(readErr) {
