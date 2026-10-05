@@ -1,0 +1,128 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://volley.invalid/schema/1/resolution-record",
+  "type": "object",
+  "additionalProperties": false,
+  "properties": {
+    "run_id": {
+      "type": "string"
+    },
+    "turn_id": {
+      "type": "string"
+    },
+    "note": {
+      "type": "string"
+    },
+    "record_version": {
+      "const": 1
+    },
+    "resolution": {
+      "enum": [
+        "accept_completed",
+        "confirm_not_executed",
+        "abandon"
+      ]
+    },
+    "completion_source": {
+      "enum": [
+        "human_attested",
+        "backend_confirmed",
+        "none"
+      ]
+    },
+    "artifact_paths": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "evidence_paths": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "artifacts": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "path": {
+            "type": "string"
+          },
+          "hash": {
+            "type": "string"
+          },
+          "kind": {
+            "type": "string"
+          },
+          "device": {
+            "type": "integer"
+          },
+          "inode": {
+            "type": "integer"
+          },
+          "bytes": {
+            "type": "integer"
+          }
+        },
+        "required": [
+          "path",
+          "hash",
+          "kind",
+          "device",
+          "inode",
+          "bytes"
+        ]
+      }
+    },
+    "evidence": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "path": {
+            "type": "string"
+          },
+          "hash": {
+            "type": "string"
+          },
+          "kind": {
+            "type": "string"
+          },
+          "device": {
+            "type": "integer"
+          },
+          "inode": {
+            "type": "integer"
+          },
+          "bytes": {
+            "type": "integer"
+          }
+        },
+        "required": [
+          "path",
+          "hash",
+          "kind",
+          "device",
+          "inode",
+          "bytes"
+        ]
+      }
+    }
+  },
+  "required": [
+    "run_id",
+    "turn_id",
+    "note",
+    "record_version",
+    "resolution",
+    "completion_source",
+    "artifact_paths",
+    "evidence_paths",
+    "artifacts",
+    "evidence"
+  ]
+}

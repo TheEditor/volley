@@ -1929,6 +1929,50 @@
         "missing_receipt",
         "bindings_verified"
       ]
+    },
+    "resolution": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "path": {
+          "type": "string"
+        },
+        "sha256": {
+          "type": "string"
+        },
+        "completion_source": {
+          "type": "string"
+        },
+        "kind": {
+          "type": "string"
+        },
+        "turn_id": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "path",
+        "sha256",
+        "completion_source",
+        "kind",
+        "turn_id"
+      ]
+    },
+    "no_start": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "path": {
+          "type": "string"
+        },
+        "sha256": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "path",
+        "sha256"
+      ]
     }
   },
   "required": [

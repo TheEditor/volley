@@ -323,7 +323,7 @@ func resultOperation(t *testing.T, s *Store, final bool) func() error {
 		m["status"] = "approved"
 		m["phase"] = "commit_final"
 	}
-	tx, err := s.NewTransaction(kind, m, []Artifact{{stage, "rounds/r01.spec.md", hash, false, nil}, {stage, "SPEC.md", hash, true, &before}}, &ref)
+	tx, err := s.NewTransaction(kind, m, []Artifact{{StagedPath: stage, TargetPath: "rounds/r01.spec.md", Hash: hash}, {StagedPath: stage, TargetPath: "SPEC.md", Hash: hash, Replace: true, Before: &before}}, &ref)
 	if err != nil {
 		t.Fatal(err)
 	}

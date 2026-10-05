@@ -229,3 +229,5 @@ Set `VOLLEY_ALLOW_API_KEY=1` to override if metered billing is intended.
   `prompts/profiles/` for opt-in additions; `decision-memo` is useful for
   non-software briefs, and `plan-spec` when the artifact is a build
   plan/specification.
+
+See [legacy workspaces and uncertain turns](docs/go-legacy.md) for the Go boundary and explicit resolution command.

@@ -78,7 +78,7 @@ func TestCapabilitiesOnlyWorkingHandlers(t *testing.T) {
 			t.Fatalf("working handler missing: %s", name)
 		}
 	}
-	if result.Data.Commands["runs resolve"] != nil || result.Data.Commands["workspace legacy-report"] != nil {
+	if result.Data.Commands["runs resolve"] == nil || result.Data.Commands["workspace legacy-report"] == nil {
 		t.Fatal("unimplemented handler advertised")
 	}
 }

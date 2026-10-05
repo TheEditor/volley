@@ -20,6 +20,7 @@ import (
 	"github.com/TheEditor/volley/internal/contract"
 	"github.com/TheEditor/volley/internal/engine"
 	"github.com/TheEditor/volley/internal/human"
+	"github.com/TheEditor/volley/internal/migration"
 	"github.com/TheEditor/volley/internal/ops"
 	"github.com/TheEditor/volley/internal/store"
 	"golang.org/x/sys/unix"
@@ -145,7 +146,7 @@ func ParseRun(args []string, r *contract.Registry) (Invocation, error) {
 		}
 		if x.Command == "" {
 			x.Command = arg
-			if arg == "runs" || arg == "human" {
+			if arg == "runs" || arg == "human" || arg == "workspace" {
 				if i+1 >= len(args) {
 					return x, r.Error("UNKNOWN_COMMAND", "Subcommand is required")
 				}
@@ -194,6 +195,14 @@ func ParseRun(args []string, r *contract.Registry) (Invocation, error) {
 	if x.Command == "human steer" && x.Values["--from-stdin"] != true {
 		return x, r.Error("INVALID_INPUT", "Steering requires --from-stdin")
 	}
+	if x.Command == "runs resolve" {
+		if x.Values["--yes"] != true {
+			return x, r.Error("ACK_REQUIRED", "Resolution requires --yes")
+		}
+		if x.Values["--turn"] == nil || x.Values["--from-stdin"] != true {
+			return x, r.Error("MISSING_REQUIRED", "Resolution requires --turn and --from-stdin")
+		}
+	}
 	if x.Command == "human skip" && x.Values["--yes"] != true {
 		return x, r.Error("ACK_REQUIRED", "Question withdrawal requires --yes")
 	}
@@ -210,7 +219,7 @@ func dispatch(ctx context.Context, args []string, r *contract.Registry, opts Opt
 			}
 			continue
 		}
-		isRun = arg == "run" || arg == "runs" || arg == "human" || arg == "status" || arg == "doctor"
+		isRun = arg == "run" || arg == "runs" || arg == "human" || arg == "status" || arg == "doctor" || arg == "workspace"
 		break
 	}
 	if !isRun {
@@ -234,7 +243,22 @@ func dispatch(ctx context.Context, args []string, r *contract.Registry, opts Opt
 		}
 		return map[string]any{"usage": text, "capabilities_command": "volley capabilities --json", "default_action": nil}, nil
 	}
-	if x.Command != "run" && x.Command != "runs resume" && x.Command != "human answer" && x.Command != "human steer" && x.Command != "human skip" {
+	if x.Command == "workspace legacy-report" {
+		d, e := migration.Report(x.Positionals[0])
+		return d, translateError(r, e)
+	}
+	var resolution migration.Resolution
+	if x.Command == "runs resolve" {
+		in := opts.Input
+		if in == nil {
+			in = os.Stdin
+		}
+		resolution, err = migration.ParseResolution(in)
+		if err != nil {
+			return nil, translateError(r, err)
+		}
+	}
+	if x.Command != "runs resolve" && x.Command != "run" && x.Command != "runs resume" && x.Command != "human answer" && x.Command != "human steer" && x.Command != "human skip" {
 		return handleOps(ctx, x, r, opts)
 	}
 	env := os.Environ()
@@ -253,7 +277,10 @@ func dispatch(ctx context.Context, args []string, r *contract.Registry, opts Opt
 	if err != nil {
 		return nil, r.Error("INVALID_INPUT", err.Error())
 	}
-	if x.Command != "run" && x.Command != "runs resume" && !strings.HasPrefix(x.Command, "human ") {
+	if err = migration.CheckStart(workspace); err != nil {
+		return nil, translateError(r, err)
+	}
+	if x.Command != "runs resolve" && x.Command != "run" && x.Command != "runs resume" && !strings.HasPrefix(x.Command, "human ") {
 		return nil, r.Error("UNKNOWN_COMMAND", "Handler is not available")
 	}
 	input := opts.Input
@@ -266,6 +293,11 @@ func dispatch(ctx context.Context, args []string, r *contract.Registry, opts Opt
 	options := engine.Options{Env: os.Environ()}
 	if opts.RunOptions != nil {
 		options = *opts.RunOptions
+	}
+	if x.Command == "runs resolve" {
+		turn, _ := x.Values["--turn"].(string)
+		data, e := engine.Resolve(ctx, workspace, turn, resolution, options)
+		return data, translateError(r, e)
 	}
 	if options.Register == nil {
 		options.Register = operator.Register

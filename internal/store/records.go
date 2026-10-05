@@ -82,6 +82,19 @@ func (s *Store) LoadSnapshot() (Snapshot, string, error) {
 	if err := s.bindSnapshot(m); err != nil {
 		return nil, "", err
 	}
+	if ref := m.Object("resolution"); len(ref) > 0 {
+		path, _ := ref["path"].(string)
+		if filepath.Dir(path) != "state/control" || !strings.HasPrefix(filepath.Base(path), "resolution-") {
+			return nil, "", fail("STATE_INVALID", path, "Resolution path is invalid")
+		}
+		record, encoded, e := s.ReadRecord("resolution-record", path)
+		if e != nil {
+			return nil, "", e
+		}
+		if contract.HashBytes(encoded) != ref["sha256"] || record["run_id"] != m["run_id"] || record["turn_id"] != ref["turn_id"] || record["completion_source"] != ref["completion_source"] || record["resolution"] != ref["kind"] {
+			return nil, "", fail("STATE_INVALID", path, "Resolution record binding differs")
+		}
+	}
 	return m, contract.HashBytes(b), nil
 }
 func (s *Store) bindSnapshot(m Snapshot) error {
@@ -272,6 +285,12 @@ func (s *Store) promote(tx Transaction) error {
 		}
 		if contract.HashBytes(stageBytes) != a.Hash {
 			return fail("STATE_INVALID", a.StagedPath, "Staged artifact changed")
+		}
+		if a.CopyCandidate != nil {
+			if err := s.promoteSeedCopy(a, i); err != nil {
+				return err
+			}
+			continue
 		}
 		targetBytes, targetInfo, err := s.read(a.TargetPath, TextLimit)
 		if err == nil && (os.SameFile(stageInfo, targetInfo) || a.Replace) && contract.HashBytes(targetBytes) == a.Hash {

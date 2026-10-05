@@ -21,8 +21,9 @@ import (
 )
 
 type Options struct {
-	Now       func() time.Time
-	RequestID func() (string, error)
+	Entrypoint string
+	Now        func() time.Time
+	RequestID  func() (string, error)
 	// Hooks are explicit unit seams. No release environment variable enables them.
 	Entry      func()
 	Stage      func(string)
@@ -50,6 +51,21 @@ func MachineMode(args []string) bool {
 // All public output is written here. Deep packages return values and errors.
 func Execute(ctx context.Context, args []string, out, stderr io.Writer, opts Options) (exit int) {
 	machine := MachineMode(args)
+	wrapper := opts.Entrypoint == "cc-volley" || opts.Entrypoint == "codex-volley"
+	wrapperRun := false
+	for _, arg := range args {
+		if arg != "--json" && arg != "--help" && arg != "-h" && arg != "--version" {
+			wrapperRun = true
+		}
+	}
+	if wrapper && wrapperRun {
+		planner := "claude"
+		if opts.Entrypoint == "codex-volley" {
+			planner = "codex"
+		}
+		args = append([]string{"run"}, args...)
+		args = append(args, "--planner", planner)
+	}
 	var reg *contract.Registry
 	start := time.Now()
 	result := contract.Result{Warnings: []contract.Warning{}, Commands: []string{}, Errors: []*contract.Error{}}
@@ -70,6 +86,10 @@ func Execute(ctx context.Context, args []string, out, stderr io.Writer, opts Opt
 		}
 		result.ToolVersion = reg.ToolVersion
 		result.Meta.ContractVersion = reg.ContractVersion
+		if wrapper {
+			result.Meta.Entrypoint = opts.Entrypoint
+			result.Meta.ExitSemantics = "legacy_wrapper"
+		}
 		result.Meta.SchemaVersion = "1"
 		result.Meta.ElapsedMS = time.Since(start).Milliseconds()
 		if result.Meta.Time == "" {
@@ -117,6 +137,13 @@ func Execute(ctx context.Context, args []string, out, stderr io.Writer, opts Opt
 			if _, err := fmt.Fprintln(out, text); err != nil {
 				fmt.Fprintln(stderr, "Cannot write response")
 				exit = reg.Error("INTERNAL", "Cannot write response").Exit
+			}
+		}
+		if wrapper && exit != 0 && exit != 130 && exit != 143 {
+			if exit == 7 {
+				exit = 2
+			} else {
+				exit = 1
 			}
 		}
 	}()
@@ -198,7 +225,7 @@ func Execute(ctx context.Context, args []string, out, stderr io.Writer, opts Opt
 }
 
 func usage() string {
-	return "volley — specification review\n\nUSAGE: volley [GLOBAL_FLAGS] COMMAND\n\nAvailable: run, status, doctor, runs list/get/events/stop/prune/resume, human questions/answer/steer/skip, capabilities, schema, --help, --version.\nThis review slice uses direct agents.\nAutomation: volley capabilities --json\n"
+	return "volley — specification review\n\nUSAGE: volley [GLOBAL_FLAGS] COMMAND\n\nAvailable: run, status, doctor, runs list/get/events/stop/prune/resume/resolve, workspace legacy-report, human questions/answer/steer/skip, capabilities, schema, --help, --version.\nThis review slice uses direct agents.\nAutomation: volley capabilities --json\n"
 }
 
 // Initial handlers expose only the working declaration/asset boundary.
@@ -244,7 +271,7 @@ func initialCommand(_ context.Context, args []string, r *contract.Registry) (any
 		}
 		commands := v["commands"].(map[string]any)
 		for name := range commands {
-			available := map[string]bool{"capabilities": true, "schema": true, "run": true, "runs resume": true, "human answer": true, "human steer": true, "human skip": true, "human questions": true, "status": true, "doctor": true, "runs list": true, "runs get": true, "runs events": true, "runs stop": true, "runs prune": true}
+			available := map[string]bool{"capabilities": true, "schema": true, "run": true, "runs resume": true, "human answer": true, "human steer": true, "human skip": true, "human questions": true, "status": true, "doctor": true, "runs list": true, "runs get": true, "runs events": true, "runs stop": true, "runs prune": true, "runs resolve": true, "workspace legacy-report": true}
 			if !available[name] {
 				delete(commands, name)
 			}

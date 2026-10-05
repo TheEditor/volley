@@ -18,6 +18,7 @@ import (
 	"github.com/TheEditor/volley/internal/config"
 	"github.com/TheEditor/volley/internal/contract"
 	"github.com/TheEditor/volley/internal/human"
+	"github.com/TheEditor/volley/internal/migration"
 	"github.com/TheEditor/volley/internal/process"
 	"github.com/TheEditor/volley/internal/review"
 	"github.com/TheEditor/volley/internal/store"
@@ -68,6 +69,15 @@ func Run(ctx context.Context, request Request, options Options) (map[string]any,
 	}
 	if len(request.Key) > 1024 || strings.ContainsRune(request.Key, 0) {
 		return nil, failure("INVALID_INPUT", "Invalid request key", nil)
+	}
+	if err := migration.CheckStart(request.Workspace); err != nil {
+		return nil, err
+	}
+	if request.Resolved != nil {
+		v := request.Resolved.Settings
+		if err := migration.CheckOutputs(request.Workspace, request.Seed != "", v.MaxRounds, v.SecondOpinion, v.ClosingPass); err != nil {
+			return nil, err
+		}
 	}
 	if options.Runner == nil {
 		options.Runner = process.UnixRunner{}
@@ -285,7 +295,19 @@ func (o *Owner) create(ctx context.Context, m store.Snapshot) error {
 		if err != nil {
 			return err
 		}
-		artifacts = append(artifacts, store.Artifact{StagedPath: "state/control/seed-" + m.String("run_id") + "-" + target, TargetPath: target, Hash: hash})
+		a := store.Artifact{StagedPath: "state/control/seed-" + m.String("run_id") + "-" + target, TargetPath: target, Hash: hash}
+		if target == "SPEC.md" {
+			candidate := "state/control/seed-copy-" + m.String("run_id") + "-SPEC.md"
+			if _, err = s.StageText(candidate, b); err != nil {
+				return err
+			}
+			observed, e := s.Observe(candidate)
+			if e != nil {
+				return e
+			}
+			a.CopyCandidate = &observed
+		}
+		artifacts = append(artifacts, a)
 	}
 	if len(artifacts) > 0 {
 		tx, err := s.NewTransaction("control", m, artifacts, nil)

@@ -207,6 +207,23 @@ func (o *Owner) turn(ctx context.Context, m store.Snapshot) error {
 		return o.interrupted(ctx)
 	}
 	if err != nil {
+		if out.Delivery.Kind == review.NotStarted && o.Guard.Proof != nil {
+			path := "state/turns/" + id + "/direct-result.json"
+			result, _, readErr := o.Store.ReadRaw(path)
+			if readErr == nil {
+				proof := NoStartProof{RecordVersion: 1, TurnID: id, RequestHash: requestHash, ResultHash: contract.HashBytes(result), Guard: *o.Guard.Proof}
+				b, e := contract.Canonical(proof)
+				if e != nil {
+					return e
+				}
+				proofPath := "state/turns/" + id + "/no-start-proof.json"
+				hash, e := o.Store.StagePrivateText(proofPath, b)
+				if e != nil {
+					return e
+				}
+				m["no_start"] = map[string]any{"path": proofPath, "sha256": hash}
+			}
+		}
 		return o.handover(m, err)
 	}
 	if out.Kind != review.Completed || !out.Completion.Settled || o.Guard.Proof == nil {
@@ -459,75 +476,98 @@ func oCheckReply(s *store.Store, reply review.Reply) error {
 	return nil
 }
 
-func (o *Owner) recoverTurn(ctx context.Context, m store.Snapshot) error {
-	turn := m.Object("current_turn")
-	id := fmt.Sprint(turn["id"])
-	r, err := o.Store.Recover()
-	if err != nil {
-		return err
-	}
-	if r.Receipt == nil {
-		return o.handover(m, failure("TURN_UNCERTAIN", "Saved direct intent has no checked receipt; do not repeat it", nil))
-	}
-	record, _, err := o.Store.ReadRecord("receipt", r.Receipt.Path)
-	if err != nil {
-		return err
-	}
-	completion, _ := record["completion"].(map[string]any)
-	if completion["kind"] != "completed" || completion["settled"] != true {
-		return o.handover(m, failure("TURN_UNCERTAIN", "Saved receipt is not complete", nil))
-	}
-	guard, _ := record["guard"].(map[string]any)
-	path, _ := guard["path"].(string)
-	if path != "state/turns/"+id+"/guard-result.json" {
-		return failure("STATE_INVALID", "Guard proof binding differs", nil)
-	}
-	b, err := o.Store.ReadText(path)
-	if err != nil {
-		return err
-	}
-	if contract.HashBytes(b) != guard["sha256"] {
-		return failure("STATE_INVALID", "Guard proof hash differs", nil)
-	}
-	var proof CompletedProof
-	if err = decode(b, &proof); err != nil {
-		return err
-	}
-	requestPath := "state/turns/" + id + "/engine-request.json"
-	requestBytes, err := o.Store.ReadText(requestPath)
-	if err != nil {
-		return err
-	}
-	if contract.HashBytes(requestBytes) != turn["intent_hash"] || proof.RequestHash != turn["intent_hash"] {
-		return failure("STATE_INVALID", "Recovery intent hash differs", nil)
-	}
-	var q review.TurnRequest
-	if err = decode(requestBytes, &q); err != nil {
-		return err
-	}
-	if q.RunID != m.String("run_id") || q.TurnID != id || q.Purpose != turn["purpose"] || q.Role != turn["role"] || q.PromptHash != turn["prompt_hash"] || q.SpecBeforeHash != m.String("spec_hash") {
-		return failure("STATE_INVALID", "Recovery request binding differs", nil)
-	}
-	changes := append([]store.AuthorizedChange{}, proof.Guard.Changes...)
-	for _, extra := range []string{path, r.Receipt.Path} {
-		obs, err := observation(o.Store, extra)
+type checkedTurn struct {
+	Request review.TurnRequest
+	Outcome review.TurnOutcome
+	Receipt store.ReceiptRef
+}
+
+func (o *Owner) checkTurn(ctx context.Context, m store.Snapshot, extraPaths ...string) (result checkedTurn, err error) {
+	err = func() error {
+		turn := m.Object("current_turn")
+		id := fmt.Sprint(turn["id"])
+		r, err := o.Store.Recover()
 		if err != nil {
 			return err
 		}
-		obs.Path = filepath.Join(o.Store.Path, extra)
-		changes = append(changes, store.AuthorizedChange{Path: extra, Before: proof.Guard.Before.Files[extra], After: obs, Kind: "checked receipt publication"})
-	}
-	mutation, err := o.Store.Compare(context.WithoutCancel(ctx), proof.Guard.Before, changes)
+		if r.Receipt == nil {
+			return failure("TURN_UNCERTAIN", "Saved direct intent has no checked receipt; do not repeat it", nil)
+		}
+		record, _, err := o.Store.ReadRecord("receipt", r.Receipt.Path)
+		if err != nil {
+			return err
+		}
+		completion, _ := record["completion"].(map[string]any)
+		if completion["kind"] != "completed" || completion["settled"] != true {
+			return failure("TURN_UNCERTAIN", "Saved receipt is not complete", nil)
+		}
+		guard, _ := record["guard"].(map[string]any)
+		path, _ := guard["path"].(string)
+		if path != "state/turns/"+id+"/guard-result.json" {
+			return failure("STATE_INVALID", "Guard proof binding differs", nil)
+		}
+		b, err := o.Store.ReadText(path)
+		if err != nil {
+			return err
+		}
+		if contract.HashBytes(b) != guard["sha256"] {
+			return failure("STATE_INVALID", "Guard proof hash differs", nil)
+		}
+		var proof CompletedProof
+		if err = decode(b, &proof); err != nil {
+			return err
+		}
+		requestPath := "state/turns/" + id + "/engine-request.json"
+		requestBytes, err := o.Store.ReadText(requestPath)
+		if err != nil {
+			return err
+		}
+		if contract.HashBytes(requestBytes) != turn["intent_hash"] || proof.RequestHash != turn["intent_hash"] {
+			return failure("STATE_INVALID", "Recovery intent hash differs", nil)
+		}
+		var q review.TurnRequest
+		if err = decode(requestBytes, &q); err != nil {
+			return err
+		}
+		if q.RunID != m.String("run_id") || q.TurnID != id || q.Purpose != turn["purpose"] || q.Role != turn["role"] || q.PromptHash != turn["prompt_hash"] || q.SpecBeforeHash != m.String("spec_hash") {
+			return failure("STATE_INVALID", "Recovery request binding differs", nil)
+		}
+		changes := append([]store.AuthorizedChange{}, proof.Guard.Changes...)
+		for _, extra := range append([]string{path, r.Receipt.Path}, extraPaths...) {
+			obs, err := observation(o.Store, extra)
+			if err != nil {
+				return err
+			}
+			obs.Path = filepath.Join(o.Store.Path, extra)
+			changes = append(changes, store.AuthorizedChange{Path: extra, Before: proof.Guard.Before.Files[extra], After: obs, Kind: "checked receipt publication"})
+		}
+		checkpoint, err := checkpointChanges(o.Store, proof.Guard.Before)
+		if err != nil {
+			return err
+		}
+		changes = append(changes, checkpoint...)
+		mutation, err := o.Store.Compare(context.WithoutCancel(ctx), proof.Guard.Before, changes)
+		if err != nil {
+			return err
+		}
+		if mutation != nil {
+			return failure("ARTIFACT_CHANGED", "Protected evidence changed after the checked turn", map[string]any{"actor": "external_or_unknown", "paths": mutation.Paths})
+		}
+		if proof.Outcome.Kind != review.Completed || !proof.Outcome.Completion.Settled {
+			return failure("STATE_INVALID", "Recovery proof is not a checked completion", nil)
+		}
+		result = checkedTurn{q, proof.Outcome, *r.Receipt}
+		return nil
+
+	}()
+	return result, err
+}
+func (o *Owner) recoverTurn(ctx context.Context, m store.Snapshot) error {
+	checked, err := o.checkTurn(ctx, m)
 	if err != nil {
-		return err
+		return o.handover(m, err)
 	}
-	if mutation != nil {
-		return failure("ARTIFACT_CHANGED", "Protected evidence changed after the checked turn", map[string]any{"actor": "external_or_unknown", "paths": mutation.Paths})
-	}
-	if proof.Outcome.Kind != review.Completed || !proof.Outcome.Completion.Settled {
-		return failure("STATE_INVALID", "Recovery proof is not a checked completion", nil)
-	}
-	return o.finishTurn(ctx, m, q, proof.Outcome, *r.Receipt)
+	return o.finishTurn(ctx, m, checked.Request, checked.Outcome, checked.Receipt)
 }
 
 func (o *Owner) repairDeliveries() error {

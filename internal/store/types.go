@@ -40,11 +40,12 @@ type Comparator interface {
 	Compare(context.Context, Inventory, []AuthorizedChange) (*Mutation, error)
 }
 type Artifact struct {
-	StagedPath string           `json:"staged_path"`
-	TargetPath string           `json:"target_path"`
-	Hash       string           `json:"hash"`
-	Replace    bool             `json:"replace"`
-	Before     *FileObservation `json:"before"`
+	StagedPath    string           `json:"staged_path"`
+	TargetPath    string           `json:"target_path"`
+	Hash          string           `json:"hash"`
+	Replace       bool             `json:"replace"`
+	Before        *FileObservation `json:"before"`
+	CopyCandidate *FileObservation `json:"copy_candidate,omitempty"`
 }
 type ReceiptRef struct {
 	Path string `json:"path"`
