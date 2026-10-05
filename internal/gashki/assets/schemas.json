@@ -1,0 +1,2705 @@
+{
+  "envelope_schema": {
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "$id": "https://github.com/Ozhiaki/gashki/schema/envelope.json",
+    "title": "gashki envelope",
+    "type": "object",
+    "additionalProperties": false,
+    "required": [
+      "ok",
+      "tool_version",
+      "data",
+      "meta",
+      "warnings",
+      "commands",
+      "errors"
+    ],
+    "properties": {
+      "ok": {
+        "type": "boolean"
+      },
+      "tool_version": {
+        "type": "string",
+        "minLength": 1
+      },
+      "data": true,
+      "meta": {
+        "$ref": "https://github.com/Ozhiaki/gashki/schema/meta.json"
+      },
+      "warnings": {
+        "type": "array",
+        "items": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "code",
+            "message",
+            "details"
+          ],
+          "properties": {
+            "code": {
+              "type": "string",
+              "pattern": "^[A-Z][A-Z0-9_]*$"
+            },
+            "message": {
+              "type": "string"
+            },
+            "details": true
+          }
+        }
+      },
+      "commands": {
+        "type": "array",
+        "items": {
+          "type": "string",
+          "minLength": 1
+        }
+      },
+      "errors": {
+        "type": "array",
+        "items": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "code",
+            "message",
+            "path",
+            "did_you_mean",
+            "remediation",
+            "exit_code",
+            "retryable",
+            "evidence"
+          ],
+          "properties": {
+            "code": {
+              "type": "string",
+              "pattern": "^[A-Z][A-Z0-9_]*$"
+            },
+            "message": {
+              "type": "string"
+            },
+            "path": {
+              "type": [
+                "string",
+                "null"
+              ]
+            },
+            "did_you_mean": {
+              "type": [
+                "string",
+                "null"
+              ]
+            },
+            "remediation": {
+              "type": [
+                "string",
+                "null"
+              ]
+            },
+            "exit_code": {
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 8
+            },
+            "retryable": {
+              "type": [
+                "boolean",
+                "null"
+              ]
+            },
+            "evidence": true
+          }
+        }
+      }
+    }
+  },
+  "schemas": {
+    "doctor": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "$id": "https://github.com/Ozhiaki/gashki/schema/data/doctor.json",
+      "title": "gashki doctor data",
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "checks",
+        "recommended_action",
+        "pane_labels"
+      ],
+      "properties": {
+        "checks": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+              "name",
+              "ok",
+              "detail",
+              "recommended_action"
+            ],
+            "properties": {
+              "name": {
+                "enum": [
+                  "tmux_server",
+                  "tmux_version",
+                  "claude_cli",
+                  "codex_cli",
+                  "claude_login",
+                  "codex_hooks_trusted",
+                  "state_dir_writable",
+                  "events_log_size",
+                  "env_settings"
+                ]
+              },
+              "ok": {
+                "type": "boolean"
+              },
+              "detail": {
+                "type": "object"
+              },
+              "recommended_action": {
+                "$ref": "https://github.com/Ozhiaki/gashki/schema/recommended_action.json"
+              }
+            }
+          }
+        },
+        "recommended_action": {
+          "$ref": "https://github.com/Ozhiaki/gashki/schema/recommended_action.json"
+        },
+        "pane_labels": {
+          "type": "boolean"
+        }
+      }
+    },
+    "spawn": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "$id": "https://github.com/Ozhiaki/gashki/schema/data/spawn.json",
+      "title": "gashki spawn data",
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "id",
+        "name",
+        "agent",
+        "target",
+        "existing"
+      ],
+      "properties": {
+        "id": {
+          "$ref": "#/$defs/uuid"
+        },
+        "name": {
+          "$ref": "#/$defs/name"
+        },
+        "agent": {
+          "$ref": "#/$defs/agent"
+        },
+        "target": {
+          "$ref": "#/$defs/target"
+        },
+        "existing": {
+          "type": "boolean"
+        }
+      },
+      "$defs": {
+        "uuid": {
+          "type": "string",
+          "pattern": "^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$"
+        },
+        "name": {
+          "type": "string",
+          "pattern": "^[A-Za-z0-9_-]{1,32}/[A-Za-z0-9_-]{1,32}$"
+        },
+        "agent": {
+          "enum": [
+            "claude",
+            "codex"
+          ]
+        },
+        "target": {
+          "type": "string",
+          "pattern": "^%[0-9]+$"
+        },
+        "state": {
+          "enum": [
+            "idle",
+            "working",
+            "approval",
+            "compacting",
+            "error",
+            "dead"
+          ]
+        },
+        "cursor": {
+          "type": "string",
+          "minLength": 1
+        },
+        "sha256": {
+          "type": "string",
+          "pattern": "^[0-9a-f]{64}$"
+        },
+        "config_key": {
+          "enum": [
+            "state_dir",
+            "tmux_socket",
+            "ready_timeout",
+            "wait_timeout"
+          ]
+        },
+        "config": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "state_dir",
+            "tmux_socket",
+            "ready_timeout",
+            "wait_timeout"
+          ],
+          "properties": {
+            "state_dir": {
+              "type": "string"
+            },
+            "tmux_socket": {
+              "type": [
+                "string",
+                "null"
+              ]
+            },
+            "ready_timeout": {
+              "type": "string"
+            },
+            "wait_timeout": {
+              "type": "string"
+            }
+          }
+        },
+        "provenance": {
+          "oneOf": [
+            {
+              "type": "object",
+              "additionalProperties": false,
+              "required": [
+                "source",
+                "flag_name"
+              ],
+              "properties": {
+                "source": {
+                  "const": "flag"
+                },
+                "flag_name": {
+                  "type": "string"
+                }
+              }
+            },
+            {
+              "type": "object",
+              "additionalProperties": false,
+              "required": [
+                "source",
+                "path",
+                "line"
+              ],
+              "properties": {
+                "source": {
+                  "const": "file"
+                },
+                "path": {
+                  "type": "string"
+                },
+                "line": {
+                  "type": "integer",
+                  "minimum": 1
+                }
+              }
+            },
+            {
+              "type": "object",
+              "additionalProperties": false,
+              "required": [
+                "source"
+              ],
+              "properties": {
+                "source": {
+                  "const": "default"
+                }
+              }
+            }
+          ]
+        }
+      }
+    },
+    "status": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "$id": "https://github.com/Ozhiaki/gashki/schema/data/status.json",
+      "title": "gashki status data",
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "items",
+        "recommended_action"
+      ],
+      "properties": {
+        "items": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+              "id"
+            ],
+            "properties": {
+              "id": {
+                "$ref": "#/$defs/uuid"
+              },
+              "name": {
+                "$ref": "#/$defs/name"
+              },
+              "agent": {
+                "$ref": "#/$defs/agent"
+              },
+              "target": {
+                "$ref": "#/$defs/target"
+              },
+              "state": {
+                "$ref": "#/$defs/state"
+              },
+              "source": {
+                "enum": [
+                  "hook",
+                  "screen"
+                ]
+              },
+              "safe_to_send": {
+                "type": "boolean"
+              },
+              "recommended_action": {
+                "$ref": "https://github.com/Ozhiaki/gashki/schema/recommended_action.json"
+              }
+            }
+          }
+        },
+        "recommended_action": {
+          "$ref": "https://github.com/Ozhiaki/gashki/schema/recommended_action.json"
+        }
+      },
+      "$defs": {
+        "uuid": {
+          "type": "string",
+          "pattern": "^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$"
+        },
+        "name": {
+          "type": "string",
+          "pattern": "^[A-Za-z0-9_-]{1,32}/[A-Za-z0-9_-]{1,32}$"
+        },
+        "agent": {
+          "enum": [
+            "claude",
+            "codex"
+          ]
+        },
+        "target": {
+          "type": "string",
+          "pattern": "^%[0-9]+$"
+        },
+        "state": {
+          "enum": [
+            "idle",
+            "working",
+            "approval",
+            "compacting",
+            "error",
+            "dead"
+          ]
+        },
+        "cursor": {
+          "type": "string",
+          "minLength": 1
+        },
+        "sha256": {
+          "type": "string",
+          "pattern": "^[0-9a-f]{64}$"
+        },
+        "config_key": {
+          "enum": [
+            "state_dir",
+            "tmux_socket",
+            "ready_timeout",
+            "wait_timeout"
+          ]
+        },
+        "config": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "state_dir",
+            "tmux_socket",
+            "ready_timeout",
+            "wait_timeout"
+          ],
+          "properties": {
+            "state_dir": {
+              "type": "string"
+            },
+            "tmux_socket": {
+              "type": [
+                "string",
+                "null"
+              ]
+            },
+            "ready_timeout": {
+              "type": "string"
+            },
+            "wait_timeout": {
+              "type": "string"
+            }
+          }
+        },
+        "provenance": {
+          "oneOf": [
+            {
+              "type": "object",
+              "additionalProperties": false,
+              "required": [
+                "source",
+                "flag_name"
+              ],
+              "properties": {
+                "source": {
+                  "const": "flag"
+                },
+                "flag_name": {
+                  "type": "string"
+                }
+              }
+            },
+            {
+              "type": "object",
+              "additionalProperties": false,
+              "required": [
+                "source",
+                "path",
+                "line"
+              ],
+              "properties": {
+                "source": {
+                  "const": "file"
+                },
+                "path": {
+                  "type": "string"
+                },
+                "line": {
+                  "type": "integer",
+                  "minimum": 1
+                }
+              }
+            },
+            {
+              "type": "object",
+              "additionalProperties": false,
+              "required": [
+                "source"
+              ],
+              "properties": {
+                "source": {
+                  "const": "default"
+                }
+              }
+            }
+          ]
+        }
+      }
+    },
+    "send": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "$id": "https://github.com/Ozhiaki/gashki/schema/data/send.json",
+      "title": "gashki send data",
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "id",
+        "name",
+        "target",
+        "send_id",
+        "attempt",
+        "submitted",
+        "replayed",
+        "barrier_cursor",
+        "turn_cursor",
+        "payload_sha256",
+        "match_sha256"
+      ],
+      "properties": {
+        "id": {
+          "$ref": "#/$defs/uuid"
+        },
+        "name": {
+          "$ref": "#/$defs/name"
+        },
+        "target": {
+          "$ref": "#/$defs/target"
+        },
+        "send_id": {
+          "$ref": "#/$defs/uuid"
+        },
+        "attempt": {
+          "type": "integer",
+          "minimum": 1
+        },
+        "submitted": {
+          "type": "boolean"
+        },
+        "replayed": {
+          "type": "boolean"
+        },
+        "barrier_cursor": {
+          "$ref": "#/$defs/cursor"
+        },
+        "turn_cursor": {
+          "$ref": "#/$defs/cursor"
+        },
+        "payload_sha256": {
+          "$ref": "#/$defs/sha256"
+        },
+        "match_sha256": {
+          "$ref": "#/$defs/sha256"
+        }
+      },
+      "$defs": {
+        "uuid": {
+          "type": "string",
+          "pattern": "^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$"
+        },
+        "name": {
+          "type": "string",
+          "pattern": "^[A-Za-z0-9_-]{1,32}/[A-Za-z0-9_-]{1,32}$"
+        },
+        "agent": {
+          "enum": [
+            "claude",
+            "codex"
+          ]
+        },
+        "target": {
+          "type": "string",
+          "pattern": "^%[0-9]+$"
+        },
+        "state": {
+          "enum": [
+            "idle",
+            "working",
+            "approval",
+            "compacting",
+            "error",
+            "dead"
+          ]
+        },
+        "cursor": {
+          "type": "string",
+          "minLength": 1
+        },
+        "sha256": {
+          "type": "string",
+          "pattern": "^[0-9a-f]{64}$"
+        },
+        "config_key": {
+          "enum": [
+            "state_dir",
+            "tmux_socket",
+            "ready_timeout",
+            "wait_timeout"
+          ]
+        },
+        "config": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "state_dir",
+            "tmux_socket",
+            "ready_timeout",
+            "wait_timeout"
+          ],
+          "properties": {
+            "state_dir": {
+              "type": "string"
+            },
+            "tmux_socket": {
+              "type": [
+                "string",
+                "null"
+              ]
+            },
+            "ready_timeout": {
+              "type": "string"
+            },
+            "wait_timeout": {
+              "type": "string"
+            }
+          }
+        },
+        "provenance": {
+          "oneOf": [
+            {
+              "type": "object",
+              "additionalProperties": false,
+              "required": [
+                "source",
+                "flag_name"
+              ],
+              "properties": {
+                "source": {
+                  "const": "flag"
+                },
+                "flag_name": {
+                  "type": "string"
+                }
+              }
+            },
+            {
+              "type": "object",
+              "additionalProperties": false,
+              "required": [
+                "source",
+                "path",
+                "line"
+              ],
+              "properties": {
+                "source": {
+                  "const": "file"
+                },
+                "path": {
+                  "type": "string"
+                },
+                "line": {
+                  "type": "integer",
+                  "minimum": 1
+                }
+              }
+            },
+            {
+              "type": "object",
+              "additionalProperties": false,
+              "required": [
+                "source"
+              ],
+              "properties": {
+                "source": {
+                  "const": "default"
+                }
+              }
+            }
+          ]
+        }
+      }
+    },
+    "kill": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "$id": "https://github.com/Ozhiaki/gashki/schema/data/kill.json",
+      "title": "gashki kill data",
+      "oneOf": [
+        {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "id",
+            "name",
+            "agent",
+            "target",
+            "state",
+            "action",
+            "dry_run",
+            "irreversible",
+            "would_stop"
+          ],
+          "properties": {
+            "id": {
+              "$ref": "#/$defs/uuid"
+            },
+            "name": {
+              "$ref": "#/$defs/name"
+            },
+            "agent": {
+              "$ref": "#/$defs/agent"
+            },
+            "target": {
+              "$ref": "#/$defs/target"
+            },
+            "state": {
+              "$ref": "#/$defs/state"
+            },
+            "action": {
+              "const": "kill"
+            },
+            "dry_run": {
+              "const": true
+            },
+            "irreversible": {
+              "const": true
+            },
+            "would_stop": {
+              "type": "string",
+              "minLength": 1
+            }
+          }
+        },
+        {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "id",
+            "name",
+            "agent",
+            "target",
+            "action",
+            "dry_run",
+            "already_killed",
+            "irreversible"
+          ],
+          "properties": {
+            "id": {
+              "$ref": "#/$defs/uuid"
+            },
+            "name": {
+              "$ref": "#/$defs/name"
+            },
+            "agent": {
+              "$ref": "#/$defs/agent"
+            },
+            "target": {
+              "$ref": "#/$defs/target"
+            },
+            "action": {
+              "const": "kill"
+            },
+            "dry_run": {
+              "const": false
+            },
+            "already_killed": {
+              "type": "boolean"
+            },
+            "irreversible": {
+              "const": true
+            }
+          }
+        }
+      ],
+      "$defs": {
+        "uuid": {
+          "type": "string",
+          "pattern": "^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$"
+        },
+        "name": {
+          "type": "string",
+          "pattern": "^[A-Za-z0-9_-]{1,32}/[A-Za-z0-9_-]{1,32}$"
+        },
+        "agent": {
+          "enum": [
+            "claude",
+            "codex"
+          ]
+        },
+        "target": {
+          "type": "string",
+          "pattern": "^%[0-9]+$"
+        },
+        "state": {
+          "enum": [
+            "idle",
+            "working",
+            "approval",
+            "compacting",
+            "error",
+            "dead"
+          ]
+        },
+        "cursor": {
+          "type": "string",
+          "minLength": 1
+        },
+        "sha256": {
+          "type": "string",
+          "pattern": "^[0-9a-f]{64}$"
+        },
+        "config_key": {
+          "enum": [
+            "state_dir",
+            "tmux_socket",
+            "ready_timeout",
+            "wait_timeout"
+          ]
+        },
+        "config": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "state_dir",
+            "tmux_socket",
+            "ready_timeout",
+            "wait_timeout"
+          ],
+          "properties": {
+            "state_dir": {
+              "type": "string"
+            },
+            "tmux_socket": {
+              "type": [
+                "string",
+                "null"
+              ]
+            },
+            "ready_timeout": {
+              "type": "string"
+            },
+            "wait_timeout": {
+              "type": "string"
+            }
+          }
+        },
+        "provenance": {
+          "oneOf": [
+            {
+              "type": "object",
+              "additionalProperties": false,
+              "required": [
+                "source",
+                "flag_name"
+              ],
+              "properties": {
+                "source": {
+                  "const": "flag"
+                },
+                "flag_name": {
+                  "type": "string"
+                }
+              }
+            },
+            {
+              "type": "object",
+              "additionalProperties": false,
+              "required": [
+                "source",
+                "path",
+                "line"
+              ],
+              "properties": {
+                "source": {
+                  "const": "file"
+                },
+                "path": {
+                  "type": "string"
+                },
+                "line": {
+                  "type": "integer",
+                  "minimum": 1
+                }
+              }
+            },
+            {
+              "type": "object",
+              "additionalProperties": false,
+              "required": [
+                "source"
+              ],
+              "properties": {
+                "source": {
+                  "const": "default"
+                }
+              }
+            }
+          ]
+        }
+      }
+    },
+    "observe": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "$id": "https://github.com/Ozhiaki/gashki/schema/data/observe.json",
+      "title": "gashki observe data",
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "id",
+        "name",
+        "agent",
+        "target",
+        "state",
+        "age_ms",
+        "confidence",
+        "source",
+        "safe_to_send",
+        "cursor",
+        "evidence"
+      ],
+      "properties": {
+        "id": {
+          "$ref": "#/$defs/uuid"
+        },
+        "name": {
+          "$ref": "#/$defs/name"
+        },
+        "agent": {
+          "$ref": "#/$defs/agent"
+        },
+        "target": {
+          "$ref": "#/$defs/target"
+        },
+        "state": {
+          "$ref": "#/$defs/state"
+        },
+        "age_ms": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "confidence": {
+          "type": "number",
+          "minimum": 0,
+          "maximum": 1
+        },
+        "source": {
+          "enum": [
+            "hook",
+            "screen"
+          ]
+        },
+        "safe_to_send": {
+          "type": "boolean"
+        },
+        "cursor": {
+          "$ref": "#/$defs/cursor"
+        },
+        "evidence": {
+          "type": "object"
+        }
+      },
+      "$defs": {
+        "uuid": {
+          "type": "string",
+          "pattern": "^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$"
+        },
+        "name": {
+          "type": "string",
+          "pattern": "^[A-Za-z0-9_-]{1,32}/[A-Za-z0-9_-]{1,32}$"
+        },
+        "agent": {
+          "enum": [
+            "claude",
+            "codex"
+          ]
+        },
+        "target": {
+          "type": "string",
+          "pattern": "^%[0-9]+$"
+        },
+        "state": {
+          "enum": [
+            "idle",
+            "working",
+            "approval",
+            "compacting",
+            "error",
+            "dead"
+          ]
+        },
+        "cursor": {
+          "type": "string",
+          "minLength": 1
+        },
+        "sha256": {
+          "type": "string",
+          "pattern": "^[0-9a-f]{64}$"
+        },
+        "config_key": {
+          "enum": [
+            "state_dir",
+            "tmux_socket",
+            "ready_timeout",
+            "wait_timeout"
+          ]
+        },
+        "config": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "state_dir",
+            "tmux_socket",
+            "ready_timeout",
+            "wait_timeout"
+          ],
+          "properties": {
+            "state_dir": {
+              "type": "string"
+            },
+            "tmux_socket": {
+              "type": [
+                "string",
+                "null"
+              ]
+            },
+            "ready_timeout": {
+              "type": "string"
+            },
+            "wait_timeout": {
+              "type": "string"
+            }
+          }
+        },
+        "provenance": {
+          "oneOf": [
+            {
+              "type": "object",
+              "additionalProperties": false,
+              "required": [
+                "source",
+                "flag_name"
+              ],
+              "properties": {
+                "source": {
+                  "const": "flag"
+                },
+                "flag_name": {
+                  "type": "string"
+                }
+              }
+            },
+            {
+              "type": "object",
+              "additionalProperties": false,
+              "required": [
+                "source",
+                "path",
+                "line"
+              ],
+              "properties": {
+                "source": {
+                  "const": "file"
+                },
+                "path": {
+                  "type": "string"
+                },
+                "line": {
+                  "type": "integer",
+                  "minimum": 1
+                }
+              }
+            },
+            {
+              "type": "object",
+              "additionalProperties": false,
+              "required": [
+                "source"
+              ],
+              "properties": {
+                "source": {
+                  "const": "default"
+                }
+              }
+            }
+          ]
+        }
+      }
+    },
+    "wait": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "$id": "https://github.com/Ozhiaki/gashki/schema/data/wait.json",
+      "title": "gashki wait data",
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "id",
+        "name",
+        "until",
+        "state",
+        "event",
+        "cursor"
+      ],
+      "properties": {
+        "id": {
+          "$ref": "#/$defs/uuid"
+        },
+        "name": {
+          "$ref": "#/$defs/name"
+        },
+        "until": {
+          "enum": [
+            "idle",
+            "working",
+            "approval",
+            "dead",
+            "change"
+          ]
+        },
+        "state": {
+          "$ref": "#/$defs/state"
+        },
+        "event": {
+          "type": [
+            "object",
+            "null"
+          ]
+        },
+        "cursor": {
+          "$ref": "#/$defs/cursor"
+        }
+      },
+      "$defs": {
+        "uuid": {
+          "type": "string",
+          "pattern": "^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$"
+        },
+        "name": {
+          "type": "string",
+          "pattern": "^[A-Za-z0-9_-]{1,32}/[A-Za-z0-9_-]{1,32}$"
+        },
+        "agent": {
+          "enum": [
+            "claude",
+            "codex"
+          ]
+        },
+        "target": {
+          "type": "string",
+          "pattern": "^%[0-9]+$"
+        },
+        "state": {
+          "enum": [
+            "idle",
+            "working",
+            "approval",
+            "compacting",
+            "error",
+            "dead"
+          ]
+        },
+        "cursor": {
+          "type": "string",
+          "minLength": 1
+        },
+        "sha256": {
+          "type": "string",
+          "pattern": "^[0-9a-f]{64}$"
+        },
+        "config_key": {
+          "enum": [
+            "state_dir",
+            "tmux_socket",
+            "ready_timeout",
+            "wait_timeout"
+          ]
+        },
+        "config": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "state_dir",
+            "tmux_socket",
+            "ready_timeout",
+            "wait_timeout"
+          ],
+          "properties": {
+            "state_dir": {
+              "type": "string"
+            },
+            "tmux_socket": {
+              "type": [
+                "string",
+                "null"
+              ]
+            },
+            "ready_timeout": {
+              "type": "string"
+            },
+            "wait_timeout": {
+              "type": "string"
+            }
+          }
+        },
+        "provenance": {
+          "oneOf": [
+            {
+              "type": "object",
+              "additionalProperties": false,
+              "required": [
+                "source",
+                "flag_name"
+              ],
+              "properties": {
+                "source": {
+                  "const": "flag"
+                },
+                "flag_name": {
+                  "type": "string"
+                }
+              }
+            },
+            {
+              "type": "object",
+              "additionalProperties": false,
+              "required": [
+                "source",
+                "path",
+                "line"
+              ],
+              "properties": {
+                "source": {
+                  "const": "file"
+                },
+                "path": {
+                  "type": "string"
+                },
+                "line": {
+                  "type": "integer",
+                  "minimum": 1
+                }
+              }
+            },
+            {
+              "type": "object",
+              "additionalProperties": false,
+              "required": [
+                "source"
+              ],
+              "properties": {
+                "source": {
+                  "const": "default"
+                }
+              }
+            }
+          ]
+        }
+      }
+    },
+    "capabilities": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "$id": "https://github.com/Ozhiaki/gashki/schema/data/capabilities.json",
+      "title": "gashki capabilities data",
+      "type": "object",
+      "required": [
+        "tool_name",
+        "contract_version",
+        "contract_versions_supported",
+        "verbs",
+        "global_flags",
+        "error_codes",
+        "exit_codes"
+      ],
+      "properties": {
+        "tool_name": {
+          "const": "gashki"
+        },
+        "contract_version": {
+          "type": "string",
+          "pattern": "^[0-9]+(\\.[0-9]+)?$"
+        },
+        "contract_versions_supported": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "verbs": {
+          "type": "object"
+        },
+        "global_flags": {
+          "type": "object"
+        },
+        "error_codes": {
+          "type": "object"
+        },
+        "exit_codes": {
+          "type": "object"
+        }
+      }
+    },
+    "schema": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "$id": "https://github.com/Ozhiaki/gashki/schema/data/schema.json",
+      "title": "gashki schema data",
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "envelope_schema",
+        "schemas",
+        "streams",
+        "definitions"
+      ],
+      "properties": {
+        "envelope_schema": {
+          "type": "object"
+        },
+        "schemas": {
+          "type": "object",
+          "minProperties": 1,
+          "additionalProperties": {
+            "type": "object"
+          }
+        },
+        "streams": {
+          "type": "object",
+          "maxProperties": 0
+        },
+        "definitions": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "meta",
+            "recommended_action"
+          ],
+          "properties": {
+            "meta": {
+              "type": "object"
+            },
+            "recommended_action": {
+              "type": "object"
+            }
+          }
+        }
+      }
+    },
+    "config schema": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "$id": "https://github.com/Ozhiaki/gashki/schema/data/config-schema.json",
+      "title": "gashki config schema data",
+      "type": "object",
+      "required": [
+        "_schema_version",
+        "type",
+        "additionalProperties",
+        "properties"
+      ],
+      "properties": {
+        "_schema_version": {
+          "const": "1"
+        },
+        "type": {
+          "const": "object"
+        },
+        "additionalProperties": {
+          "const": false
+        },
+        "properties": {
+          "type": "object"
+        }
+      }
+    },
+    "config validate": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "$id": "https://github.com/Ozhiaki/gashki/schema/data/config-validate.json",
+      "title": "gashki config validate data",
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "path",
+        "exists",
+        "valid"
+      ],
+      "properties": {
+        "path": {
+          "type": "string",
+          "minLength": 1
+        },
+        "exists": {
+          "type": "boolean"
+        },
+        "valid": {
+          "const": true
+        }
+      }
+    },
+    "config show": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "$id": "https://github.com/Ozhiaki/gashki/schema/data/config-show.json",
+      "title": "gashki config show data",
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "config",
+        "_provenance"
+      ],
+      "properties": {
+        "config": {
+          "$ref": "#/$defs/config"
+        },
+        "_provenance": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "_config_file",
+            "state_dir",
+            "tmux_socket",
+            "ready_timeout",
+            "wait_timeout"
+          ],
+          "properties": {
+            "_config_file": {
+              "type": "string",
+              "minLength": 1
+            },
+            "state_dir": {
+              "$ref": "#/$defs/provenance"
+            },
+            "tmux_socket": {
+              "$ref": "#/$defs/provenance"
+            },
+            "ready_timeout": {
+              "$ref": "#/$defs/provenance"
+            },
+            "wait_timeout": {
+              "$ref": "#/$defs/provenance"
+            }
+          }
+        }
+      },
+      "$defs": {
+        "uuid": {
+          "type": "string",
+          "pattern": "^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$"
+        },
+        "name": {
+          "type": "string",
+          "pattern": "^[A-Za-z0-9_-]{1,32}/[A-Za-z0-9_-]{1,32}$"
+        },
+        "agent": {
+          "enum": [
+            "claude",
+            "codex"
+          ]
+        },
+        "target": {
+          "type": "string",
+          "pattern": "^%[0-9]+$"
+        },
+        "state": {
+          "enum": [
+            "idle",
+            "working",
+            "approval",
+            "compacting",
+            "error",
+            "dead"
+          ]
+        },
+        "cursor": {
+          "type": "string",
+          "minLength": 1
+        },
+        "sha256": {
+          "type": "string",
+          "pattern": "^[0-9a-f]{64}$"
+        },
+        "config_key": {
+          "enum": [
+            "state_dir",
+            "tmux_socket",
+            "ready_timeout",
+            "wait_timeout"
+          ]
+        },
+        "config": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "state_dir",
+            "tmux_socket",
+            "ready_timeout",
+            "wait_timeout"
+          ],
+          "properties": {
+            "state_dir": {
+              "type": "string"
+            },
+            "tmux_socket": {
+              "type": [
+                "string",
+                "null"
+              ]
+            },
+            "ready_timeout": {
+              "type": "string"
+            },
+            "wait_timeout": {
+              "type": "string"
+            }
+          }
+        },
+        "provenance": {
+          "oneOf": [
+            {
+              "type": "object",
+              "additionalProperties": false,
+              "required": [
+                "source",
+                "flag_name"
+              ],
+              "properties": {
+                "source": {
+                  "const": "flag"
+                },
+                "flag_name": {
+                  "type": "string"
+                }
+              }
+            },
+            {
+              "type": "object",
+              "additionalProperties": false,
+              "required": [
+                "source",
+                "path",
+                "line"
+              ],
+              "properties": {
+                "source": {
+                  "const": "file"
+                },
+                "path": {
+                  "type": "string"
+                },
+                "line": {
+                  "type": "integer",
+                  "minimum": 1
+                }
+              }
+            },
+            {
+              "type": "object",
+              "additionalProperties": false,
+              "required": [
+                "source"
+              ],
+              "properties": {
+                "source": {
+                  "const": "default"
+                }
+              }
+            }
+          ]
+        }
+      }
+    },
+    "config get": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "$id": "https://github.com/Ozhiaki/gashki/schema/data/config-get.json",
+      "title": "gashki config get data",
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "key",
+        "value"
+      ],
+      "properties": {
+        "key": {
+          "$ref": "#/$defs/config_key"
+        },
+        "value": {
+          "type": [
+            "string",
+            "null"
+          ]
+        }
+      },
+      "$defs": {
+        "uuid": {
+          "type": "string",
+          "pattern": "^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$"
+        },
+        "name": {
+          "type": "string",
+          "pattern": "^[A-Za-z0-9_-]{1,32}/[A-Za-z0-9_-]{1,32}$"
+        },
+        "agent": {
+          "enum": [
+            "claude",
+            "codex"
+          ]
+        },
+        "target": {
+          "type": "string",
+          "pattern": "^%[0-9]+$"
+        },
+        "state": {
+          "enum": [
+            "idle",
+            "working",
+            "approval",
+            "compacting",
+            "error",
+            "dead"
+          ]
+        },
+        "cursor": {
+          "type": "string",
+          "minLength": 1
+        },
+        "sha256": {
+          "type": "string",
+          "pattern": "^[0-9a-f]{64}$"
+        },
+        "config_key": {
+          "enum": [
+            "state_dir",
+            "tmux_socket",
+            "ready_timeout",
+            "wait_timeout"
+          ]
+        },
+        "config": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "state_dir",
+            "tmux_socket",
+            "ready_timeout",
+            "wait_timeout"
+          ],
+          "properties": {
+            "state_dir": {
+              "type": "string"
+            },
+            "tmux_socket": {
+              "type": [
+                "string",
+                "null"
+              ]
+            },
+            "ready_timeout": {
+              "type": "string"
+            },
+            "wait_timeout": {
+              "type": "string"
+            }
+          }
+        },
+        "provenance": {
+          "oneOf": [
+            {
+              "type": "object",
+              "additionalProperties": false,
+              "required": [
+                "source",
+                "flag_name"
+              ],
+              "properties": {
+                "source": {
+                  "const": "flag"
+                },
+                "flag_name": {
+                  "type": "string"
+                }
+              }
+            },
+            {
+              "type": "object",
+              "additionalProperties": false,
+              "required": [
+                "source",
+                "path",
+                "line"
+              ],
+              "properties": {
+                "source": {
+                  "const": "file"
+                },
+                "path": {
+                  "type": "string"
+                },
+                "line": {
+                  "type": "integer",
+                  "minimum": 1
+                }
+              }
+            },
+            {
+              "type": "object",
+              "additionalProperties": false,
+              "required": [
+                "source"
+              ],
+              "properties": {
+                "source": {
+                  "const": "default"
+                }
+              }
+            }
+          ]
+        }
+      }
+    },
+    "config set": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "$id": "https://github.com/Ozhiaki/gashki/schema/data/config-set.json",
+      "title": "gashki config set data",
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "path",
+        "key",
+        "value",
+        "changed",
+        "created"
+      ],
+      "properties": {
+        "path": {
+          "type": "string",
+          "minLength": 1
+        },
+        "key": {
+          "$ref": "#/$defs/config_key"
+        },
+        "value": {
+          "type": "string"
+        },
+        "changed": {
+          "type": "boolean"
+        },
+        "created": {
+          "type": "boolean"
+        }
+      },
+      "$defs": {
+        "uuid": {
+          "type": "string",
+          "pattern": "^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$"
+        },
+        "name": {
+          "type": "string",
+          "pattern": "^[A-Za-z0-9_-]{1,32}/[A-Za-z0-9_-]{1,32}$"
+        },
+        "agent": {
+          "enum": [
+            "claude",
+            "codex"
+          ]
+        },
+        "target": {
+          "type": "string",
+          "pattern": "^%[0-9]+$"
+        },
+        "state": {
+          "enum": [
+            "idle",
+            "working",
+            "approval",
+            "compacting",
+            "error",
+            "dead"
+          ]
+        },
+        "cursor": {
+          "type": "string",
+          "minLength": 1
+        },
+        "sha256": {
+          "type": "string",
+          "pattern": "^[0-9a-f]{64}$"
+        },
+        "config_key": {
+          "enum": [
+            "state_dir",
+            "tmux_socket",
+            "ready_timeout",
+            "wait_timeout"
+          ]
+        },
+        "config": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "state_dir",
+            "tmux_socket",
+            "ready_timeout",
+            "wait_timeout"
+          ],
+          "properties": {
+            "state_dir": {
+              "type": "string"
+            },
+            "tmux_socket": {
+              "type": [
+                "string",
+                "null"
+              ]
+            },
+            "ready_timeout": {
+              "type": "string"
+            },
+            "wait_timeout": {
+              "type": "string"
+            }
+          }
+        },
+        "provenance": {
+          "oneOf": [
+            {
+              "type": "object",
+              "additionalProperties": false,
+              "required": [
+                "source",
+                "flag_name"
+              ],
+              "properties": {
+                "source": {
+                  "const": "flag"
+                },
+                "flag_name": {
+                  "type": "string"
+                }
+              }
+            },
+            {
+              "type": "object",
+              "additionalProperties": false,
+              "required": [
+                "source",
+                "path",
+                "line"
+              ],
+              "properties": {
+                "source": {
+                  "const": "file"
+                },
+                "path": {
+                  "type": "string"
+                },
+                "line": {
+                  "type": "integer",
+                  "minimum": 1
+                }
+              }
+            },
+            {
+              "type": "object",
+              "additionalProperties": false,
+              "required": [
+                "source"
+              ],
+              "properties": {
+                "source": {
+                  "const": "default"
+                }
+              }
+            }
+          ]
+        }
+      }
+    },
+    "config patch": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "$id": "https://github.com/Ozhiaki/gashki/schema/data/config-patch.json",
+      "title": "gashki config patch data",
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "path",
+        "changed",
+        "config",
+        "created"
+      ],
+      "properties": {
+        "path": {
+          "type": "string",
+          "minLength": 1
+        },
+        "changed": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "pattern": "^[A-Za-z0-9_-]+$"
+          },
+          "uniqueItems": true
+        },
+        "config": {
+          "$ref": "#/$defs/config"
+        },
+        "created": {
+          "type": "boolean"
+        }
+      },
+      "$defs": {
+        "uuid": {
+          "type": "string",
+          "pattern": "^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$"
+        },
+        "name": {
+          "type": "string",
+          "pattern": "^[A-Za-z0-9_-]{1,32}/[A-Za-z0-9_-]{1,32}$"
+        },
+        "agent": {
+          "enum": [
+            "claude",
+            "codex"
+          ]
+        },
+        "target": {
+          "type": "string",
+          "pattern": "^%[0-9]+$"
+        },
+        "state": {
+          "enum": [
+            "idle",
+            "working",
+            "approval",
+            "compacting",
+            "error",
+            "dead"
+          ]
+        },
+        "cursor": {
+          "type": "string",
+          "minLength": 1
+        },
+        "sha256": {
+          "type": "string",
+          "pattern": "^[0-9a-f]{64}$"
+        },
+        "config_key": {
+          "enum": [
+            "state_dir",
+            "tmux_socket",
+            "ready_timeout",
+            "wait_timeout"
+          ]
+        },
+        "config": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "state_dir",
+            "tmux_socket",
+            "ready_timeout",
+            "wait_timeout"
+          ],
+          "properties": {
+            "state_dir": {
+              "type": "string"
+            },
+            "tmux_socket": {
+              "type": [
+                "string",
+                "null"
+              ]
+            },
+            "ready_timeout": {
+              "type": "string"
+            },
+            "wait_timeout": {
+              "type": "string"
+            }
+          }
+        },
+        "provenance": {
+          "oneOf": [
+            {
+              "type": "object",
+              "additionalProperties": false,
+              "required": [
+                "source",
+                "flag_name"
+              ],
+              "properties": {
+                "source": {
+                  "const": "flag"
+                },
+                "flag_name": {
+                  "type": "string"
+                }
+              }
+            },
+            {
+              "type": "object",
+              "additionalProperties": false,
+              "required": [
+                "source",
+                "path",
+                "line"
+              ],
+              "properties": {
+                "source": {
+                  "const": "file"
+                },
+                "path": {
+                  "type": "string"
+                },
+                "line": {
+                  "type": "integer",
+                  "minimum": 1
+                }
+              }
+            },
+            {
+              "type": "object",
+              "additionalProperties": false,
+              "required": [
+                "source"
+              ],
+              "properties": {
+                "source": {
+                  "const": "default"
+                }
+              }
+            }
+          ]
+        }
+      }
+    },
+    "config edit": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "$id": "https://github.com/Ozhiaki/gashki/schema/data/config-edit.json",
+      "title": "gashki config edit data",
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "path",
+        "config"
+      ],
+      "properties": {
+        "path": {
+          "type": "string",
+          "minLength": 1
+        },
+        "config": {
+          "$ref": "#/$defs/config"
+        }
+      },
+      "$defs": {
+        "uuid": {
+          "type": "string",
+          "pattern": "^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$"
+        },
+        "name": {
+          "type": "string",
+          "pattern": "^[A-Za-z0-9_-]{1,32}/[A-Za-z0-9_-]{1,32}$"
+        },
+        "agent": {
+          "enum": [
+            "claude",
+            "codex"
+          ]
+        },
+        "target": {
+          "type": "string",
+          "pattern": "^%[0-9]+$"
+        },
+        "state": {
+          "enum": [
+            "idle",
+            "working",
+            "approval",
+            "compacting",
+            "error",
+            "dead"
+          ]
+        },
+        "cursor": {
+          "type": "string",
+          "minLength": 1
+        },
+        "sha256": {
+          "type": "string",
+          "pattern": "^[0-9a-f]{64}$"
+        },
+        "config_key": {
+          "enum": [
+            "state_dir",
+            "tmux_socket",
+            "ready_timeout",
+            "wait_timeout"
+          ]
+        },
+        "config": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "state_dir",
+            "tmux_socket",
+            "ready_timeout",
+            "wait_timeout"
+          ],
+          "properties": {
+            "state_dir": {
+              "type": "string"
+            },
+            "tmux_socket": {
+              "type": [
+                "string",
+                "null"
+              ]
+            },
+            "ready_timeout": {
+              "type": "string"
+            },
+            "wait_timeout": {
+              "type": "string"
+            }
+          }
+        },
+        "provenance": {
+          "oneOf": [
+            {
+              "type": "object",
+              "additionalProperties": false,
+              "required": [
+                "source",
+                "flag_name"
+              ],
+              "properties": {
+                "source": {
+                  "const": "flag"
+                },
+                "flag_name": {
+                  "type": "string"
+                }
+              }
+            },
+            {
+              "type": "object",
+              "additionalProperties": false,
+              "required": [
+                "source",
+                "path",
+                "line"
+              ],
+              "properties": {
+                "source": {
+                  "const": "file"
+                },
+                "path": {
+                  "type": "string"
+                },
+                "line": {
+                  "type": "integer",
+                  "minimum": 1
+                }
+              }
+            },
+            {
+              "type": "object",
+              "additionalProperties": false,
+              "required": [
+                "source"
+              ],
+              "properties": {
+                "source": {
+                  "const": "default"
+                }
+              }
+            }
+          ]
+        }
+      }
+    },
+    "robot-docs guide": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "$id": "https://github.com/Ozhiaki/gashki/schema/data/robot-docs-guide.json",
+      "title": "gashki robot-docs guide data",
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "guide"
+      ],
+      "properties": {
+        "guide": {
+          "type": "string",
+          "minLength": 1
+        }
+      }
+    },
+    "conformance": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "$id": "https://github.com/Ozhiaki/gashki/schema/data/conformance.json",
+      "title": "gashki conformance data",
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "profile",
+        "counts",
+        "cases",
+        "limits"
+      ],
+      "properties": {
+        "profile": {
+          "const": "release-self-check"
+        },
+        "counts": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "pass",
+            "fail",
+            "not_applicable"
+          ],
+          "properties": {
+            "pass": {
+              "type": "integer",
+              "minimum": 0
+            },
+            "fail": {
+              "type": "integer",
+              "minimum": 0
+            },
+            "not_applicable": {
+              "type": "integer",
+              "minimum": 0
+            }
+          }
+        },
+        "cases": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+              "case_id",
+              "verdict",
+              "reason",
+              "request_id",
+              "target"
+            ],
+            "properties": {
+              "case_id": {
+                "type": "string",
+                "minLength": 1
+              },
+              "verdict": {
+                "enum": [
+                  "pass",
+                  "fail",
+                  "not_applicable"
+                ]
+              },
+              "reason": {
+                "type": [
+                  "string",
+                  "null"
+                ]
+              },
+              "request_id": {
+                "$ref": "#/$defs/uuid"
+              },
+              "target": {
+                "type": "object",
+                "additionalProperties": {
+                  "type": "string"
+                }
+              }
+            }
+          }
+        },
+        "limits": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "minLength": 1
+          }
+        }
+      },
+      "$defs": {
+        "uuid": {
+          "type": "string",
+          "pattern": "^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$"
+        },
+        "name": {
+          "type": "string",
+          "pattern": "^[A-Za-z0-9_-]{1,32}/[A-Za-z0-9_-]{1,32}$"
+        },
+        "agent": {
+          "enum": [
+            "claude",
+            "codex"
+          ]
+        },
+        "target": {
+          "type": "string",
+          "pattern": "^%[0-9]+$"
+        },
+        "state": {
+          "enum": [
+            "idle",
+            "working",
+            "approval",
+            "compacting",
+            "error",
+            "dead"
+          ]
+        },
+        "cursor": {
+          "type": "string",
+          "minLength": 1
+        },
+        "sha256": {
+          "type": "string",
+          "pattern": "^[0-9a-f]{64}$"
+        },
+        "config_key": {
+          "enum": [
+            "state_dir",
+            "tmux_socket",
+            "ready_timeout",
+            "wait_timeout"
+          ]
+        },
+        "config": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "state_dir",
+            "tmux_socket",
+            "ready_timeout",
+            "wait_timeout"
+          ],
+          "properties": {
+            "state_dir": {
+              "type": "string"
+            },
+            "tmux_socket": {
+              "type": [
+                "string",
+                "null"
+              ]
+            },
+            "ready_timeout": {
+              "type": "string"
+            },
+            "wait_timeout": {
+              "type": "string"
+            }
+          }
+        },
+        "provenance": {
+          "oneOf": [
+            {
+              "type": "object",
+              "additionalProperties": false,
+              "required": [
+                "source",
+                "flag_name"
+              ],
+              "properties": {
+                "source": {
+                  "const": "flag"
+                },
+                "flag_name": {
+                  "type": "string"
+                }
+              }
+            },
+            {
+              "type": "object",
+              "additionalProperties": false,
+              "required": [
+                "source",
+                "path",
+                "line"
+              ],
+              "properties": {
+                "source": {
+                  "const": "file"
+                },
+                "path": {
+                  "type": "string"
+                },
+                "line": {
+                  "type": "integer",
+                  "minimum": 1
+                }
+              }
+            },
+            {
+              "type": "object",
+              "additionalProperties": false,
+              "required": [
+                "source"
+              ],
+              "properties": {
+                "source": {
+                  "const": "default"
+                }
+              }
+            }
+          ]
+        }
+      }
+    },
+    "feedback": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "$id": "https://github.com/Ozhiaki/gashki/schema/data/feedback.json",
+      "title": "gashki feedback data",
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "id",
+        "local_path",
+        "upstream"
+      ],
+      "properties": {
+        "id": {
+          "$ref": "#/$defs/uuid"
+        },
+        "local_path": {
+          "type": "string",
+          "minLength": 1
+        },
+        "upstream": {
+          "type": "null"
+        }
+      },
+      "$defs": {
+        "uuid": {
+          "type": "string",
+          "pattern": "^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$"
+        },
+        "name": {
+          "type": "string",
+          "pattern": "^[A-Za-z0-9_-]{1,32}/[A-Za-z0-9_-]{1,32}$"
+        },
+        "agent": {
+          "enum": [
+            "claude",
+            "codex"
+          ]
+        },
+        "target": {
+          "type": "string",
+          "pattern": "^%[0-9]+$"
+        },
+        "state": {
+          "enum": [
+            "idle",
+            "working",
+            "approval",
+            "compacting",
+            "error",
+            "dead"
+          ]
+        },
+        "cursor": {
+          "type": "string",
+          "minLength": 1
+        },
+        "sha256": {
+          "type": "string",
+          "pattern": "^[0-9a-f]{64}$"
+        },
+        "config_key": {
+          "enum": [
+            "state_dir",
+            "tmux_socket",
+            "ready_timeout",
+            "wait_timeout"
+          ]
+        },
+        "config": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "state_dir",
+            "tmux_socket",
+            "ready_timeout",
+            "wait_timeout"
+          ],
+          "properties": {
+            "state_dir": {
+              "type": "string"
+            },
+            "tmux_socket": {
+              "type": [
+                "string",
+                "null"
+              ]
+            },
+            "ready_timeout": {
+              "type": "string"
+            },
+            "wait_timeout": {
+              "type": "string"
+            }
+          }
+        },
+        "provenance": {
+          "oneOf": [
+            {
+              "type": "object",
+              "additionalProperties": false,
+              "required": [
+                "source",
+                "flag_name"
+              ],
+              "properties": {
+                "source": {
+                  "const": "flag"
+                },
+                "flag_name": {
+                  "type": "string"
+                }
+              }
+            },
+            {
+              "type": "object",
+              "additionalProperties": false,
+              "required": [
+                "source",
+                "path",
+                "line"
+              ],
+              "properties": {
+                "source": {
+                  "const": "file"
+                },
+                "path": {
+                  "type": "string"
+                },
+                "line": {
+                  "type": "integer",
+                  "minimum": 1
+                }
+              }
+            },
+            {
+              "type": "object",
+              "additionalProperties": false,
+              "required": [
+                "source"
+              ],
+              "properties": {
+                "source": {
+                  "const": "default"
+                }
+              }
+            }
+          ]
+        }
+      }
+    }
+  },
+  "streams": {},
+  "definitions": {
+    "meta": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "$id": "https://github.com/Ozhiaki/gashki/schema/meta.json",
+      "title": "gashki envelope meta",
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "request_id",
+        "ts_iso",
+        "elapsed_ms",
+        "contract_version",
+        "data_hash"
+      ],
+      "properties": {
+        "request_id": {
+          "type": "string",
+          "pattern": "^[0-9a-f]{8}-[0-9a-f]{4}-7[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$"
+        },
+        "ts_iso": {
+          "type": "string",
+          "pattern": "^[0-9]{4}-[0-9]{2}-[0-9]{2}T[0-9]{2}:[0-9]{2}:[0-9]{2}\\.[0-9]{3}Z$"
+        },
+        "elapsed_ms": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "contract_version": {
+          "type": "string",
+          "pattern": "^[0-9]+(\\.[0-9]+)?$"
+        },
+        "data_hash": {
+          "type": "string",
+          "pattern": "^sha256:[0-9a-f]{64}$"
+        },
+        "pagination": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "cursor",
+            "has_more",
+            "total"
+          ],
+          "properties": {
+            "cursor": {
+              "type": [
+                "string",
+                "null"
+              ]
+            },
+            "has_more": {
+              "type": "boolean"
+            },
+            "total": {
+              "type": "integer",
+              "minimum": 0
+            }
+          }
+        },
+        "truncated": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "by_limit",
+            "omitted"
+          ],
+          "properties": {
+            "by_limit": {
+              "const": true
+            },
+            "omitted": {
+              "type": "integer",
+              "minimum": 0
+            }
+          }
+        }
+      }
+    },
+    "recommended_action": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "$id": "https://github.com/Ozhiaki/gashki/schema/recommended_action.json",
+      "title": "gashki recommended_action",
+      "oneOf": [
+        {
+          "type": "null"
+        },
+        {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "command",
+            "rationale",
+            "is_destructive",
+            "alternatives"
+          ],
+          "properties": {
+            "command": {
+              "type": "string",
+              "minLength": 1
+            },
+            "rationale": {
+              "type": "string",
+              "minLength": 1
+            },
+            "is_destructive": {
+              "type": "boolean"
+            },
+            "alternatives": {
+              "type": "array",
+              "items": {
+                "type": "object",
+                "additionalProperties": false,
+                "required": [
+                  "command",
+                  "purpose"
+                ],
+                "properties": {
+                  "command": {
+                    "type": "string",
+                    "minLength": 1
+                  },
+                  "purpose": {
+                    "type": "string",
+                    "minLength": 1
+                  }
+                }
+              }
+            }
+          }
+        }
+      ]
+    }
+  }
+}

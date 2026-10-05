@@ -554,3 +554,28 @@ func TestCheckpointAuthorityCannotBeStagedAsText(t *testing.T) {
 	}
 	requireCode(t, s.CommitTransaction(tx), "STATE_INVALID")
 }
+
+func TestPrivateRootArtifactStaging(t *testing.T) {
+	s := fixture(t)
+	b := []byte("state_dir = \"/owned/state\"\n")
+	hash, e := s.StagePrivateText("gashki.config.toml", b)
+	if e != nil || hash != contract.HashBytes(b) {
+		t.Fatal(hash, e)
+	}
+	saved, e := s.ReadText("gashki.config.toml")
+	if e != nil || string(saved) != string(b) {
+		t.Fatal(e)
+	}
+	info, e := os.Stat(filepath.Join(s.Path, "gashki.config.toml"))
+	if e != nil || info.Mode().Perm() != 0600 {
+		t.Fatal(info, e)
+	}
+	if _, e = s.StagePrivateText("gashki.config.toml", []byte("changed")); e == nil {
+		t.Fatal("immutable file replaced")
+	}
+	for _, path := range []string{"../outside", ".", "/outside"} {
+		if _, e = s.StagePrivateText(path, b); e == nil {
+			t.Fatal("invalid leaf accepted", path)
+		}
+	}
+}

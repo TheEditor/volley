@@ -3,6 +3,7 @@
 package process
 
 import (
+	"bytes"
 	"context"
 	"errors"
 	"fmt"
@@ -84,6 +85,9 @@ func (UnixRunner) Run(ctx context.Context, req Request) (result Result, err erro
 	if req.Timeout < 0 || req.ElapsedBefore < 0 {
 		return result, fmt.Errorf("Negative process budget")
 	}
+	if req.UserTTY != nil && len(req.Input) > 0 {
+		return result, fmt.Errorf("Editor terminal and owned tool input cannot be combined")
+	}
 	if req.Timeout > 0 && req.ElapsedBefore >= req.Timeout {
 		result.Outcome = DeadlineExpired
 		result.TimedOut = true
@@ -110,6 +114,8 @@ func (UnixRunner) Run(ctx context.Context, req Request) (result Result, err erro
 			return result, fmt.Errorf("Editor input must be a terminal")
 		}
 		cmd.Stdin = req.UserTTY
+	} else if len(req.Input) > 0 {
+		cmd.Stdin = bytes.NewReader(req.Input)
 	}
 	cmd.Stdout = req.Stdout
 	cmd.Stderr = req.Stderr

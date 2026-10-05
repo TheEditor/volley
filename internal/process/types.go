@@ -24,6 +24,9 @@ type Request struct {
 	ElapsedBefore time.Duration
 	Stdout        io.Writer
 	Stderr        io.Writer
+	// Input is an explicit owned tool payload. Agent calls leave it empty.
+	// It never reads the controller's input descriptor.
+	Input []byte
 	// UserTTY is an explicit editor-only terminal descriptor. Agent requests
 	// leave it nil. It is never the controller answer input descriptor.
 	UserTTY *os.File

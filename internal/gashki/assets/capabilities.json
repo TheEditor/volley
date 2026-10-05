@@ -1,0 +1,2238 @@
+{
+  "tool_name": "gashki",
+  "contract_version": "2",
+  "contract_versions_supported": [
+    "2"
+  ],
+  "make_cli": {
+    "commit": "26f47a9",
+    "profile": "release-self-check"
+  },
+  "features": [
+    "json_output",
+    "did_you_mean",
+    "deterministic_output",
+    "from_stdin",
+    "idempotency_keys",
+    "conformance_self_check"
+  ],
+  "platforms": [
+    "darwin",
+    "linux"
+  ],
+  "flag_forms": {
+    "public": "--flag=value",
+    "equivalent": [
+      "--flag=value",
+      "--flag value"
+    ],
+    "value_never_starts_with_dash": true,
+    "empty_value": "INVALID_INPUT",
+    "value_missing_at_end": "MISSING_REQUIRED",
+    "repeated_flag": "INVALID_INPUT unless the flag declares repeatable: true",
+    "end_of_options": "--"
+  },
+  "near_miss": {
+    "metric": "optimal-string-alignment",
+    "max_distance": 1,
+    "candidates": [
+      "verbs",
+      "flags",
+      "enum_values",
+      "config_keys",
+      "status_field_paths"
+    ]
+  },
+  "types": {
+    "pane": {
+      "value_type": "string",
+      "summary": "a pane UUID, group/name, or tmux pane id %N; resolved to a UUID",
+      "value_pattern": "^([0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}|[A-Za-z0-9_-]{1,32}/[A-Za-z0-9_-]{1,32}|%[0-9]+)$"
+    },
+    "name": {
+      "value_type": "string",
+      "summary": "group/name",
+      "value_pattern": "^[A-Za-z0-9_-]{1,32}/[A-Za-z0-9_-]{1,32}$"
+    },
+    "dur": {
+      "value_type": "duration",
+      "summary": "Go duration string such as 500ms, 30s, 10m",
+      "min": "1s",
+      "max": "24h"
+    },
+    "cursor": {
+      "value_type": "string",
+      "summary": "opaque cursor from an earlier gashki result"
+    },
+    "page-cursor": {
+      "value_type": "string",
+      "summary": "opaque cursor from meta.pagination.cursor of an earlier status result; encodes the last name returned"
+    },
+    "key": {
+      "value_type": "string",
+      "summary": "idempotency key",
+      "value_pattern": "^[A-Za-z0-9._:-]{1,128}$"
+    },
+    "agent": {
+      "value_type": "string",
+      "enum": [
+        "claude",
+        "codex"
+      ]
+    },
+    "socket": {
+      "value_type": "string",
+      "value_pattern": "^[A-Za-z0-9_-]{1,64}$"
+    },
+    "env-name": {
+      "value_type": "string",
+      "summary": "environment variable name",
+      "value_pattern": "^[A-Za-z_][A-Za-z0-9_]*$"
+    },
+    "abs-path": {
+      "value_type": "path",
+      "summary": "absolute path"
+    },
+    "path": {
+      "value_type": "path"
+    },
+    "contract-major": {
+      "value_type": "string",
+      "enum": [
+        "2"
+      ]
+    }
+  },
+  "global_flags": {
+    "applies_to": "every verb except hook-event",
+    "flags": [
+      {
+        "name": "--json",
+        "arity": 0,
+        "type": "bool",
+        "default": false,
+        "selector": "machine-rendering"
+      },
+      {
+        "name": "--help",
+        "aliases": [
+          "-h"
+        ],
+        "arity": 0,
+        "type": "bool",
+        "default": false
+      },
+      {
+        "name": "--version",
+        "arity": 0,
+        "type": "bool",
+        "default": false
+      },
+      {
+        "name": "--no-color",
+        "arity": 0,
+        "type": "bool",
+        "default": false
+      },
+      {
+        "name": "--state-dir",
+        "arity": 1,
+        "value_type": "abs-path",
+        "allow_empty": false,
+        "setting": "state_dir"
+      },
+      {
+        "name": "--tmux-socket",
+        "arity": 1,
+        "value_type": "socket",
+        "allow_empty": false,
+        "setting": "tmux_socket",
+        "value_pattern": "^[A-Za-z0-9_-]{1,64}$"
+      },
+      {
+        "name": "--contract-version",
+        "arity": 1,
+        "value_type": "contract-major",
+        "allow_empty": false,
+        "enum": [
+          "2"
+        ]
+      },
+      {
+        "name": "--config",
+        "arity": 1,
+        "value_type": "path",
+        "allow_empty": false
+      }
+    ]
+  },
+  "verbs": {
+    "doctor": {
+      "description": "Check tmux, pane label support, agent CLIs, logins, Codex hook trust and the state dir.",
+      "rung": 1,
+      "mutates": false,
+      "json": true,
+      "needs_tmux": true,
+      "output_modes": [
+        "envelope"
+      ],
+      "args": [],
+      "flags": [],
+      "exit_codes": [
+        0,
+        1,
+        3,
+        6
+      ],
+      "examples": [
+        {
+          "invocation": "gashki doctor --json",
+          "summary": "check the environment"
+        }
+      ]
+    },
+    "spawn": {
+      "description": "Start an agent in a tmux pane with gashki hooks installed; --here places it beside the caller.",
+      "rung": 1,
+      "mutates": true,
+      "json": true,
+      "needs_tmux": true,
+      "output_modes": [
+        "envelope"
+      ],
+      "args": [
+        {
+          "name": "name",
+          "required": true,
+          "type": "name"
+        }
+      ],
+      "flags": [
+        {
+          "name": "--agent",
+          "arity": 1,
+          "value_type": "agent",
+          "enum": [
+            "claude",
+            "codex"
+          ],
+          "required": true,
+          "allow_empty": false
+        },
+        {
+          "name": "--cwd",
+          "arity": 1,
+          "value_type": "path",
+          "required": false,
+          "allow_empty": false,
+          "default": "caller cwd",
+          "rule": "existing directory"
+        },
+        {
+          "name": "--ready-timeout",
+          "arity": 1,
+          "value_type": "dur",
+          "required": false,
+          "allow_empty": false,
+          "default": "setting ready_timeout",
+          "setting": "ready_timeout"
+        },
+        {
+          "name": "--agent-args",
+          "arity": 1,
+          "value_type": "json-string-array",
+          "required": false,
+          "allow_empty": false,
+          "default": "[]"
+        },
+        {
+          "name": "--here",
+          "arity": 0,
+          "type": "bool",
+          "default": false
+        },
+        {
+          "name": "--trust-folder",
+          "arity": 0,
+          "type": "bool",
+          "default": false,
+          "rule": "explicit permission to answer only a verified folder trust screen for the full --cwd path"
+        },
+        {
+          "name": "--env",
+          "arity": 1,
+          "value_type": "env-name",
+          "allow_empty": false,
+          "repeatable": true,
+          "rule": "copy a caller environment variable used for configuration; do not pass secrets"
+        }
+      ],
+      "pane_labels": {
+        "minimum_tmux": "3.4",
+        "verified_pane_scoped_versions": [
+          "3.7c"
+        ],
+        "other_supported_versions": "spawn succeeds without a label and warns PANE_LABEL_UNAVAILABLE"
+      },
+      "remediation_command": "When a full corrective command can be built, show the caller's spawn command with flags in declared order and --json retained. Substitute observed paths and tmux error text; never show spec placeholders. For a different server, omit --tmux-socket from the command.",
+      "exit_codes": [
+        0,
+        1,
+        3,
+        5,
+        6
+      ],
+      "examples": [
+        {
+          "invocation": "gashki spawn work/a --agent=claude --json",
+          "summary": "start Claude Code in pane work/a"
+        }
+      ]
+    },
+    "status": {
+      "description": "List gashki panes with state, safety and a recommended action.",
+      "rung": 1,
+      "mutates": false,
+      "json": true,
+      "needs_tmux": true,
+      "output_modes": [
+        "envelope",
+        "raw"
+      ],
+      "raw": {
+        "enter_with": [
+          "--line"
+        ],
+        "summary": "one line of plain text for status-right, counts over all panes"
+      },
+      "args": [],
+      "flags": [
+        {
+          "name": "--line",
+          "arity": 0,
+          "type": "bool",
+          "default": false
+        },
+        {
+          "name": "--limit",
+          "arity": 1,
+          "value_type": "integer",
+          "min": 1,
+          "max": 500,
+          "default": 50,
+          "allow_empty": false
+        },
+        {
+          "name": "--cursor",
+          "arity": 1,
+          "value_type": "page-cursor",
+          "allow_empty": false
+        },
+        {
+          "name": "--fields",
+          "arity": 1,
+          "value_type": "comma-list",
+          "allow_empty": false,
+          "enum": [
+            "id",
+            "name",
+            "agent",
+            "target",
+            "state",
+            "source",
+            "safe_to_send",
+            "recommended_action"
+          ],
+          "no_repeats": true
+        }
+      ],
+      "exclusions": [
+        {
+          "kind": "excludes",
+          "flag": "--line",
+          "with": [
+            "--json",
+            "--limit",
+            "--cursor",
+            "--fields"
+          ],
+          "code": "INVALID_INPUT"
+        }
+      ],
+      "field_paths": [
+        "id",
+        "name",
+        "agent",
+        "target",
+        "state",
+        "source",
+        "safe_to_send",
+        "recommended_action"
+      ],
+      "exit_codes": [
+        0,
+        1,
+        3,
+        6
+      ],
+      "examples": [
+        {
+          "invocation": "gashki status --json",
+          "summary": "list panes"
+        },
+        {
+          "invocation": "gashki status --fields=state,safe_to_send --json",
+          "summary": "list only state fields"
+        },
+        {
+          "invocation": "gashki status --line",
+          "summary": "status-right text"
+        }
+      ]
+    },
+    "send": {
+      "description": "Paste a prompt into an idle agent pane, submit it, and confirm the submit.",
+      "rung": 1,
+      "mutates": true,
+      "json": true,
+      "needs_tmux": true,
+      "output_modes": [
+        "envelope"
+      ],
+      "stdin": "payload with --from-stdin",
+      "args": [
+        {
+          "name": "pane",
+          "required": true,
+          "type": "pane"
+        }
+      ],
+      "flags": [
+        {
+          "name": "--text",
+          "arity": 1,
+          "value_type": "string",
+          "allow_empty": false
+        },
+        {
+          "name": "--from-stdin",
+          "arity": 0,
+          "type": "bool",
+          "default": false
+        },
+        {
+          "name": "--idempotency-key",
+          "arity": 1,
+          "value_type": "key",
+          "allow_empty": false,
+          "value_pattern": "^[A-Za-z0-9._:-]{1,128}$"
+        },
+        {
+          "name": "--no-idempotency-key",
+          "arity": 0,
+          "type": "bool",
+          "default": false
+        },
+        {
+          "name": "--no-verify",
+          "arity": 0,
+          "type": "bool",
+          "default": false
+        }
+      ],
+      "exclusions": [
+        {
+          "kind": "exactly_one",
+          "flags": [
+            "--text",
+            "--from-stdin"
+          ],
+          "both": "INVALID_INPUT",
+          "neither": "MISSING_REQUIRED"
+        },
+        {
+          "kind": "exactly_one",
+          "flags": [
+            "--idempotency-key",
+            "--no-idempotency-key"
+          ],
+          "both": "INVALID_INPUT",
+          "neither": "MISSING_REQUIRED"
+        }
+      ],
+      "payload": {
+        "min_bytes": 1,
+        "max_bytes": 1048576,
+        "encoding": "utf-8",
+        "fault": "INVALID_INPUT"
+      },
+      "exit_codes": [
+        0,
+        1,
+        2,
+        3,
+        4,
+        5,
+        6,
+        7,
+        8
+      ],
+      "examples": [
+        {
+          "invocation": "gashki send work/a --from-stdin --idempotency-key=task-1:try-1 --json",
+          "summary": "send stdin as a prompt"
+        }
+      ]
+    },
+    "kill": {
+      "description": "Kill a gashki pane and its agent.",
+      "rung": 1,
+      "mutates": true,
+      "json": true,
+      "needs_tmux": true,
+      "output_modes": [
+        "envelope"
+      ],
+      "args": [
+        {
+          "name": "pane",
+          "required": true,
+          "type": "pane"
+        }
+      ],
+      "flags": [
+        {
+          "name": "--yes",
+          "arity": 0,
+          "type": "bool",
+          "default": false
+        },
+        {
+          "name": "--dry-run",
+          "arity": 0,
+          "type": "bool",
+          "default": false
+        },
+        {
+          "name": "--idempotency-key",
+          "arity": 1,
+          "value_type": "key",
+          "allow_empty": false,
+          "value_pattern": "^[A-Za-z0-9._:-]{1,128}$"
+        }
+      ],
+      "exclusions": [
+        {
+          "kind": "exactly_one",
+          "flags": [
+            "--yes",
+            "--dry-run"
+          ],
+          "both": "INVALID_INPUT",
+          "neither": "CONFIRMATION_REQUIRED"
+        },
+        {
+          "kind": "excludes",
+          "flag": "--idempotency-key",
+          "with": [
+            "--dry-run"
+          ],
+          "code": "INVALID_INPUT"
+        }
+      ],
+      "safe_alternatives": [
+        "gashki kill <pane> --dry-run",
+        "gashki status"
+      ],
+      "exit_codes": [
+        0,
+        1,
+        2,
+        3,
+        4,
+        5,
+        6
+      ],
+      "examples": [
+        {
+          "invocation": "gashki kill work/a --dry-run --json",
+          "summary": "show what kill would do"
+        }
+      ]
+    },
+    "observe": {
+      "description": "Read one pane's turn state, screen state and hook evidence.",
+      "rung": 2,
+      "mutates": false,
+      "json": true,
+      "needs_tmux": true,
+      "output_modes": [
+        "envelope"
+      ],
+      "args": [
+        {
+          "name": "pane",
+          "required": true,
+          "type": "pane"
+        }
+      ],
+      "flags": [],
+      "exit_codes": [
+        0,
+        1,
+        3,
+        6
+      ],
+      "examples": [
+        {
+          "invocation": "gashki observe work/a --json",
+          "summary": "inspect a pane"
+        }
+      ]
+    },
+    "wait": {
+      "description": "Block until a pane reaches a state or changes.",
+      "rung": 2,
+      "mutates": false,
+      "json": true,
+      "needs_tmux": true,
+      "output_modes": [
+        "envelope"
+      ],
+      "args": [
+        {
+          "name": "pane",
+          "required": true,
+          "type": "pane"
+        }
+      ],
+      "flags": [
+        {
+          "name": "--until",
+          "arity": 1,
+          "value_type": "string",
+          "enum": [
+            "idle",
+            "working",
+            "approval",
+            "dead",
+            "change"
+          ],
+          "required": true,
+          "allow_empty": false
+        },
+        {
+          "name": "--since",
+          "arity": 1,
+          "value_type": "cursor",
+          "required": false,
+          "allow_empty": false
+        },
+        {
+          "name": "--wait-timeout",
+          "arity": 1,
+          "value_type": "dur",
+          "required": false,
+          "allow_empty": false,
+          "default": "setting wait_timeout",
+          "setting": "wait_timeout"
+        }
+      ],
+      "exit_codes": [
+        0,
+        1,
+        2,
+        3,
+        4,
+        6
+      ],
+      "examples": [
+        {
+          "invocation": "gashki wait work/a --until=idle --json",
+          "summary": "wait for the turn to end"
+        }
+      ]
+    },
+    "capabilities": {
+      "description": "Return this machine contract.",
+      "rung": 1,
+      "mutates": false,
+      "json": true,
+      "needs_tmux": false,
+      "output_modes": [
+        "envelope"
+      ],
+      "args": [],
+      "flags": [],
+      "exit_codes": [
+        0,
+        1,
+        6
+      ],
+      "examples": [
+        {
+          "invocation": "gashki capabilities --json",
+          "summary": "read the contract"
+        }
+      ]
+    },
+    "schema": {
+      "description": "Return JSON Schemas for the envelope, meta, shared types and each verb's data.",
+      "rung": 1,
+      "mutates": false,
+      "json": true,
+      "needs_tmux": false,
+      "output_modes": [
+        "envelope"
+      ],
+      "args": [
+        {
+          "name": "verb",
+          "required": false,
+          "type": "string",
+          "enum": [
+            "doctor",
+            "spawn",
+            "status",
+            "send",
+            "kill",
+            "observe",
+            "wait",
+            "capabilities",
+            "schema",
+            "config",
+            "robot-docs",
+            "conformance",
+            "feedback"
+          ],
+          "absent": "all verbs"
+        }
+      ],
+      "flags": [],
+      "exit_codes": [
+        0,
+        1,
+        6
+      ],
+      "examples": [
+        {
+          "invocation": "gashki schema status --json",
+          "summary": "schema for status data"
+        }
+      ]
+    },
+    "config": {
+      "description": "Read, validate and change the config file.",
+      "subcommands": {
+        "schema": {
+          "description": "Return the config file JSON Schema.",
+          "rung": 1,
+          "mutates": false,
+          "json": true,
+          "needs_tmux": false,
+          "output_modes": [
+            "envelope"
+          ],
+          "args": [],
+          "flags": [],
+          "exit_codes": [
+            0,
+            1,
+            6
+          ],
+          "examples": [
+            {
+              "invocation": "gashki config schema --json",
+              "summary": "config schema"
+            }
+          ]
+        },
+        "validate": {
+          "description": "Validate a config file. A named file must exist.",
+          "rung": 1,
+          "mutates": false,
+          "json": true,
+          "needs_tmux": false,
+          "output_modes": [
+            "envelope"
+          ],
+          "args": [
+            {
+              "name": "path",
+              "required": false,
+              "type": "path",
+              "absent": "the effective config file"
+            }
+          ],
+          "flags": [],
+          "exit_codes": [
+            0,
+            1,
+            6
+          ],
+          "examples": [
+            {
+              "invocation": "gashki config validate --json",
+              "summary": "validate the effective config file"
+            }
+          ]
+        },
+        "show": {
+          "description": "Show effective settings with provenance.",
+          "rung": 1,
+          "mutates": false,
+          "json": true,
+          "needs_tmux": false,
+          "output_modes": [
+            "envelope",
+            "raw"
+          ],
+          "args": [],
+          "flags": [
+            {
+              "name": "--toml",
+              "arity": 0,
+              "type": "bool",
+              "default": false
+            }
+          ],
+          "exit_codes": [
+            0,
+            1,
+            6
+          ],
+          "examples": [
+            {
+              "invocation": "gashki config show --json",
+              "summary": "effective settings"
+            },
+            {
+              "invocation": "gashki config show --toml",
+              "summary": "resolved settings as TOML"
+            }
+          ],
+          "raw": {
+            "enter_with": [
+              "--toml"
+            ],
+            "summary": "resolved settings as TOML; save it and pass it back with --config"
+          },
+          "exclusions": [
+            {
+              "kind": "excludes",
+              "flag": "--toml",
+              "with": [
+                "--json"
+              ],
+              "code": "INVALID_INPUT"
+            }
+          ]
+        },
+        "get": {
+          "description": "Get one effective setting.",
+          "rung": 1,
+          "mutates": false,
+          "json": true,
+          "needs_tmux": false,
+          "output_modes": [
+            "envelope"
+          ],
+          "human_rendering": "bare value",
+          "args": [
+            {
+              "name": "key",
+              "required": true,
+              "type": "string",
+              "enum": [
+                "state_dir",
+                "tmux_socket",
+                "ready_timeout",
+                "wait_timeout"
+              ]
+            }
+          ],
+          "flags": [],
+          "exit_codes": [
+            0,
+            1,
+            6
+          ],
+          "examples": [
+            {
+              "invocation": "gashki config get wait_timeout --json",
+              "summary": "read one setting"
+            }
+          ]
+        },
+        "set": {
+          "description": "Set one key in the config file, keeping comments and order.",
+          "rung": 1,
+          "mutates": true,
+          "mutates_scope": "config file",
+          "json": true,
+          "needs_tmux": false,
+          "output_modes": [
+            "envelope"
+          ],
+          "args": [
+            {
+              "name": "key",
+              "required": true,
+              "type": "string",
+              "enum": [
+                "state_dir",
+                "tmux_socket",
+                "ready_timeout",
+                "wait_timeout"
+              ]
+            },
+            {
+              "name": "value",
+              "required": true,
+              "type": "type of key"
+            }
+          ],
+          "flags": [],
+          "exit_codes": [
+            0,
+            1,
+            3,
+            6
+          ],
+          "examples": [
+            {
+              "invocation": "gashki config set wait_timeout 20m --json",
+              "summary": "change one setting"
+            }
+          ]
+        },
+        "patch": {
+          "description": "Apply a JSON merge patch (RFC 7396) from stdin to the config file.",
+          "rung": 1,
+          "mutates": true,
+          "mutates_scope": "config file",
+          "json": true,
+          "needs_tmux": false,
+          "output_modes": [
+            "envelope"
+          ],
+          "stdin": "JSON merge patch",
+          "args": [],
+          "flags": [
+            {
+              "name": "--from-stdin",
+              "arity": 0,
+              "type": "bool",
+              "default": false,
+              "required": true
+            }
+          ],
+          "exit_codes": [
+            0,
+            1,
+            3,
+            6
+          ],
+          "examples": [
+            {
+              "invocation": "gashki config patch --from-stdin --json",
+              "summary": "change several settings at once"
+            }
+          ]
+        },
+        "edit": {
+          "description": "Open the config file in $EDITOR, then validate it.",
+          "rung": 1,
+          "mutates": true,
+          "mutates_scope": "config file",
+          "json": true,
+          "needs_tmux": false,
+          "needs_terminal": true,
+          "output_modes": [
+            "envelope"
+          ],
+          "args": [],
+          "flags": [],
+          "exit_codes": [
+            0,
+            1,
+            3,
+            6
+          ],
+          "examples": [
+            {
+              "invocation": "gashki config edit",
+              "summary": "edit the config file"
+            }
+          ]
+        }
+      }
+    },
+    "robot-docs": {
+      "description": "Agent workflow documentation.",
+      "subcommands": {
+        "guide": {
+          "description": "The agent workflow guide.",
+          "rung": 1,
+          "mutates": false,
+          "json": true,
+          "needs_tmux": false,
+          "output_modes": [
+            "envelope"
+          ],
+          "human_rendering": "the guide text",
+          "args": [],
+          "flags": [],
+          "exit_codes": [
+            0,
+            1,
+            6
+          ],
+          "examples": [
+            {
+              "invocation": "gashki robot-docs guide",
+              "summary": "read the guide"
+            }
+          ]
+        }
+      }
+    },
+    "conformance": {
+      "description": "Run the make-cli release self-check against this binary in a sandbox.",
+      "rung": 1,
+      "mutates": false,
+      "mutates_scope": "sandbox only",
+      "json": true,
+      "needs_tmux": false,
+      "output_modes": [
+        "envelope"
+      ],
+      "profile": "release-self-check",
+      "not_applicable": [
+        {
+          "case": "S-01",
+          "reason": "release-build-fault-trigger-unavailable"
+        },
+        {
+          "case": "S-02",
+          "reason": "release-build-fault-trigger-unavailable"
+        },
+        {
+          "case": "X-01",
+          "reason": "parser-manifest-not-published"
+        },
+        {
+          "case": "X-02",
+          "reason": "release-build-fault-trigger-unavailable"
+        }
+      ],
+      "args": [],
+      "flags": [],
+      "exit_codes": [
+        0,
+        1,
+        3,
+        6
+      ],
+      "examples": [
+        {
+          "invocation": "gashki conformance --json",
+          "summary": "run the self-check"
+        }
+      ]
+    },
+    "feedback": {
+      "description": "Record friction or a defect report in the local feedback file.",
+      "rung": 1,
+      "mutates": true,
+      "mutates_scope": "feedback file",
+      "json": true,
+      "needs_tmux": false,
+      "output_modes": [
+        "envelope"
+      ],
+      "args": [
+        {
+          "name": "text",
+          "required": true,
+          "type": "string",
+          "min_bytes": 1,
+          "max_bytes": 65536,
+          "encoding": "utf-8"
+        }
+      ],
+      "flags": [],
+      "exit_codes": [
+        0,
+        1,
+        3,
+        6
+      ],
+      "examples": [
+        {
+          "invocation": "gashki feedback 'wait docs unclear' --json",
+          "summary": "report friction"
+        }
+      ]
+    },
+    "hook-event": {
+      "description": "Internal: record one agent hook event. Called by agent hooks, not by users.",
+      "internal": true,
+      "global_flags": false,
+      "rung": 1,
+      "mutates": true,
+      "json": false,
+      "needs_tmux": true,
+      "output_modes": [
+        "raw"
+      ],
+      "raw": {
+        "enter_with": [],
+        "summary": "empty stdout; faults go to stderr; always exit 0"
+      },
+      "stdin": "hook payload JSON",
+      "args": [],
+      "flags": [
+        {
+          "name": "--agent",
+          "arity": 1,
+          "value_type": "agent",
+          "enum": [
+            "claude",
+            "codex"
+          ],
+          "required": true,
+          "allow_empty": false
+        }
+      ],
+      "exit_codes": [
+        0
+      ]
+    }
+  },
+  "exit_codes": {
+    "0": {
+      "meaning": "success",
+      "retryable": null
+    },
+    "1": {
+      "meaning": "user-input-error",
+      "retryable": false
+    },
+    "2": {
+      "meaning": "safety-block",
+      "retryable": false
+    },
+    "3": {
+      "meaning": "tool-environment-error",
+      "retryable": null
+    },
+    "4": {
+      "meaning": "transient-failure",
+      "retryable": true
+    },
+    "5": {
+      "meaning": "conflict",
+      "retryable": false
+    },
+    "6": {
+      "meaning": "internal-defect",
+      "retryable": false
+    },
+    "7": {
+      "meaning": "indeterminate",
+      "retryable": false
+    },
+    "8": {
+      "meaning": "input-mixed",
+      "retryable": false
+    }
+  },
+  "error_codes": {
+    "UNKNOWN_FLAG": {
+      "appears_in": [
+        "errors"
+      ],
+      "exit_code": 1,
+      "retryable": false,
+      "stages": [
+        2,
+        4
+      ],
+      "summary": "flag not declared for the global position or the verb",
+      "example_invocation": "gashki status --bogus --json"
+    },
+    "UNKNOWN_COMMAND": {
+      "appears_in": [
+        "errors"
+      ],
+      "exit_code": 1,
+      "retryable": false,
+      "stages": [
+        3
+      ],
+      "summary": "verb path not declared",
+      "example_invocation": "gashki stauts --json"
+    },
+    "INVALID_INPUT": {
+      "appears_in": [
+        "errors"
+      ],
+      "exit_code": 1,
+      "retryable": false,
+      "stages": [
+        1,
+        5
+      ],
+      "summary": "malformed selector; value of the wrong type or outside its domain; arity fault; repeated flag; both flags of an exclusive pair; payload empty (after send drops leading and trailing whitespace), over 1 MiB, or not UTF-8; a verb and selector pair not declared",
+      "example_invocation": "gashki wait work/a --until=bogus --json"
+    },
+    "MISSING_REQUIRED": {
+      "appears_in": [
+        "errors"
+      ],
+      "exit_code": 1,
+      "retryable": false,
+      "stages": [
+        6
+      ],
+      "summary": "required positional or flag absent; neither flag of an exactly-one pair",
+      "example_invocation": "gashki spawn work/a --json"
+    },
+    "INVALID_CONFIG": {
+      "appears_in": [
+        "errors"
+      ],
+      "exit_code": 1,
+      "retryable": false,
+      "stages": [
+        7
+      ],
+      "summary": "config file is missing (a named path only) or unreadable, does not parse, has an unknown key, or has a bad value",
+      "example_invocation": "gashki --config=/no/such.toml config show --json"
+    },
+    "TTY_REQUIRED": {
+      "appears_in": [
+        "errors"
+      ],
+      "exit_code": 1,
+      "retryable": false,
+      "stages": [
+        7
+      ],
+      "summary": "config edit without a terminal on stdin and stdout, or under a CI signal",
+      "example_invocation": "gashki config edit --json"
+    },
+    "NOT_FOUND": {
+      "appears_in": [
+        "errors"
+      ],
+      "exit_code": 1,
+      "retryable": false,
+      "stages": [
+        7
+      ],
+      "summary": "no pane for the given name",
+      "precondition": "a running tmux server with no gashki pane named work/none",
+      "fixture": "tmux server started by the test harness; run gashki observe work/none --json"
+    },
+    "ENV_NOT_SET": {
+      "appears_in": [
+        "errors"
+      ],
+      "exit_code": 1,
+      "retryable": false,
+      "stages": [
+        7
+      ],
+      "summary": "--env names a variable not set in the caller environment",
+      "precondition": "a valid --env name that is absent from the caller environment",
+      "fixture": "run gashki spawn work/a --agent=claude --env=UNSET --json with UNSET removed from the caller environment",
+      "path": "--env",
+      "evidence": [
+        "name"
+      ],
+      "remediation": "export NAME in the caller environment, or drop --env=NAME"
+    },
+    "AGENT_UNVERIFIABLE": {
+      "appears_in": [
+        "errors"
+      ],
+      "exit_code": 1,
+      "retryable": false,
+      "stages": [
+        7
+      ],
+      "summary": "the pane's agent type has no submit check and --no-verify was not given",
+      "precondition": "a pane registered with an agent type that has no submit check",
+      "fixture": "gashkitest pane record with an unsupported agent type; run gashki send on it"
+    },
+    "PANE_DEAD": {
+      "appears_in": [
+        "errors"
+      ],
+      "exit_code": 2,
+      "retryable": false,
+      "stages": [
+        7
+      ],
+      "summary": "agent exited or the pane is at a shell",
+      "precondition": "a gashki pane whose agent process has exited",
+      "fixture": "screens fixture dead-shell; run gashki send on the pane"
+    },
+    "COMPOSER_NOT_EMPTY": {
+      "appears_in": [
+        "errors"
+      ],
+      "exit_code": 2,
+      "retryable": false,
+      "stages": [
+        7
+      ],
+      "summary": "the agent composer holds text that gashki did not put there; send refuses to touch it",
+      "precondition": "an idle pane with text typed in the composer",
+      "fixture": "screens fixture payload-in-composer; run gashki send on the pane"
+    },
+    "CONFIRMATION_REQUIRED": {
+      "appears_in": [
+        "errors"
+      ],
+      "exit_code": 2,
+      "retryable": false,
+      "stages": [
+        7
+      ],
+      "summary": "kill without --yes or --dry-run",
+      "precondition": "a live gashki pane named work/a",
+      "fixture": "tmux server started by the test harness; run gashki kill work/a --json"
+    },
+    "TMUX_NO_SERVER": {
+      "appears_in": [
+        "errors"
+      ],
+      "exit_code": 3,
+      "retryable": null,
+      "stages": [
+        7,
+        8
+      ],
+      "summary": "no tmux server on the selected socket; gashki never starts one",
+      "example_invocation": "gashki status --tmux-socket=gashki-no-server --json"
+    },
+    "TMUX_TOO_OLD": {
+      "appears_in": [
+        "errors"
+      ],
+      "exit_code": 3,
+      "retryable": null,
+      "stages": [
+        7,
+        8
+      ],
+      "summary": "tmux is older than the minimum version",
+      "precondition": "a tmux on PATH that reports a version below the minimum",
+      "fixture": "PATH stub tmux that prints 'tmux 2.9'; run gashki doctor --json"
+    },
+    "HERE_UNAVAILABLE": {
+      "appears_in": [
+        "errors"
+      ],
+      "exit_code": 3,
+      "retryable": null,
+      "stages": [
+        7
+      ],
+      "summary": "--here has no valid caller pane on the selected server, or the caller window holds other panes",
+      "precondition": "missing TMUX or TMUX_PANE, a stale pane, a different selected server, or another human pane in the window",
+      "fixture": "one-pane tmux window on a test server; unset TMUX_PANE, use a stale pane, select another socket, or split another human pane, then run spawn --here",
+      "path": "--here",
+      "evidence": [
+        "failed_check",
+        "caller_server_path",
+        "selected_server_path",
+        "caller_pane",
+        "window_panes"
+      ],
+      "remediation": "For missing caller state, ask the caller to run the full spawn command from inside tmux. For another server, state the caller server path and show the full command without --tmux-socket. For extra panes, ask the caller to close them or open a new window, then show the full command."
+    },
+    "TMUX_SPLIT_FAILED": {
+      "appears_in": [
+        "errors"
+      ],
+      "exit_code": 3,
+      "retryable": null,
+      "stages": [
+        8
+      ],
+      "summary": "tmux could not split the caller window for --here",
+      "precondition": "a valid caller window too small to split",
+      "fixture": "one-pane tmux window with width or height below tmux's split limit; run spawn --here",
+      "path": "--here",
+      "evidence": [
+        "tmux_stderr",
+        "window_width",
+        "window_height"
+      ],
+      "remediation": "State the tmux error. If the window is too small, ask the caller to enlarge it, then show the full spawn command."
+    },
+    "AGENT_CLI_MISSING": {
+      "appears_in": [
+        "errors"
+      ],
+      "exit_code": 3,
+      "retryable": null,
+      "stages": [
+        7,
+        8
+      ],
+      "summary": "the agent CLI is not on PATH",
+      "precondition": "PATH without claude",
+      "fixture": "PATH holding only a tmux stub; run gashki spawn work/a --agent=claude --json"
+    },
+    "AGENT_NOT_LOGGED_IN": {
+      "appears_in": [
+        "errors"
+      ],
+      "exit_code": 3,
+      "retryable": null,
+      "stages": [
+        7,
+        8
+      ],
+      "summary": "the agent CLI is not logged in",
+      "precondition": "claude auth status reports logged out",
+      "fixture": "PATH stub claude whose auth status reports logged out; run gashki doctor --json"
+    },
+    "CODEX_HOOKS_UNTRUSTED": {
+      "appears_in": [
+        "errors"
+      ],
+      "exit_code": 3,
+      "retryable": null,
+      "stages": [
+        7,
+        8
+      ],
+      "summary": "Codex does not trust the gashki hooks",
+      "precondition": "at spawn, a Codex hooks review screen that shows a foreign or truncated command; in doctor, codex app-server hooks/list reports a gashki hook that is not trusted",
+      "fixture": "screens fixture hooks-review with a foreign command; run gashki spawn with --agent=codex. Or PATH stub codex whose app-server reports an untrusted hook; run gashki doctor --json"
+    },
+    "LAUNCH_PROMPT_UNHANDLED": {
+      "appears_in": [
+        "errors"
+      ],
+      "exit_code": 3,
+      "retryable": null,
+      "stages": [
+        7,
+        8
+      ],
+      "summary": "the agent showed a launch prompt that spawn does not handle",
+      "precondition": "an unknown launch prompt; or, with --trust-folder, a folder trust screen that does not show the full --cwd path, changes, or cannot be read",
+      "fixture": "PATH stub agent with valid, wrong-path, approval, and unreadable trust screens; only the valid full-path screen can receive an approval key"
+    },
+    "STATE_DIR_UNWRITABLE": {
+      "appears_in": [
+        "errors"
+      ],
+      "exit_code": 3,
+      "retryable": null,
+      "stages": [
+        7,
+        8
+      ],
+      "summary": "the state dir, or the conformance sandbox temp dir, cannot be written",
+      "precondition": "a state dir that cannot be written",
+      "fixture": "chmod 0500 on a temp dir; run gashki spawn work/a --agent=claude --state-dir=<that dir>/s --json"
+    },
+    "DATA_DIR_UNWRITABLE": {
+      "appears_in": [
+        "errors"
+      ],
+      "exit_code": 3,
+      "retryable": null,
+      "stages": [
+        7,
+        8
+      ],
+      "summary": "feedback cannot write its file",
+      "precondition": "XDG_DATA_HOME points at a read-only directory",
+      "fixture": "chmod 0500 on a temp XDG_DATA_HOME; run gashki feedback x --json"
+    },
+    "CONFIG_UNWRITABLE": {
+      "appears_in": [
+        "errors"
+      ],
+      "exit_code": 3,
+      "retryable": null,
+      "stages": [
+        8
+      ],
+      "summary": "config set, patch or edit cannot write the config file or its dir",
+      "precondition": "the config file sits in a read-only directory",
+      "fixture": "chmod 0500 on a temp dir; run gashki config set wait_timeout 20m --config=<that dir>/config.toml --json"
+    },
+    "EDITOR_FAILED": {
+      "appears_in": [
+        "errors"
+      ],
+      "exit_code": 3,
+      "retryable": null,
+      "stages": [
+        8
+      ],
+      "summary": "config edit: $EDITOR did not start or exited non-zero; the file is not validated",
+      "precondition": "EDITOR names a command that exits non-zero",
+      "fixture": "EDITOR=false on a terminal; run gashki config edit --json"
+    },
+    "LOCKED": {
+      "appears_in": [
+        "errors"
+      ],
+      "exit_code": 4,
+      "retryable": true,
+      "stages": [
+        7
+      ],
+      "summary": "another send or kill holds the pane lock",
+      "precondition": "a second process holds the pane lock",
+      "fixture": "gashkitest lock holder on the pane; run gashki send on the pane"
+    },
+    "NOT_SAFE_TO_SEND": {
+      "appears_in": [
+        "errors"
+      ],
+      "exit_code": 4,
+      "retryable": true,
+      "stages": [
+        7,
+        8
+      ],
+      "summary": "the pane is not idle or its state is not certain enough to send",
+      "precondition": "a pane in state working",
+      "fixture": "screens fixture working; run gashki send on the pane"
+    },
+    "APPROVAL_REQUIRED": {
+      "appears_in": [
+        "errors"
+      ],
+      "exit_code": 4,
+      "retryable": true,
+      "stages": [
+        7,
+        8
+      ],
+      "summary": "the agent waits on a permission prompt",
+      "precondition": "a pane in state approval",
+      "fixture": "screens fixture approval; run gashki send or wait on the pane"
+    },
+    "TURN_FAILED": {
+      "appears_in": [
+        "errors"
+      ],
+      "exit_code": 4,
+      "retryable": true,
+      "stages": [
+        7,
+        8
+      ],
+      "summary": "the agent turn ended with an error",
+      "precondition": "a pane whose last turn failed",
+      "fixture": "screens fixture error; run gashki wait on the pane with --until=idle"
+    },
+    "WAIT_TIMEOUT": {
+      "appears_in": [
+        "errors"
+      ],
+      "exit_code": 4,
+      "retryable": true,
+      "stages": [
+        8
+      ],
+      "summary": "the wait budget is used up; the turn may still run",
+      "precondition": "a pane that stays in state working",
+      "fixture": "screens fixture working; run gashki wait on the pane with --until=idle --wait-timeout=1s"
+    },
+    "IDEMPOTENCY_CONFLICT": {
+      "appears_in": [
+        "errors"
+      ],
+      "exit_code": 5,
+      "retryable": false,
+      "stages": [
+        7
+      ],
+      "summary": "the idempotency key is bound to another pane or payload",
+      "precondition": "a ledger record for the key with another payload hash",
+      "fixture": "send with --idempotency-key=k1 and text a, then with text b"
+    },
+    "CONFLICT": {
+      "appears_in": [
+        "errors"
+      ],
+      "exit_code": 5,
+      "retryable": false,
+      "stages": [
+        7
+      ],
+      "summary": "spawn of an existing group/name with another agent type, or --here group live in another window",
+      "precondition": "a live pane work/a with another agent type or a live group work in another window",
+      "fixture": "spawn work/a with another agent type, or spawn --here work/b from a second window while work/a is live in the first"
+    },
+    "INTERNAL": {
+      "appears_in": [
+        "errors"
+      ],
+      "exit_code": 6,
+      "retryable": false,
+      "stages": [
+        8
+      ],
+      "summary": "bug in gashki; report it with gashki feedback",
+      "precondition": "an injected fault",
+      "fixture": "gashkitest build-tag fault trigger; see envelope totality"
+    },
+    "CONFORMANCE_FAILED": {
+      "appears_in": [
+        "errors"
+      ],
+      "exit_code": 6,
+      "retryable": false,
+      "stages": [
+        8
+      ],
+      "summary": "conformance found at least one fail verdict; a gashki defect",
+      "precondition": "a build whose output breaks a conformance case",
+      "fixture": "run conformance against a child binary that returns a wrong document for one case"
+    },
+    "SEND_STUCK_IN_COMPOSER": {
+      "appears_in": [
+        "errors"
+      ],
+      "exit_code": 7,
+      "retryable": false,
+      "stages": [
+        8
+      ],
+      "summary": "the payload was pasted but stays in the composer; not submitted",
+      "precondition": "an agent that ignores Enter after the paste",
+      "fixture": "gashkitest fault trigger that drops the submit key"
+    },
+    "SEND_UNCONFIRMED": {
+      "appears_in": [
+        "errors"
+      ],
+      "exit_code": 7,
+      "retryable": false,
+      "stages": [
+        8
+      ],
+      "summary": "the submit could not be confirmed within the confirm limit",
+      "precondition": "no hook event and no screen change after submit",
+      "fixture": "gashkitest fault trigger that suppresses hook events and freezes the screen"
+    },
+    "SEND_INTERRUPTED": {
+      "appears_in": [
+        "errors"
+      ],
+      "exit_code": 7,
+      "retryable": false,
+      "stages": [
+        8
+      ],
+      "summary": "an earlier send with this key stopped between paste and confirm",
+      "precondition": "a ledger record in state pasted with no outcome",
+      "fixture": "gashkitest crash after paste, then rerun send with the same key"
+    },
+    "SEND_INPUT_MIXED": {
+      "appears_in": [
+        "errors"
+      ],
+      "exit_code": 8,
+      "retryable": false,
+      "stages": [
+        8
+      ],
+      "summary": "a prompt other than the payload was submitted during the send",
+      "precondition": "keys typed into the pane during the send",
+      "fixture": "gashkitest fault trigger that types into the composer between paste and submit"
+    },
+    "HOOK_SCREEN_DISAGREE": {
+      "appears_in": [
+        "warnings"
+      ],
+      "exit_code": null,
+      "retryable": null,
+      "stages": [],
+      "summary": "hook stream and screen disagree on whether the pane is idle; the reported state is the busy one and names its source",
+      "precondition": "hook stream says idle while a screen read of confidence 0.75 or more shows working, approval or compacting; or hook stream says working, approval or compacting while a screen read of confidence 0.9 shows idle",
+      "fixture": "stub agent pane in a slow turn: hooks say working, screen fixture idle-empty; run gashki observe on it"
+    },
+    "HOOK_STREAM_GAP": {
+      "appears_in": [
+        "warnings"
+      ],
+      "exit_code": null,
+      "retryable": null,
+      "stages": [],
+      "summary": "a hook event was lost or failed; state falls back to the screen",
+      "precondition": "@gashki_hook_gap set on the pane",
+      "fixture": "set @gashki_hook_gap on a test pane; run gashki observe on it"
+    },
+    "ENV_SETTING_IGNORED": {
+      "appears_in": [
+        "warnings"
+      ],
+      "exit_code": null,
+      "retryable": null,
+      "stages": [],
+      "details": [
+        "names"
+      ],
+      "summary": "GASHKI_CONFIG, GASHKI_STATE_DIR, GASHKI_TMUX_SOCKET, GASHKI_READY_TIMEOUT or GASHKI_WAIT_TIMEOUT is set in doctor's environment; gashki no longer reads it as a setting; use flags or --config",
+      "precondition": "A retired setting variable is non-empty in doctor's environment; all other checks pass",
+      "fixture": "With the healthy doctor test fixture, run GASHKI_WAIT_TIMEOUT=1m gashki doctor --json"
+    },
+    "EVENT_LOG_LARGE": {
+      "appears_in": [
+        "warnings"
+      ],
+      "exit_code": null,
+      "retryable": null,
+      "stages": [],
+      "summary": "events.jsonl is above its size limit",
+      "precondition": "an events.jsonl above the size limit",
+      "fixture": "state dir fixture with a large events.jsonl; run gashki doctor --json"
+    },
+    "SUBMIT_UNVERIFIED": {
+      "appears_in": [
+        "warnings"
+      ],
+      "exit_code": null,
+      "retryable": null,
+      "stages": [],
+      "summary": "send ran with --no-verify, so the submit was not confirmed",
+      "precondition": "a live idle pane",
+      "fixture": "run gashki send on the pane with --no-verify"
+    },
+    "PANE_LABEL_UNAVAILABLE": {
+      "appears_in": [
+        "warnings"
+      ],
+      "exit_code": null,
+      "retryable": null,
+      "stages": [],
+      "summary": "this tmux version has not been verified to keep pane-border-format pane-scoped",
+      "precondition": "spawn --here on a supported tmux version other than 3.7c",
+      "fixture": "run spawn --here on tmux 3.4 and check that no label or window option is set",
+      "details": [
+        "tmux_version",
+        "lowest_verified_label_version"
+      ]
+    },
+    "DEPRECATED": {
+      "appears_in": [
+        "warnings"
+      ],
+      "exit_code": null,
+      "retryable": null,
+      "stages": [],
+      "summary": "a renamed surface or an old --contract-version was used",
+      "precondition": "a build with a renamed surface",
+      "fixture": "none in contract 2: no surface is deprecated"
+    }
+  },
+  "diagnosis_order": [
+    {
+      "stage": 1,
+      "checks": "bootstrap and mode detection",
+      "codes": [
+        "INVALID_INPUT"
+      ]
+    },
+    {
+      "stage": 2,
+      "checks": "global flag recognition",
+      "codes": [
+        "UNKNOWN_FLAG"
+      ]
+    },
+    {
+      "stage": 3,
+      "checks": "verb path resolution",
+      "codes": [
+        "UNKNOWN_COMMAND"
+      ]
+    },
+    {
+      "stage": 4,
+      "checks": "verb-local flag recognition",
+      "codes": [
+        "UNKNOWN_FLAG"
+      ]
+    },
+    {
+      "stage": 5,
+      "checks": "arity, type, and enum validation",
+      "codes": [
+        "INVALID_INPUT"
+      ],
+      "tiebreak": "the fault at the earliest argv position wins"
+    },
+    {
+      "stage": 6,
+      "checks": "required-argument presence",
+      "codes": [
+        "MISSING_REQUIRED"
+      ],
+      "tiebreak": "missing positionals before missing flags; flags in declared order"
+    },
+    {
+      "stage": 7,
+      "checks": "semantic resolution: existence, permission, state",
+      "codes": [
+        "INVALID_CONFIG",
+        "TTY_REQUIRED",
+        "NOT_FOUND",
+        "ENV_NOT_SET",
+        "AGENT_UNVERIFIABLE",
+        "PANE_DEAD",
+        "COMPOSER_NOT_EMPTY",
+        "CONFIRMATION_REQUIRED",
+        "TMUX_NO_SERVER",
+        "TMUX_TOO_OLD",
+        "HERE_UNAVAILABLE",
+        "AGENT_CLI_MISSING",
+        "AGENT_NOT_LOGGED_IN",
+        "CODEX_HOOKS_UNTRUSTED",
+        "LAUNCH_PROMPT_UNHANDLED",
+        "STATE_DIR_UNWRITABLE",
+        "DATA_DIR_UNWRITABLE",
+        "LOCKED",
+        "NOT_SAFE_TO_SEND",
+        "APPROVAL_REQUIRED",
+        "TURN_FAILED",
+        "IDEMPOTENCY_CONFLICT",
+        "CONFLICT"
+      ],
+      "tiebreak": "config load (INVALID_CONFIG) first, then the verb's own step order; verbs that do not touch a pane never reach pane codes"
+    },
+    {
+      "stage": 8,
+      "checks": "execution",
+      "codes": [
+        "TMUX_NO_SERVER",
+        "TMUX_TOO_OLD",
+        "TMUX_SPLIT_FAILED",
+        "AGENT_CLI_MISSING",
+        "AGENT_NOT_LOGGED_IN",
+        "CODEX_HOOKS_UNTRUSTED",
+        "LAUNCH_PROMPT_UNHANDLED",
+        "STATE_DIR_UNWRITABLE",
+        "DATA_DIR_UNWRITABLE",
+        "CONFIG_UNWRITABLE",
+        "EDITOR_FAILED",
+        "NOT_SAFE_TO_SEND",
+        "APPROVAL_REQUIRED",
+        "TURN_FAILED",
+        "WAIT_TIMEOUT",
+        "INTERNAL",
+        "CONFORMANCE_FAILED",
+        "SEND_STUCK_IN_COMPOSER",
+        "SEND_UNCONFIRMED",
+        "SEND_INTERRUPTED",
+        "SEND_INPUT_MIXED"
+      ]
+    }
+  ],
+  "error_object": {
+    "keys": [
+      "code",
+      "message",
+      "path",
+      "did_you_mean",
+      "remediation",
+      "exit_code",
+      "retryable",
+      "evidence"
+    ],
+    "absent_value": null,
+    "path_forms": [
+      "argv[N]",
+      "--flag",
+      "stdin",
+      "$.<config key>"
+    ]
+  },
+  "meta": {
+    "additional_properties": false,
+    "keys": {
+      "request_id": {
+        "required": true,
+        "summary": "UUIDv7, new per invocation"
+      },
+      "ts_iso": {
+        "required": true,
+        "summary": "UTC RFC 3339 with milliseconds and Z, the time the handler started; SOURCE_DATE_EPOCH fixes it"
+      },
+      "elapsed_ms": {
+        "required": true,
+        "summary": "integer, 0 or more"
+      },
+      "contract_version": {
+        "required": true,
+        "summary": "string \"2\""
+      },
+      "data_hash": {
+        "required": true,
+        "summary": "\"sha256:\" and 64 lowercase hex characters"
+      },
+      "pagination": {
+        "required": false,
+        "verbs": [
+          "status"
+        ],
+        "summary": "always on status: {cursor, has_more, total}; cursor is null when has_more is false"
+      },
+      "truncated": {
+        "required": false,
+        "verbs": [
+          "status"
+        ],
+        "summary": "on status when the limit clipped the list: {by_limit: true, omitted: n}"
+      }
+    }
+  },
+  "data_hash": {
+    "algorithm": "sha256",
+    "canonicalization": "RFC 8785",
+    "null_data": "hash of the 4 bytes null",
+    "excluded_paths": {
+      "conformance": [
+        "$.cases[*].request_id"
+      ]
+    }
+  },
+  "shared_types": {
+    "recommended_action": {
+      "nullable": true,
+      "keys": {
+        "command": "string, a paste-ready gashki or tmux command in --flag=value form, without --json",
+        "rationale": "string, one fixed sentence per case",
+        "is_destructive": "boolean; true only for gashki kill",
+        "alternatives": "array of {command, purpose}; may be empty"
+      }
+    }
+  },
+  "config": {
+    "format": "toml",
+    "flat": true,
+    "keys": {
+      "state_dir": {
+        "type": "abs-path",
+        "flag": "--state-dir",
+        "default": "$XDG_STATE_HOME/gashki, else ~/.local/state/gashki"
+      },
+      "tmux_socket": {
+        "type": "socket",
+        "flag": "--tmux-socket",
+        "default": "tmux default socket"
+      },
+      "ready_timeout": {
+        "type": "dur",
+        "flag": "spawn --ready-timeout",
+        "default": "30s"
+      },
+      "wait_timeout": {
+        "type": "dur",
+        "flag": "wait --wait-timeout",
+        "default": "10m"
+      }
+    },
+    "precedence": [
+      "flag",
+      "file",
+      "default"
+    ],
+    "profiles": {
+      "available": []
+    },
+    "search_path": [
+      "--config",
+      "$XDG_CONFIG_HOME/gashki/config.toml",
+      "~/.config/gashki/config.toml"
+    ],
+    "missing_file": "not an error for the default path; an error for a path the caller names (--config, or the config validate argument), except config set, patch and edit",
+    "schema_uri": "gashki config schema --json",
+    "show_uri": "gashki config show --json"
+  },
+  "env_vars": {
+    "GASHKI_STATE_DIR": {
+      "scope": [
+        "hook-event",
+        "doctor"
+      ],
+      "purpose": "set by spawn in the pane; hook-event reads it; doctor reads it only to warn that it no longer selects a setting; not a setting",
+      "precedence": "none",
+      "industry_standard": false
+    },
+    "GASHKI_TMUX_SOCKET": {
+      "scope": [
+        "doctor"
+      ],
+      "purpose": "retired; doctor reads it only to warn that it no longer selects a setting; not a setting",
+      "precedence": "none",
+      "industry_standard": false
+    },
+    "GASHKI_READY_TIMEOUT": {
+      "scope": [
+        "doctor"
+      ],
+      "purpose": "retired; doctor reads it only to warn that it no longer selects a setting; not a setting",
+      "precedence": "none",
+      "industry_standard": false
+    },
+    "GASHKI_WAIT_TIMEOUT": {
+      "scope": [
+        "doctor"
+      ],
+      "purpose": "retired; doctor reads it only to warn that it no longer selects a setting; not a setting",
+      "precedence": "none",
+      "industry_standard": false
+    },
+    "GASHKI_CONFIG": {
+      "scope": [
+        "doctor"
+      ],
+      "purpose": "retired; doctor reads it only to warn that it no longer selects a setting; not a setting",
+      "precedence": "none",
+      "industry_standard": false
+    },
+    "GASHKI_PANE_ID": {
+      "scope": [
+        "hook-event",
+        "doctor"
+      ],
+      "purpose": "the pane's UUID, set by spawn; not a setting; doctor reads it only to tell a spawned pane",
+      "precedence": "none",
+      "industry_standard": false
+    },
+    "CODEX_HOME": {
+      "scope": [
+        "spawn"
+      ],
+      "purpose": "caller Codex config root copied into the agent pane when set",
+      "precedence": "caller environment over tmux server environment",
+      "industry_standard": false
+    },
+    "CLAUDE_CONFIG_DIR": {
+      "scope": [
+        "spawn"
+      ],
+      "purpose": "caller Claude config root copied into the agent pane when set",
+      "precedence": "caller environment over tmux server environment",
+      "industry_standard": false
+    },
+    "TMUX": {
+      "scope": [
+        "tmux verbs",
+        "hook-event"
+      ],
+      "purpose": "the tmux client uses its socket when no tmux_socket setting is set; hook-event needs it",
+      "precedence": "after the tmux_socket setting",
+      "industry_standard": true
+    },
+    "TMUX_PANE": {
+      "scope": [
+        "spawn --here"
+      ],
+      "purpose": "identifies the caller pane on the caller tmux server",
+      "precedence": "required by --here",
+      "industry_standard": true
+    },
+    "TMUX_TMPDIR": {
+      "scope": [
+        "tmux verbs"
+      ],
+      "purpose": "read by the tmux client for the socket dir; passed through",
+      "precedence": "none",
+      "industry_standard": true
+    },
+    "TMPDIR": {
+      "scope": [
+        "conformance"
+      ],
+      "purpose": "root for the sandbox temp dirs",
+      "precedence": "none",
+      "industry_standard": true
+    },
+    "PATH": {
+      "scope": [
+        "doctor",
+        "spawn",
+        "tmux verbs"
+      ],
+      "purpose": "finds tmux, claude, codex",
+      "precedence": "none",
+      "industry_standard": true
+    },
+    "HOME": {
+      "scope": [
+        "all"
+      ],
+      "purpose": "base of default paths when an XDG root is unset",
+      "precedence": "none",
+      "industry_standard": true
+    },
+    "XDG_STATE_HOME": {
+      "scope": [
+        "all"
+      ],
+      "purpose": "root for the default state dir",
+      "precedence": "below the gashki setting or flag",
+      "industry_standard": true
+    },
+    "XDG_CONFIG_HOME": {
+      "scope": [
+        "all"
+      ],
+      "purpose": "root for the default config file",
+      "precedence": "below --config",
+      "industry_standard": true
+    },
+    "XDG_DATA_HOME": {
+      "scope": [
+        "feedback"
+      ],
+      "purpose": "root for the feedback file",
+      "precedence": "none; the feedback path is not a setting",
+      "industry_standard": true
+    },
+    "NO_COLOR": {
+      "scope": [
+        "all"
+      ],
+      "purpose": "set and non-empty disables ANSI",
+      "precedence": "--no-color and --json also suppress",
+      "industry_standard": true
+    },
+    "TERM": {
+      "scope": [
+        "all"
+      ],
+      "purpose": "dumb disables ANSI",
+      "precedence": "--no-color and --json also suppress",
+      "industry_standard": true
+    },
+    "CI": {
+      "scope": [
+        "all"
+      ],
+      "purpose": "true (any case) disables ANSI and prompts",
+      "precedence": "--no-color and --json also suppress",
+      "industry_standard": true
+    },
+    "GITHUB_ACTIONS": {
+      "scope": [
+        "all"
+      ],
+      "purpose": "non-empty disables ANSI and prompts",
+      "precedence": "--no-color and --json also suppress",
+      "industry_standard": true
+    },
+    "GITLAB_CI": {
+      "scope": [
+        "all"
+      ],
+      "purpose": "non-empty disables ANSI and prompts",
+      "precedence": "--no-color and --json also suppress",
+      "industry_standard": true
+    },
+    "CIRCLECI": {
+      "scope": [
+        "all"
+      ],
+      "purpose": "non-empty disables ANSI and prompts",
+      "precedence": "--no-color and --json also suppress",
+      "industry_standard": true
+    },
+    "SOURCE_DATE_EPOCH": {
+      "scope": [
+        "all"
+      ],
+      "purpose": "fixes meta.ts_iso and event at values",
+      "precedence": "none",
+      "industry_standard": true
+    },
+    "EDITOR": {
+      "scope": [
+        "config edit"
+      ],
+      "purpose": "the editor; unset gives vi",
+      "precedence": "none",
+      "industry_standard": true
+    }
+  },
+  "spawn_env_removed": [
+    "GASHKI_*",
+    "CLAUDE_*",
+    "CLAUDECODE",
+    "ANTHROPIC_BASE_URL"
+  ],
+  "spawn_env_kept": [
+    "CODEX_HOME",
+    "CLAUDE_CONFIG_DIR"
+  ],
+  "spawn_env_refused": [
+    "GASHKI_*",
+    "TMUX",
+    "TMUX_PANE",
+    "CLAUDE_* except CLAUDE_CONFIG_DIR",
+    "CLAUDECODE",
+    "ANTHROPIC_BASE_URL"
+  ],
+  "spawn_env_transfer": "Set caller values override the tmux server environment after the inherited Gashki and Claude variables are removed; spawn then sets GASHKI_PANE_ID and GASHKI_STATE_DIR; unset requested values fail and empty requested values pass.",
+  "feedback": {
+    "path": "$XDG_DATA_HOME/gashki/feedback.jsonl, else ~/.local/share/gashki/feedback.jsonl",
+    "setting": false,
+    "record_keys": [
+      "id",
+      "ts_iso",
+      "tool_version",
+      "contract_version",
+      "message",
+      "context"
+    ],
+    "upstream": null
+  },
+  "limits": {
+    "send_payload_bytes": {
+      "min": 1,
+      "max": 1048576
+    },
+    "feedback_text_bytes": {
+      "min": 1,
+      "max": 65536
+    },
+    "status_limit": {
+      "min": 1,
+      "max": 500,
+      "default": 50
+    },
+    "dur": {
+      "min": "1s",
+      "max": "24h"
+    },
+    "key_length": {
+      "min": 1,
+      "max": 128
+    },
+    "name_part_length": {
+      "min": 1,
+      "max": 32
+    }
+  },
+  "schemas_uri": "gashki schema --json",
+  "robot_docs_uri": "gashki robot-docs guide",
+  "capabilities_command": "gashki capabilities --json"
+}

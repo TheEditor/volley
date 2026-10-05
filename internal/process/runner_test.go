@@ -165,6 +165,26 @@ func TestAPROC02BoundariesAndStdin(t *testing.T) {
 	}
 	t.Logf("Exact argv=%q; stdin empty; stdout and stderr use separate files", got.Args)
 }
+
+func TestOwnedToolInputDoesNotReadControllerStdin(t *testing.T) {
+	exe, e := os.Executable()
+	if e != nil {
+		t.Fatal(e)
+	}
+	payload := "  owned pointer\n日本\t"
+	var output strings.Builder
+	r, e := (UnixRunner{}).Run(context.Background(), Request{Path: exe, Args: fixtureArgs("argv"), Env: []string{}, Input: []byte(payload), Stdout: &output, Timeout: 2 * time.Second})
+	if e != nil || r.Exit != 0 || !r.Settled {
+		t.Fatal(r, e)
+	}
+	var got struct{ Stdin string }
+	if e := json.Unmarshal([]byte(output.String()), &got); e != nil || got.Stdin != payload {
+		t.Fatal(got, e)
+	}
+	if r, e := (UnixRunner{}).Run(context.Background(), Request{Path: exe, UserTTY: os.Stdin, Input: []byte(payload)}); e == nil || r.Started {
+		t.Fatal("mixed input descriptors accepted", r, e)
+	}
+}
 func TestAPROC03IdentityAndSignals(t *testing.T) {
 	result, err := (UnixRunner{}).Run(context.Background(), Request{Path: filepath.Join(t.TempDir(), "absent")})
 	if err == nil || result.Started || result.Outcome != NotStarted {

@@ -278,6 +278,11 @@ func (s *Store) remove(path string) error {
 	return unix.Unlinkat(int(parent.Fd()), name, 0)
 }
 func (s *Store) mkdir(path string, mode uint32) error {
+	// A top-level artifact already has the opened workspace as its parent.
+	// Check that identity rather than passing "." to the leaf-path walker.
+	if path == "." {
+		return s.CheckIdentity()
+	}
 	parts := strings.Split(path, "/")
 	prefix := ""
 	for depth, part := range parts {

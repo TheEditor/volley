@@ -72,6 +72,10 @@ func directTools(role string, tools []string) error {
 }
 
 func directClaudeSettings(q ArgumentOptions, tools []string) (ClaudeSettings, error) {
+	return claudeSettings(q, tools, false)
+}
+
+func claudeSettings(q ArgumentOptions, tools []string, pane bool) (ClaudeSettings, error) {
 	var settings ClaudeSettings
 	settings.Permissions.Allow = []string{}
 	settings.Permissions.Deny = []string{}
@@ -82,12 +86,19 @@ func directClaudeSettings(q ArgumentOptions, tools []string) (ClaudeSettings, er
 	if err != nil {
 		return settings, err
 	}
+	writeRule := workspaceRule
+	if pane && q.Request.Role != "planner" {
+		writeRule, err = scopedRule("Edit", filepath.Join(q.Request.Workspace, "rounds"), true)
+		if err != nil {
+			return settings, err
+		}
+	}
 	for _, rule := range q.InheritedAllow {
 		name := strings.SplitN(rule, "(", 2)[0]
 		switch name {
 		case "Read", "Glob", "Grep", "Skill":
 		case "Edit", "Write", "MultiEdit", "NotebookEdit":
-			if q.Request.Role != "planner" || rule != workspaceRule {
+			if q.Request.Role != "planner" && !pane || rule != writeRule {
 				return settings, fmt.Errorf("Inherited write permission exceeds the declared boundary")
 			}
 		default:
@@ -145,8 +156,31 @@ func directClaudeSettings(q ArgumentOptions, tools []string) (ClaudeSettings, er
 			}
 			settings.Permissions.Deny = append(settings.Permissions.Deny, r)
 		}
-	} else {
+	} else if !pane {
 		settings.Permissions.Deny = append(settings.Permissions.Deny, workspaceRule)
+	} else {
+		settings.Permissions.Allow = append(settings.Permissions.Allow, writeRule)
+		for _, name := range []string{"state", "volley.config.toml", "gashki.config.toml", "BRIEF.md", "CONSTRAINTS.md", "SPEC.md", "QUESTIONS.md", "HUMAN.md"} {
+			r, err := scopedRule("Edit", filepath.Join(q.Request.Workspace, name), name == "state")
+			if err != nil {
+				return settings, err
+			}
+			settings.Permissions.Deny = append(settings.Permissions.Deny, r)
+		}
+		for _, path := range q.CommittedHistory {
+			if !filepath.IsAbs(path) {
+				path = filepath.Join(q.Request.Workspace, path)
+			}
+			rel, err := filepath.Rel(filepath.Join(q.Request.Workspace, "rounds"), path)
+			if err != nil || rel == "." || rel == ".." || strings.HasPrefix(rel, "../") {
+				return settings, fmt.Errorf("Committed history path escapes rounds")
+			}
+			r, err := scopedRule("Edit", path, false)
+			if err != nil {
+				return settings, err
+			}
+			settings.Permissions.Deny = append(settings.Permissions.Deny, r)
+		}
 	}
 	if strings.HasSuffix(q.Settings.ClaudeModel, "[1m]") {
 		settings.Env = map[string]string{"CLAUDE_CODE_DISABLE_1M_CONTEXT": "0"}
