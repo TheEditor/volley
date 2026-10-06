@@ -162,9 +162,8 @@ func Run(ctx context.Context, request Request, options Options) (map[string]any,
 			return Data(m), err
 		}
 	}
-	o.Guard = &TurnGuard{Store: s, Gate: o.Prepared.Gate, RunID: o.State.RunID}
+	o.Guard = &TurnGuard{Store: s, Gate: o.Prepared.Gate, RunID: o.State.RunID, AllowedHistory: []string{"*"}}
 	if o.State.Settings.Backend == "gashki" {
-		o.Guard.AllowedHistory = []string{"*"}
 		current, e := o.snapshot()
 		if e != nil {
 			return nil, e

@@ -15,6 +15,34 @@ import (
 	"github.com/TheEditor/volley/internal/store"
 )
 
+func TestDirectNewHistory(t *testing.T) {
+	for _, item := range []struct {
+		name, role, purpose, path, code string
+	}{
+		{"planner", "planner", "draft", "rounds/live-probe-history.md", ""},
+		{"reserved", "planner", "draft", "rounds/r99.critique.md", "PLANNER_MUTATION"},
+		{"critic", "critic", "critique", "rounds/live-probe-history.md", "CRITIC_MUTATION"},
+	} {
+		t.Run(item.name, func(t *testing.T) {
+			f := newFixture(t, "claude", false, item.role == "critic", AgentPlan{MutationPath: item.path, MutationRole: item.role, MutationPurpose: item.purpose})
+			data, err := f.run(t)
+			if item.code != "" {
+				requireCode(t, err, item.code)
+				if len(f.calls()) != 1 {
+					t.Fatal("protected mutation allowed another turn", f.calls())
+				}
+				return
+			}
+			if err != nil || data["status"] != "approved" {
+				t.Fatal(data, err)
+			}
+			if _, err := os.Stat(filepath.Join(f.Workspace, item.path)); err != nil {
+				t.Fatal(err)
+			}
+		})
+	}
+}
+
 func TestALOOP07SharedGuard(t *testing.T) {
 	for _, planner := range []string{"claude", "codex"} {
 		for _, purpose := range []string{"draft", "revision", "directive", "critique", "reminder"} {
