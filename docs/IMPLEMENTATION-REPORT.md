@@ -1,12 +1,14 @@
 # Implementation and gate report
 
 T01 through T23 have checked local implementation evidence. T24 completed the
-concrete procedure and approval request. The revised direct live workflow
-passed, including exact answer application, persistent resume, separate opinion,
-closing changes and exact-byte confirmation. The first Gashki startup stopped
-at Codex folder trust before any review send. The live gate is pending the
-remaining terminal reviews and original permission facts. T25 is not complete.
-The artificial reserved-file request remains removed. No release ran.
+concrete procedure and approval request. The direct live workflow passed,
+including exact answer application, persistent resume, separate opinion,
+closing changes and exact-byte confirmation. Approved folder trust then let
+the Codex terminal planner complete its question and answer application.
+Claude critic startup failed before any critique request. The second terminal
+review did not start. The current live gate failed at startup. T25 is deferred
+on volley-23g.29. The artificial reserved-file request remains removed.
+No release ran.
 
 The audit covers all 148 declared cases: 99 local implementation cases, 43
 registry reproductions, one live preparation case, three conditional live
@@ -28,8 +30,8 @@ The approved build-order change permits Volley implementation before Gashki
 parser replacement. rr-run completion is verified. Gashki parser replacement
 is not complete. No predecessor pass is inferred from that order change.
 
-Required live facts remain incomplete. The current live and default gates are
-pending. Release readiness
+Required terminal review facts remain incomplete. The current live gate failed
+at startup; the default switch is deferred. Release readiness
 is not claimed. Publication needs separate approval and is not performed here.
 
 The local implementation evidence is complete through T23. The complete
@@ -72,6 +74,30 @@ the required live result. Approval was received, but preparation failed.
 T25 remains incomplete. The focused executable-hashing correction and its
 checks are recorded in [the live result](LIVE-GATE-PROOF.md). No broad rerun
 is required for this correction.
+
+## Latest live result and deferred work
+
+The direct pass is reused. Folder trust passed for the first new terminal
+workspace. Codex resumed in the same run and pane, applied the exact saved
+answer, and changed the draft with checked hook completion. Claude critic
+startup then failed in pinned Gashki after 30 seconds. No critique was sent.
+The other terminal review did not start. No new broad tests or rebuild ran.
+
+Cleanup restored exact Claude settings, removed only the added owned Codex
+trust entry, preserved other settings, removed both temporary skill links,
+and removed the idle owned pane and server. The count across attempts is
+seven, including two unverified startups, under the approved cap of nine.
+Model, effort and vendor conversation ID remain unknown for the completed
+terminal turns; their checked pane identity and hook evidence are saved.
+
+T25 and the parent epic remain deferred. volley-23g.29 tracks the external
+Gashki startup compatibility result. Resolve that result before preparing
+another terminal attempt. The prepared root-launcher change is still unapplied.
+The local evidence and direct pass remain valid for unchanged behavior.
+No release readiness is claimed.
+
+Compact remaining result SHA-256: `d48867f2a8cdd01867ab4e1b1ba5f7f272222a72e892b7bcefd1049efb588b84`. See
+[the live result](LIVE-GATE-PROOF.md) for the startup and cleanup record.
 
 ## Acceptance map
 
@@ -177,7 +203,7 @@ is required for this correction.
 | A-PACK-02 | T23 | checked local evidence | [packaging/PACKAGING-PROOF.md](../packaging/PACKAGING-PROOF.md) |
 | A-PACK-03 | T23 | checked local evidence | [packaging/PACKAGING-PROOF.md](../packaging/PACKAGING-PROOF.md) |
 | A-LIVE-01 | T24 | preparation complete; required live results pending | [docs/LIVE-GATE-PROOF.md](../docs/LIVE-GATE-PROOF.md) |
-| A-LIVE-02 | T24 | direct workflow passed; Gashki folder trust pending | [docs/LIVE-GATE-PROOF.md](../docs/LIVE-GATE-PROOF.md) |
+| A-LIVE-02 | T24 | direct workflow passed; Gashki Claude startup failed | [docs/LIVE-GATE-PROOF.md](../docs/LIVE-GATE-PROOF.md) |
 | A-LIVE-03 | T24 | partial planner evidence; remaining original checks pending | [docs/LIVE-GATE-PROOF.md](../docs/LIVE-GATE-PROOF.md) |
 | A-LIVE-04 | T24 | stop and exact cleanup recorded | [docs/LIVE-GATE-PROOF.md](../docs/LIVE-GATE-PROOF.md) |
 | A-DONE-01 | T25 | partial audit; default switch deferred | [docs/IMPLEMENTATION-REPORT.md](../docs/IMPLEMENTATION-REPORT.md) |

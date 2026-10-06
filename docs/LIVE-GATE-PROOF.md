@@ -1,13 +1,18 @@
 # Live gate result
 
 T24 received approval for the prepared procedure.
-Current gate status: pending required review results. Latest completed execution: three observed conversations and one unverified startup.
-A-LIVE-01 preparation is complete. A-LIVE-02 direct workflow passed; Gashki workflow remains incomplete.
+Current gate status: failed at Gashki Claude startup. The direct review remains
+passed. Across attempts, five conversations performed work. Two startup
+attempts have no confirmed conversation ID. The conservative count is seven
+under the approved upper cap of nine.
+A-LIVE-01 preparation is complete. A-LIVE-02 direct workflow passed; Gashki workflow stopped before ordinary critique.
 A-LIVE-03 has partial planner evidence; remaining original checks are incomplete.
-A-LIVE-04 is conditional on a stop condition. No live case is claimed as passed.
+A-LIVE-04 has checked stop and cleanup evidence. The complete live gate has not passed.
 
-The procedure proposes three small reviews with seven new conversations and
-one reserved slot. The hard limit is eight new conversations. It counts direct
+The original procedure proposed three small reviews. Later approvals removed
+the replacement slot and allowed folder trust for two fresh terminal reviews.
+Those remaining reviews had a four-conversation limit. The approved combined
+upper cap across attempts was nine. The procedure counts direct
 persistent resume processes separately: at most 21 resumes and 24 direct model
 processes in total. Version/help and Gashki controller calls have separate
 counters. Each turn is bounded by three minutes; total time is 40 minutes.
@@ -37,9 +42,9 @@ The compact execution record has SHA-256
 `07a767e834f2083800cccae0179a51b4f1ecfaa781dbe449bd679ecf6610348e`.
 Exact records stay outside the repository.
 
-Required live facts remain unverified. This record does not permit the default
-switch, release readiness or publication. Gate vocabulary is pending, declined,
-passed or failed. Publication always needs separate authorization.
+Required terminal review facts remain incomplete. The default switch stays
+deferred. Release readiness and publication are not claimed. Gate vocabulary
+is pending, declined, passed or failed. Publication always needs separate authorization.
 
 ## Preparation failure and focused fix
 
@@ -176,3 +181,43 @@ not copied. No publication or default switch occurred.
 
 Compact result SHA-256: `27cabad9b679ac969bbbe2d0ff66853cf266864ec5f447393a604e63d300c62a`.
 Direct workflow result SHA-256: `3e168cfe4bd9cbbf2a15dd354e5996cc823c66de8410ec956b5885d9e52756ad`.
+
+## Approved folder trust; Claude startup stopped
+
+The remaining folder-trust procedure was approved. The check reused the same
+clean Volley build and the successful direct review. No new build or broad
+test run was needed. The first terminal planner was Codex. Folder trust
+succeeded. Its title question opened, and the exact answer was saved through
+the native human command. The same run and planner pane resumed. The draft
+changed, and both completed turns had checked later turn-end hook events.
+
+Claude critic startup then returned LAUNCH_PROMPT_UNHANDLED after 30 seconds.
+The saved screen shows the input box and a suggested command. The pinned
+Gashki startup check did not accept that screen as an empty ready input box.
+The exact cause requires a Gashki compatibility check; the saved screen alone
+does not prove the cause. No critique request was sent. The failed Claude
+pane was removed by Gashki. The second terminal review did not start. There
+was no automatic retry or replacement.
+
+This check used one Codex pane with two completed turns and one unverified
+Claude startup. Count both conservatively. Across all attempts, the count is
+five conversations with work observed plus two unverified startups: seven
+under the approved upper cap of nine. The public Gashki contract supplies pane
+IDs, but no vendor conversation ID. Bounded Codex transcript discovery returned
+discovery_byte_limit. Vendor conversation ID, model and effort remain unknown
+for these two Codex turns. The checked pane identity and hook completions are
+retained; transcript warnings are not relabeled as success.
+
+The Codex pane was idle according to its checked hook event before removal.
+Its process was absent after cleanup. Only the owned server and its unchanged
+stale socket were removed. Exact original Claude settings bytes and mode were
+restored. Only the newly added trust entry for the owned folder was removed
+from Codex settings; all other settings were preserved. Both owned skill links
+were removed. No Codex configuration was copied.
+
+The direct workflow remains passed. Required terminal workflow and remaining
+permission facts are incomplete. The current gate failed at startup. T25 and
+the default switch stay deferred on volley-23g.29. Gashki source changes remain
+outside the conversion task. No release or default switch occurred.
+
+Remaining check result SHA-256: `d48867f2a8cdd01867ab4e1b1ba5f7f272222a72e892b7bcefd1049efb588b84`.
