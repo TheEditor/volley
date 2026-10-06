@@ -1,8 +1,8 @@
 # Live gate result
 
 T24 received approval for the prepared procedure.
-Current gate status: pending required review results. Latest live conversations: 1.
-A-LIVE-01 preparation is complete. A-LIVE-02 stopped during the first planner turn.
+Current gate status: pending required review results. Latest completed execution: three observed conversations and one unverified startup.
+A-LIVE-01 preparation is complete. A-LIVE-02 direct workflow passed; Gashki workflow remains incomplete.
 A-LIVE-03 has partial planner evidence; remaining original checks are incomplete.
 A-LIVE-04 is conditional on a stop condition. No live case is claimed as passed.
 
@@ -144,3 +144,35 @@ The current gate is pending because normal review results and remaining
 original permission facts are incomplete. Bead volley-23g.28 no longer requires
 another live conversation for the added reserved-file request. No program code
 or historical evidence changed in this scope removal.
+
+## Revised direct workflow passed; Gashki startup blocked
+
+The approved revised execution used clean source `f18f7678382c48dd3ee46d4321666cbcc8cbeb56`,
+binary SHA-256 `d09fc3abff6da2e6b98d740f20d98610bf65ec9dd0bc1929b047b0da4a606585`, on macOS arm64.
+Three direct conversations and six model processes ran, with three resumes.
+The title question opened. The exact planned answer was saved, applied to a
+changed specification, and retained in its application records. The same run
+and planner identity resumed. Ordinary approval, the separate opinion, closing
+changes and exact-byte critic confirmation completed. The final saved hash
+matched the approval receipt. Each direct process settled with zero members.
+The observed Claude model was claude-sonnet-5-5. Recorded provider observations
+remain with the native checkpoints. No artificial round-output write was used.
+
+The first Gashki preparation encountered an owned configuration placeholder.
+No provider pane or send existed. That unbound placeholder was removed, and
+creation resumed from its saved request. Codex then requested folder trust.
+Gashki returned LAUNCH_PROMPT_UNHANDLED and removed the failed startup pane.
+The eight Gashki controller calls contain no send. No Gashki review prompt ran.
+That startup has no confirmed conversation ID and is counted conservatively
+as one unverified launch. The direct pass is retained without repetition.
+
+Exact original Claude settings bytes/mode were restored, both owned links were
+removed, and the idle owned tmux server was stopped after its identity check.
+The gate is pending the two remaining Gashki reviews and original permission
+facts. Their concrete proposal needs folder-trust approval for two owned
+workspaces. It uses four new conversations, no direct repeat and an overall
+conservative upper cap of nine across these attempts. Codex configuration is
+not copied. No publication or default switch occurred.
+
+Compact result SHA-256: `27cabad9b679ac969bbbe2d0ff66853cf266864ec5f447393a604e63d300c62a`.
+Direct workflow result SHA-256: `3e168cfe4bd9cbbf2a15dd354e5996cc823c66de8410ec956b5885d9e52756ad`.

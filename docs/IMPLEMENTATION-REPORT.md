@@ -1,11 +1,12 @@
 # Implementation and gate report
 
 T01 through T23 have checked local implementation evidence. T24 completed the
-concrete procedure and approval request. The latest approved execution stopped
-after an artificial reserved-output request in its first Claude planner turn.
-That extra live requirement has been removed. The current gate is pending
-because required normal review results are incomplete. One live conversation
-ran. No release ran. T25 is not complete.
+concrete procedure and approval request. The revised direct live workflow
+passed, including exact answer application, persistent resume, separate opinion,
+closing changes and exact-byte confirmation. The first Gashki startup stopped
+at Codex folder trust before any review send. The live gate is pending the
+remaining terminal reviews and original permission facts. T25 is not complete.
+The artificial reserved-file request remains removed. No release ran.
 
 The audit covers all 148 declared cases: 99 local implementation cases, 43
 registry reproductions, one live preparation case, three conditional live
@@ -176,7 +177,7 @@ is required for this correction.
 | A-PACK-02 | T23 | checked local evidence | [packaging/PACKAGING-PROOF.md](../packaging/PACKAGING-PROOF.md) |
 | A-PACK-03 | T23 | checked local evidence | [packaging/PACKAGING-PROOF.md](../packaging/PACKAGING-PROOF.md) |
 | A-LIVE-01 | T24 | preparation complete; required live results pending | [docs/LIVE-GATE-PROOF.md](../docs/LIVE-GATE-PROOF.md) |
-| A-LIVE-02 | T24 | stopped in first planner turn; incomplete | [docs/LIVE-GATE-PROOF.md](../docs/LIVE-GATE-PROOF.md) |
+| A-LIVE-02 | T24 | direct workflow passed; Gashki folder trust pending | [docs/LIVE-GATE-PROOF.md](../docs/LIVE-GATE-PROOF.md) |
 | A-LIVE-03 | T24 | partial planner evidence; remaining original checks pending | [docs/LIVE-GATE-PROOF.md](../docs/LIVE-GATE-PROOF.md) |
 | A-LIVE-04 | T24 | stop and exact cleanup recorded | [docs/LIVE-GATE-PROOF.md](../docs/LIVE-GATE-PROOF.md) |
 | A-DONE-01 | T25 | partial audit; default switch deferred | [docs/IMPLEMENTATION-REPORT.md](../docs/IMPLEMENTATION-REPORT.md) |
@@ -275,3 +276,14 @@ The stopped live result remains historical evidence. Removing the artificial
 request does not prove the unfinished normal review workflow or remaining
 original permission cases. T25 remains deferred for those results, without the
 added reserved-output vendor-refusal requirement.
+
+## Revised direct live result
+
+The direct workflow passed on clean source `f18f7678382c48dd3ee46d4321666cbcc8cbeb56` with
+binary SHA-256 `d09fc3abff6da2e6b98d740f20d98610bf65ec9dd0bc1929b047b0da4a606585`. Three conversations,
+six model processes and three resumes ran. The answer changed the final
+artifact; identity and exact-byte approval checks passed. The Gashki startup
+stopped at Codex folder trust before a review send. Its pane was removed.
+Exact Claude settings restoration, owned-link removal and idle owned-server
+cleanup completed. The direct result is reused. Only two terminal reviews
+remain in the concrete proposal, pending folder-trust and budget approval.
