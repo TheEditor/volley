@@ -135,6 +135,20 @@ func claudeSettings(q ArgumentOptions, tools []string, pane bool) (ClaudeSetting
 	}
 	if q.Request.Role == "planner" {
 		settings.Permissions.Allow = append(settings.Permissions.Allow, workspaceRule)
+		// These names are protected even before the controller creates them.
+		// Gitignore cannot express a run of digits alone. The numbered patterns
+		// also deny digit-prefixed lookalikes with controller artifact suffixes.
+		roundsRule, err := scopedRule("Edit", filepath.Join(q.Request.Workspace, "rounds"), false)
+		if err != nil {
+			return settings, err
+		}
+		roundsPrefix := strings.TrimSuffix(roundsRule, ")") + "/"
+		for _, suffix := range []string{".critique.md", ".critique-retry.md", ".response.md", ".answer-response.md", ".spec.md", ".human.md", ".questions.md"} {
+			settings.Permissions.Deny = append(settings.Permissions.Deny, roundsPrefix+"r[0-9]*"+suffix+")")
+		}
+		for _, name := range []string{"second-opinion.md", "closing-*"} {
+			settings.Permissions.Deny = append(settings.Permissions.Deny, roundsPrefix+name+")")
+		}
 		for _, name := range []string{"state", "volley.config.toml", "gashki.config.toml", "BRIEF.md", "CONSTRAINTS.md"} {
 			r, err := scopedRule("Edit", filepath.Join(q.Request.Workspace, name), name == "state")
 			if err != nil {

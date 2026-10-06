@@ -16,6 +16,7 @@ import (
 	"testing"
 	"time"
 
+	"github.com/TheEditor/volley/internal/config"
 	"github.com/TheEditor/volley/internal/contract"
 	"github.com/TheEditor/volley/internal/process"
 	"github.com/TheEditor/volley/internal/prompt"
@@ -512,6 +513,45 @@ func TestADIRECT04ArtifactValidation(t *testing.T) {
 				})
 			}
 		}
+	}
+}
+
+func TestPlannerReservedOutputRules(t *testing.T) {
+	root := "/owned/review [literal]*? (space)"
+	q := ArgumentOptions{Request: review.TurnRequest{Role: "planner", Provider: "claude", Workspace: root}, Settings: config.Settings{ClaudePlannerTools: []string{"Read", "Edit", "Write"}}, Executable: "/owned/claude", ReplyTemp: root + "/state/final.pending", InheritedChecked: true}
+	for _, builder := range []struct {
+		name  string
+		build func(ArgumentOptions) ([]string, ClaudeSettings, error)
+	}{{"direct", BuildDirectArguments}, {"gashki", BuildGashkiArguments}} {
+		t.Run(builder.name, func(t *testing.T) {
+			_, settings, err := builder.build(q)
+			if err != nil {
+				t.Fatal(err)
+			}
+			denied := func(name string) bool {
+				for _, rule := range settings.Permissions.Deny {
+					pattern := strings.TrimSuffix(strings.TrimPrefix(rule, "Edit(/"), ")")
+					matched, err := filepath.Match(pattern, filepath.Join(root, "rounds", name))
+					if err != nil {
+						t.Fatal(err)
+					}
+					if matched {
+						return true
+					}
+				}
+				return false
+			}
+			for _, name := range []string{"r99.critique.md", "r9999.critique-retry.md", "r00.response.md", "r12.answer-response.md", "r12.spec.md", "r12.human.md", "r12.questions.md", "second-opinion.md", "closing-new.bin"} {
+				if !denied(name) {
+					t.Fatal("Future controller output is writable", name)
+				}
+			}
+			for _, name := range []string{"live-probe-history.md", "r99.revision.md", "rX.critique.md"} {
+				if denied(name) {
+					t.Fatal("New history is denied", name)
+				}
+			}
+		})
 	}
 }
 
