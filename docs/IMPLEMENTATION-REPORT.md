@@ -35,6 +35,22 @@ Vendor permission, billing, session and model behavior are not proved by stubs.
 The audit archive SHA-256 is `691383c28907e7324d65d5622719d902167695618829c977b028644d480b00a0`. It records source and evidence hashes,
 nested record validation, profile results, baseline ownership and gate status.
 
+## Remaining T25 work
+
+The completed audit, baseline map, task-output checks, packaging behavior and
+conformance profiles are reused. They are not scheduled again. When the
+required gates permit the switch, copy the three checked launchers to the root,
+verify their bytes and executable modes, and build one current release binary.
+Check help, version, legacy metadata and installed no-argument behavior in one
+small temporary layout. These startup checks make no provider call.
+
+Update only the pending entries in this report and the existing handoff.
+T25 does not repeat the T24 live procedure. It does not implement the Gashki
+parser, publish a release, collect another complete evidence archive, or add a
+collector. No full suite, race/fault campaign, role/session matrix or Linux VM
+restart is scheduled for unchanged code. Broader checks need a relevant source
+change or observed failure. Required behavior and approval gates remain intact.
+
 ## Acceptance map
 
 | Case | Owner | Status | Proof |
