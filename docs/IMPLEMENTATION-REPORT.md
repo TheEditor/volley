@@ -51,6 +51,20 @@ collector. No full suite, race/fault campaign, role/session matrix or Linux VM
 restart is scheduled for unchanged code. Broader checks need a relevant source
 change or observed failure. Required behavior and approval gates remain intact.
 
+## T25 startup result
+
+One release build from commit `ba75ad97070cd6cf13b89328510152c2a7deaba7` passed all 12
+native/launcher help, version and no-argument startup checks on macOS arm64.
+The temporary installed layout made zero provider calls and no writes to its
+binary directory. The fixture was removed. The engine, contract, prompts and
+prepared launchers have no changes since the checked T23 implementation.
+The existing integration and conformance results are reused.
+
+Binary SHA-256: `7b40cc8c1ff644347363ba084a3916416432d335bd1d276a80cfaa84dd982eb0`.
+Compact startup record SHA-256: `720b8658d375af90c3f04ca09974fc514bad9b520169c71af64c8d997263f238`.
+The default-switch patch is prepared. Root commands remain unchanged pending
+the separate live approval and required result. T25 remains incomplete.
+
 ## Acceptance map
 
 | Case | Owner | Status | Proof |
