@@ -31,7 +31,7 @@ or duplicate creation events, and incomplete success protocol. Raw output is
 retained. Unknown model observations remain explicit warnings.
 
 For persistent Claude calls, a UUID and its provider/role/model/effort/root/
-binary binding are saved before launch. Codex saves the same binding when its
+command path and reported version are saved before launch. Codex saves the same binding when its
 creation event arrives. Resume must match it. Failed resume and missing initial
 identity never create another session. A durable launch intent prevents a
 second process when completion is missing. A saved validated direct result

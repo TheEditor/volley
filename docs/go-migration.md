@@ -74,3 +74,21 @@ review contract. It does not approve implementation or future gated actions.
 
 Keep legacy evidence. Use `workspace legacy-report`, then start a fresh native
 workspace from preserved inputs. Do not copy old state or session identities.
+
+## Dependency program checks
+
+Volley records the selected Claude, Codex, and Gashki command paths and their
+reported versions. Preparation queries `--version`. Resume checks the same paths
+and reported versions. Normal calls check command availability without reading
+program contents. Default inspection checks availability without a version
+process. Program-content fingerprints and file-size limits are removed.
+
+A program update that keeps the same path and reported version is accepted.
+Review files, settings, input receipts, conversation identity, and output evidence
+retain their existing checks. Offline build and test evidence can still record
+artifact hashes.
+
+The pre-release manifest and preparation records now omit dependency `sha256`
+fields. Earlier Go workspace records use the old format and are not migrated
+automatically. Preserve their artifacts and start a fresh workspace with the
+brief, constraints, and current specification.

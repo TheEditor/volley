@@ -222,3 +222,15 @@ is required for this correction.
 | A-CONTRACT-R41 | T21 | checked registry reproduction | [internal/conformance/CONFORMANCE-PROOF.md](../internal/conformance/CONFORMANCE-PROOF.md) |
 | A-CONTRACT-R42 | T21 | checked registry reproduction | [internal/conformance/CONFORMANCE-PROOF.md](../internal/conformance/CONFORMANCE-PROOF.md) |
 | A-CONTRACT-R43 | T21 | checked registry reproduction | [internal/conformance/CONFORMANCE-PROOF.md](../internal/conformance/CONFORMANCE-PROOF.md) |
+
+## Focused correction: volley-23g.26
+
+Program-file fingerprints have been removed from normal operation for Claude,
+Codex, and Gashki. Command paths and reported versions remain in saved records.
+Resume checks versions; normal calls and default inspection check availability
+without reading program contents. Review/configuration/receipt hashes remain.
+The updated preview, preparation, and manifest schemas omit dependency `sha256` fields.
+Only the four affected saved response examples were changed. Earlier pre-release
+Go workspace records require a fresh workspace; there is no automatic migration.
+The earlier 1 GiB streaming correction is superseded. This focused change makes
+no live call and does not settle the deferred T25 gate.

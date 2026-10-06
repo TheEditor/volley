@@ -5,9 +5,7 @@ package ops
 
 import (
 	"context"
-	"crypto/sha256"
 	"encoding/base64"
-	"encoding/hex"
 	"encoding/json"
 	"fmt"
 	"io"
@@ -19,7 +17,6 @@ import (
 	"github.com/TheEditor/volley/internal/config"
 	"github.com/TheEditor/volley/internal/contract"
 	"github.com/TheEditor/volley/internal/store"
-	"golang.org/x/sys/unix"
 )
 
 type Options struct {
@@ -379,8 +376,8 @@ func (o Options) doctor(ctx context.Context, r Request, s *store.Store, m store.
 			}
 			binding, _ := m.Object("executables")[name].(map[string]any)
 			path, _ := binding["path"].(string)
-			hash, _ := binding["sha256"].(string)
-			ok, detail := checkDependency(path, hash)
+			version, _ := binding["version"].(string)
+			ok, detail := checkDependency(path, version)
 			checks = append(checks, map[string]any{"name": name + " executable binding", "ok": ok, "detail": detail, "recommended_action": a})
 		}
 	} else {
@@ -438,27 +435,16 @@ func (o Options) doctor(ctx context.Context, r Request, s *store.Store, m store.
 	return result, nil
 }
 
-func checkDependency(path, expected string) (bool, string) {
-	if path == "" || expected == "" {
-		return false, "Executable identity: not recorded"
+func checkDependency(path, version string) (bool, string) {
+	if path == "" || version == "" {
+		return false, "Executable path and version: not recorded"
 	}
-	fd, err := unix.Open(path, unix.O_RDONLY|unix.O_NOFOLLOW|unix.O_NONBLOCK|unix.O_CLOEXEC, 0)
+	st, err := os.Stat(path)
 	if err != nil {
 		return false, "Saved executable is unavailable"
 	}
-	f := os.NewFile(uintptr(fd), path)
-	defer f.Close()
-	st, err := f.Stat()
-	if err != nil || !st.Mode().IsRegular() || st.Mode().Perm()&0111 == 0 {
+	if !st.Mode().IsRegular() || st.Mode().Perm()&0111 == 0 {
 		return false, "Saved executable is not an executable regular file"
 	}
-	h := sha256.New()
-	n, err := io.Copy(h, io.LimitReader(f, (1<<30)+1))
-	if err != nil || n > 1<<30 {
-		return false, "Executable hash could not be checked"
-	}
-	if hex.EncodeToString(h.Sum(nil)) != expected {
-		return false, "Executable bytes differ from the saved binding"
-	}
-	return true, "Saved executable hash matches; no process was started"
+	return true, "Saved executable is available; version is checked on resume"
 }

@@ -167,7 +167,7 @@ func initialize(s *store.Store, settings config.Settings, creation Creation) (st
 	pane := func() map[string]any {
 		return map[string]any{"uuid": "", "target": "", "selector": "", "provider": "", "ready_cursor": ""}
 	}
-	exe := func() map[string]any { return map[string]any{"path": "", "sha256": "", "version": ""} }
+	exe := func() map[string]any { return map[string]any{"path": "", "version": ""} }
 	m := store.Snapshot{
 		"record_version": 1, "run_id": id, "tool_version": "dev", "source_commit": "", "workspace": s.Path, "canonical_workspace": s.Path,
 		"ownership": map[string]any{"device": root.Device, "inode": root.Inode}, "created_at": time.Now().UTC().Format(time.RFC3339Nano),

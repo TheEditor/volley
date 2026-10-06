@@ -430,3 +430,19 @@ func TestAOPS04UnknownTargets(t *testing.T) {
 		t.Fatal("unknown owner stop wrote records")
 	}
 }
+
+func TestDependencyInspectionDoesNotReadProgram(t *testing.T) {
+	path := filepath.Join(t.TempDir(), "command")
+	if err := os.WriteFile(path, []byte("owned program bytes"), 0100); err != nil {
+		t.Fatal(err)
+	}
+	if ok, detail := checkDependency(path, "owned version"); !ok {
+		t.Fatal(detail)
+	}
+	if err := os.Chmod(path, 0600); err != nil {
+		t.Fatal(err)
+	}
+	if ok, _ := checkDependency(path, "owned version"); ok {
+		t.Fatal("Non-executable file was accepted")
+	}
+}

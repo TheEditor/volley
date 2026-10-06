@@ -19,8 +19,8 @@ reads the upstream private send ledger. All calls use the frozen config path and
 an explicit environment. The outer engine must commit its ready intent through
 the `BeforeMutation` callback and supply its protected-set executor.
 
-The client accepts source proof only for the pinned source archive and bound
-binary hash. The fixture obtains those facts from its checked build record. A
+The client accepts source proof only for the pinned source archive and recorded
+command path. The fixture checks its build evidence separately before supplying those facts. A
 caller must supply checked build provenance before source-based no-paste recovery.
 A matching capability list alone does not prove the source behavior.
 
@@ -80,3 +80,9 @@ turn; it does not prevent changes during that turn. Crash recovery trusts
 validated records on disk. Coordinated changes to a manifest and matching
 transaction can evade consistency checks. The inbox journal proves consistency,
 not writer identity; a workspace-write planner can forge matching records.
+
+Normal Gashki calls and saved-call recovery record the command path instead of
+a program-content fingerprint. Availability checks use file metadata. Source
+proof describes the fixture build checked before execution; it does not attest
+to current program contents. Stream, config, contract, prompt, and receipt hashes
+still verify review data. Offline fixture evidence keeps its original hashes.

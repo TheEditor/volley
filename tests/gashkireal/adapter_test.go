@@ -76,7 +76,6 @@ func (a *adapterFixture) makeClient() {
 	t := a.t
 	manifest := object(t, read(t, filepath.Join(a.dir, "fixture.json")))
 	binary := filepath.Join(a.dir, a.binary)
-	hash := text(member(member(manifest, "binaries"), a.binary), "sha256")
 	gate := func(ctx context.Context, kind string) error {
 		a.gates++
 		b, e := a.store.ReadText("gashki.config.toml")
@@ -86,7 +85,7 @@ func (a *adapterFixture) makeClient() {
 		return nil
 	}
 	var e error
-	a.client, e = gashki.NewClient(gashki.ClientOptions{RunID: a.run, Store: a.store, Runner: process.UnixRunner{}, Binary: binary, BinaryHash: hash, Config: filepath.Join(a.store.Path, "gashki.config.toml"), Env: a.env, Gate: gate, Register: func(paths []string) error {
+	a.client, e = gashki.NewClient(gashki.ClientOptions{RunID: a.run, Store: a.store, Runner: process.UnixRunner{}, Binary: binary, Config: filepath.Join(a.store.Path, "gashki.config.toml"), Env: a.env, Gate: gate, Register: func(paths []string) error {
 		for _, p := range paths {
 			if filepath.IsAbs(p) || strings.HasPrefix(p, "../") {
 				return fmt.Errorf("unowned output")
@@ -100,7 +99,7 @@ func (a *adapterFixture) makeClient() {
 			return fmt.Errorf("intent absent")
 		}
 		return nil
-	}, SourceProof: &gashki.SourceProof{SourceCommit: pin, ArchiveHash: text(manifest, "source_archive_sha256"), BinaryHash: hash}})
+	}, SourceProof: &gashki.SourceProof{SourceCommit: pin, ArchiveHash: text(manifest, "source_archive_sha256"), BinaryPath: binary}})
 	if e != nil {
 		t.Fatal(e)
 	}

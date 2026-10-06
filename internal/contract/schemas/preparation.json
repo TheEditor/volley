@@ -281,16 +281,12 @@
           "path": {
             "type": "string"
           },
-          "sha256": {
-            "type": "string"
-          },
           "version": {
             "type": "string"
           }
         },
         "required": [
           "path",
-          "sha256",
           "version"
         ]
       }

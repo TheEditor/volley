@@ -30,48 +30,45 @@ type metadataRunner struct {
 	Malformed                  bool
 }
 
-func TestNativeExecutableAbove128MiB(t *testing.T) {
-	root := t.TempDir()
-	path := filepath.Join(root, "native-vendor")
-	f, err := os.OpenFile(path, os.O_CREATE|os.O_RDWR, 0700)
+func TestExecutableContentsAreNotRead(t *testing.T) {
+	o, runner := prepareFixture(t, "cli")
+	for _, path := range []string{o.Resolved.Settings.ClaudeBin, o.Resolved.Settings.CodexBin} {
+		if err := os.Chmod(path, 0100); err != nil {
+			t.Fatal(err)
+		}
+	}
+	p, err := Prepare(context.Background(), o)
 	if err != nil {
 		t.Fatal(err)
 	}
-	// A sparse file reproduces the installed native executable's size without
-	// allocating a large byte slice or filling temporary storage.
-	if err = f.Truncate(129 << 20); err != nil {
-		f.Close()
-		t.Fatal(err)
+	for _, binding := range p.Record.Executables {
+		if err = os.Chmod(binding.Path, 0700); err != nil {
+			t.Fatal(err)
+		}
+		if err = os.WriteFile(binding.Path, []byte("replacement program bytes"), 0100); err != nil {
+			t.Fatal(err)
+		}
+		if err = os.Chmod(binding.Path, 0100); err != nil {
+			t.Fatal(err)
+		}
 	}
-	f.Close()
-	s, err := store.Open(root)
-	if err != nil {
-		t.Fatal(err)
+	runner.Calls = nil
+	calls := 0
+	err = p.ResumeWithRunner(context.Background(), o.Env, nil, runner, "direct launch", func() error { calls++; return nil })
+	if err != nil || calls != 1 || len(runner.Calls) != 2 {
+		t.Fatalf("Changed bytes with the same path/version refused: %v", err)
 	}
-	defer s.Close()
-	runner := &metadataRunner{}
-	binding, err := bindExecutable(context.Background(), PrepareOptions{Store: s, Runner: runner}, path, func() error { return nil })
-	if err != nil {
-		t.Fatal(err)
+	for _, q := range runner.Calls {
+		if !reflect.DeepEqual(q.Args, []string{"--version"}) {
+			t.Fatal("Unexpected dependency call", q.Args)
+		}
 	}
-	if len(runner.Calls) != 1 || binding.Version != "owned metadata stub 1.0" {
-		t.Fatal("Large executable did not complete the version binding")
-	}
-	gate := &FrozenGate{store: s, executables: map[string]ExecutableBinding{"claude": binding}}
-	if err = gate.Check(); err != nil {
-		t.Fatal(err)
-	}
-	f, err = os.OpenFile(path, os.O_WRONLY, 0)
-	if err != nil {
-		t.Fatal(err)
-	}
-	_, err = f.WriteAt([]byte{1}, (129<<20)-1)
-	f.Close()
-	if err != nil {
-		t.Fatal(err)
-	}
-	if err = gate.Check(); err == nil {
-		t.Fatal("Changed large executable was accepted")
+	runner.Version = "changed version"
+	calls = 0
+	err = p.ResumeWithRunner(context.Background(), o.Env, nil, runner, "direct launch", func() error { calls++; return nil })
+	requireErrorCode(t, err, "IDENTITY_CONFLICT")
+	if calls != 0 {
+		t.Fatal("Changed reported version allowed execution")
 	}
 }
 

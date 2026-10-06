@@ -7,7 +7,7 @@ an external call.
 The resolved Volley input carries the hash observed during settings resolution.
 Preparation checks that hash and descriptor identity before each initial metadata
 query and before committing records. It resolves only active executables once,
-checks bounded version queries, and binds their selected paths and bytes. It
+checks bounded version queries, and records their selected paths and reported versions. It
 reads Gashki's TOML through `config show --toml`, parses the four pinned mechanism
 settings, and obtains state_dir from `config get state_dir --json` data.value.
 An unset tmux_socket remains absent in TOML. The queried state directory is not
@@ -24,9 +24,9 @@ the receipt and frozen files to their exact observations.
 The retained frozen gate checks files before every labeled direct launch or
 Gashki config/spawn/send/wait/observe/status/kill callback. Later Gashki queries
 use the saved file and verify the same mechanism values. Expected observations
-do not come from a changed manifest. The gate also checks executable bytes.
+do not come from a changed manifest. The gate also checks executable availability without reading program contents.
 Resume checks root presence and values, HOME, socket path and file identity, and
-active path/version/hash bindings before a dependent callback. A cap increase
+active path/version records before a dependent callback. A cap increase
 creates a control amendment; it does not change the cap in the saved settings.
 
 Identity metadata distinguishes absent, present-empty, present-with-value, and
@@ -61,3 +61,10 @@ metadata subprocesses run both backend preparation paths with an empty vendor
 PATH. Other cases use recording callbacks. No vendor conversation is started.
 The server metadata fixture records simulated binding files; real socket and
 pane settlement are checked by the later real-Gashki fixture task.
+
+Program-content fingerprints were removed by volley-23g.26. An execute-only
+owned program fixture proves that preparation and resume need no program-file
+read. Replaced contents at the same path and reported version are accepted.
+Changed paths, versions, settings, billing sources, and conversation identity
+retain their existing refusal rules. Program updates within a running review
+are not detected by a content comparison. Resume checks the reported version.

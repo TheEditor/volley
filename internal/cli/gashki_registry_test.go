@@ -111,7 +111,7 @@ func newGashkiFixture(t *testing.T) *gashkiFixture {
 	g.frame(t, "config-get-tmux_socket", map[string]any{"key": "tmux_socket", "value": nil}, "")
 	g.frame(t, "status", map[string]any{"items": []any{}, "recommended_action": nil}, "")
 	env := append(append([]string{}, f.opts.RunOptions.Env...), "VOLLEY_GK_CANNED_ROOT="+f.root)
-	g.client, err = gashki.NewClient(gashki.ClientOptions{RunID: g.run, Store: g.store, Runner: process.UnixRunner{}, Binary: binary, BinaryHash: contract.HashBytes(b), Config: filepath.Join(f.ws, "gashki.config.toml"), Env: env, Gate: func(context.Context, string) error { return nil }, Register: func([]string) error { return nil }, BeforeMutation: func(_ context.Context, c gashki.CallIntent) error {
+	g.client, err = gashki.NewClient(gashki.ClientOptions{RunID: g.run, Store: g.store, Runner: process.UnixRunner{}, Binary: binary, Config: filepath.Join(f.ws, "gashki.config.toml"), Env: env, Gate: func(context.Context, string) error { return nil }, Register: func([]string) error { return nil }, BeforeMutation: func(_ context.Context, c gashki.CallIntent) error {
 		saved, e := g.store.ReadText("state/control/gk-call-" + c.ID + "-intent.json")
 		if e != nil {
 			return e

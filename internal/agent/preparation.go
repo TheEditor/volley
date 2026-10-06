@@ -5,8 +5,6 @@ package agent
 import (
 	"bytes"
 	"context"
-	"crypto/sha256"
-	"encoding/hex"
 	"encoding/json"
 	"fmt"
 	"io"
@@ -29,7 +27,6 @@ import (
 
 type ExecutableBinding struct {
 	Path    string `json:"path"`
-	Hash    string `json:"sha256"`
 	Version string `json:"version"`
 }
 type GashkiMechanism struct {
@@ -134,32 +131,6 @@ func readRegular(path string, limit int) ([]byte, os.FileInfo, error) {
 	return b, info, nil
 }
 
-// Native vendor executables can exceed 128 MiB. Hash them without retaining
-// their bytes, while keeping a bounded read and checking the open file again.
-func executableHash(path string) (string, os.FileInfo, error) {
-	fd, err := unix.Open(path, unix.O_RDONLY|unix.O_CLOEXEC|unix.O_NONBLOCK, 0)
-	if err != nil {
-		return "", nil, err
-	}
-	f := os.NewFile(uintptr(fd), path)
-	defer f.Close()
-	info, err := f.Stat()
-	const limit = 1 << 30
-	if err != nil || !info.Mode().IsRegular() || info.Size() > limit {
-		return "", nil, safeError("INVALID_CONFIG", "Executable must be a regular file of at most 1 GiB", map[string]any{"path": path})
-	}
-	h := sha256.New()
-	n, err := io.Copy(h, io.LimitReader(f, limit+1))
-	if err != nil {
-		return "", nil, err
-	}
-	after, err := f.Stat()
-	if err != nil || n != info.Size() || !info.ModTime().Equal(after.ModTime()) || after.Size() != info.Size() {
-		return "", nil, safeError("IDENTITY_CONFLICT", "Executable changed during hashing", map[string]any{"path": path})
-	}
-	return hex.EncodeToString(h.Sum(nil)), info, nil
-}
-
 type cappedText struct {
 	bytes.Buffer
 	limit int
@@ -197,10 +168,6 @@ func bindExecutable(ctx context.Context, options PrepareOptions, path string, be
 	if !filepath.IsAbs(resolved) {
 		return ExecutableBinding{}, safeError("INVALID_CONFIG", "Resolved executable is not absolute", map[string]any{"path": resolved})
 	}
-	hash, info, err := executableHash(resolved)
-	if err != nil {
-		return ExecutableBinding{}, err
-	}
 	if err := before(); err != nil {
 		return ExecutableBinding{}, err
 	}
@@ -208,15 +175,11 @@ func bindExecutable(ctx context.Context, options PrepareOptions, path string, be
 	if err != nil || !normalExit(result) {
 		return ExecutableBinding{}, safeError("INVALID_CONFIG", "Active executable version query failed", map[string]any{"path": resolved})
 	}
-	after, afterInfo, err := executableHash(resolved)
-	if err != nil || !os.SameFile(info, afterInfo) || after != hash {
-		return ExecutableBinding{}, safeError("IDENTITY_CONFLICT", "Active executable changed during preparation", map[string]any{"path": resolved})
-	}
 	version = strings.TrimSpace(version)
 	if version == "" || strings.ContainsRune(version, 0) || len(version) > 65536 {
 		return ExecutableBinding{}, safeError("INVALID_CONFIG", "Active executable version is invalid", map[string]any{"path": resolved})
 	}
-	return ExecutableBinding{resolved, hash, version}, nil
+	return ExecutableBinding{resolved, version}, nil
 }
 func gashkiSourcePath(settings config.Settings, env []string) (string, error) {
 	if settings.GashkiConfig != "" {
@@ -521,7 +484,7 @@ func Prepare(ctx context.Context, o PrepareOptions) (Prepared, error) {
 	}
 	executableRecords := m.Object("executables")
 	for name, binding := range record.Executables {
-		executableRecords[name] = map[string]any{"path": binding.Path, "sha256": binding.Hash, "version": binding.Version}
+		executableRecords[name] = map[string]any{"path": binding.Path, "version": binding.Version}
 	}
 	receiptBytes, err := contract.Canonical(record)
 	if err != nil {
@@ -602,9 +565,9 @@ func (g *FrozenGate) Check() error {
 		}
 	}
 	for _, binding := range g.executables {
-		hash, _, err := executableHash(binding.Path)
-		if err != nil || hash != binding.Hash {
-			return safeError("IDENTITY_CONFLICT", "Active executable bytes changed", map[string]any{"path": binding.Path, "reason": "saved executable hash differs"})
+		_, err := config.LookupExecutable(binding.Path)
+		if err != nil {
+			return safeError("DEPENDENCY_MISSING", "Saved executable is unavailable", map[string]any{"path": binding.Path})
 		}
 	}
 	return nil
@@ -639,7 +602,7 @@ func (p Prepared) CheckResume(current IdentityContext, currentServer *ServerCont
 		return err
 	}
 	if !reflect.DeepEqual(p.Record.Executables, bindings) {
-		return safeError("IDENTITY_CONFLICT", "Active executable binding changed", map[string]any{"reason": "path, version, or hash differs"})
+		return safeError("IDENTITY_CONFLICT", "Active executable binding changed", map[string]any{"reason": "path or version differs"})
 	}
 	return nil
 }

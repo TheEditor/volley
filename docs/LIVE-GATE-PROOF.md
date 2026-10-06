@@ -76,3 +76,12 @@ Corrected binary SHA-256: `61e264f573c243f42621aa085993c9de7eaf6ae49288e28fbc2b6
 The release build and provider-free version check passed. The five named
 focused checks passed. The existing startup and launcher checks remain evidence
 for their unchanged behavior. The live check was not resumed.
+
+## Program-file fingerprint removal
+
+Bead volley-23g.26 replaces the preceding size-limit correction. Normal
+preparation, calls, recovery, and inspection now use dependency paths and
+reported versions. Program contents are not read or fingerprinted. The historical
+failure record remains valid; it describes the earlier build. The live gate
+remains failed until the approved procedure supplies the required live facts.
+No live model or vendor-settings change is part of this correction.

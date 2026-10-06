@@ -101,7 +101,7 @@ func TestAREC02Identity(t *testing.T) {
 		}
 	})
 	t.Run("changed-root-server-and-binary", func(t *testing.T) {
-		for _, what := range []string{"root", "home", "presence", "server", "binary-path", "binary-version", "binary-hash"} {
+		for _, what := range []string{"root", "home", "presence", "server", "binary-path", "binary-version"} {
 			t.Run(what, func(t *testing.T) {
 				o, _ := prepareFixture(t, "gashki")
 				p, err := Prepare(context.Background(), o)
@@ -133,9 +133,6 @@ func TestAREC02Identity(t *testing.T) {
 					}
 					if what == "binary-version" {
 						b.Version = "changed"
-					}
-					if what == "binary-hash" {
-						b.Hash = "changed"
 					}
 					bindings["gashki"] = b
 				}
@@ -244,21 +241,21 @@ func TestAREC03Billing(t *testing.T) {
 	})
 }
 
-func TestChangedExecutableBytesCannotUseStaleBinding(t *testing.T) {
+func TestMissingExecutableCannotUseSavedBinding(t *testing.T) {
 	o, _ := prepareFixture(t, "cli")
 	p, err := Prepare(context.Background(), o)
 	if err != nil {
 		t.Fatal(err)
 	}
 	binding := p.Record.Executables["claude"]
-	if err := os.WriteFile(binding.Path, []byte("different executable"), 0700); err != nil {
+	if err := os.Remove(binding.Path); err != nil {
 		t.Fatal(err)
 	}
 	count := 0
 	err = p.ResumeCall("direct launch", p.Record.Caller, nil, p.Record.Executables, func() error { count++; return nil })
-	requireErrorCode(t, err, "IDENTITY_CONFLICT")
+	requireErrorCode(t, err, "DEPENDENCY_MISSING")
 	if count != 0 {
-		t.Fatal("stale binding released a callback")
+		t.Fatal("Missing executable released a callback")
 	}
 }
 

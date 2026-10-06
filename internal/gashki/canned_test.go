@@ -155,7 +155,6 @@ func newCanned(t *testing.T) *canned {
 	if e := os.Chmod(wrapper, 0700); e != nil {
 		t.Fatal(e)
 	}
-	hash := contract.HashBytes(readTest(t, wrapper))
 	p, e := LoadProtocol()
 	if e != nil {
 		t.Fatal(e)
@@ -175,14 +174,14 @@ func newCanned(t *testing.T) *canned {
 	f.frame("spawn", envelope(t, map[string]any{"id": f.pane.UUID, "name": name, "agent": "claude", "target": "%1", "existing": false}, ""), 0)
 	f.ready()
 	f.frame("observe", envelope(t, map[string]any{"id": f.pane.UUID, "name": name, "agent": "claude", "target": "%1", "state": "working", "age_ms": 0, "confidence": 1, "source": "hook", "safe_to_send": false, "cursor": "e1.4", "evidence": map[string]any{}}, ""), 0)
-	f.client, e = NewClient(ClientOptions{RunID: f.run, Store: f.store, Runner: process.UnixRunner{}, Binary: wrapper, BinaryHash: hash, Config: filepath.Join(f.store.Path, "gashki.config.toml"), Env: []string{"PATH=" + f.root, "HOME=" + f.root, "TMPDIR=" + f.root, "VOLLEY_GK_CANNED_ROOT=" + f.root, "GORACE=atexit_sleep_ms=0"}, Gate: func(context.Context, string) error { f.gates++; return nil }, Register: func([]string) error { return nil }, BeforeMutation: func(ctx context.Context, intent CallIntent) error {
+	f.client, e = NewClient(ClientOptions{RunID: f.run, Store: f.store, Runner: process.UnixRunner{}, Binary: wrapper, Config: filepath.Join(f.store.Path, "gashki.config.toml"), Env: []string{"PATH=" + f.root, "HOME=" + f.root, "TMPDIR=" + f.root, "VOLLEY_GK_CANNED_ROOT=" + f.root, "GORACE=atexit_sleep_ms=0"}, Gate: func(context.Context, string) error { f.gates++; return nil }, Register: func([]string) error { return nil }, BeforeMutation: func(ctx context.Context, intent CallIntent) error {
 		f.mutations++
 		b, e := f.store.ReadText(callPaths(intent.ID)[0])
 		if e != nil || !bytes.Equal(b, mustOwnedJSON(intent)) {
 			return fmt.Errorf("primitive intent not durable")
 		}
 		return nil
-	}, SourceProof: &SourceProof{SourcePin, "7c67c1c039bf9fff4db5d6be1f2ee03f897b9e88a0262111f75b7c0fcea267b8", hash}})
+	}, SourceProof: &SourceProof{SourcePin, "7c67c1c039bf9fff4db5d6be1f2ee03f897b9e88a0262111f75b7c0fcea267b8", wrapper}})
 	if e != nil {
 		t.Fatal(e)
 	}
@@ -345,7 +344,7 @@ func TestAGK07RecoveryBindingRefusals(t *testing.T) {
 					t.Fatal(e)
 				}
 				h, _ := f.client.ConfigHash()
-				intent := CallIntent{attempt.CallID, "send", []string{"send", plan.Pane.UUID, "--from-stdin", "--idempotency-key=" + plan.Key}, contract.HashBytes([]byte(plan.Payload)), h, f.client.options.BinaryHash, f.client.Protocol.Hash}
+				intent := CallIntent{attempt.CallID, "send", []string{"send", plan.Pane.UUID, "--from-stdin", "--idempotency-key=" + plan.Key}, contract.HashBytes([]byte(plan.Payload)), h, f.client.options.Binary, f.client.Protocol.Hash}
 				if e := f.client.saveExact(callPaths(attempt.CallID)[0], intent); e != nil {
 					t.Fatal(e)
 				}
@@ -742,5 +741,25 @@ func TestSpawnRequiresUsableReadyState(t *testing.T) {
 	_, e = f.manager.Spawn(context.Background(), plan, nil, Budget{})
 	if errorCode(e) != "PANE_CONFLICT" || len(f.calls("kill")) != 0 {
 		t.Fatal("unusable ready state accepted", e)
+	}
+}
+
+func TestGashkiProgramContentsMayChange(t *testing.T) {
+	f := newCanned(t)
+	path := f.client.options.Binary
+	file, err := os.OpenFile(path, os.O_APPEND|os.O_WRONLY, 0)
+	if err != nil {
+		t.Fatal(err)
+	}
+	_, err = file.WriteString("# changed owned program bytes\n")
+	file.Close()
+	if err != nil {
+		t.Fatal(err)
+	}
+	if _, err = f.client.FreshCall(context.Background(), "status", nil, Budget{}, "status"); err != nil {
+		t.Fatal("Program-content change refused", err)
+	}
+	if len(f.calls("status")) != 1 {
+		t.Fatal("Expected one checked status call")
 	}
 }

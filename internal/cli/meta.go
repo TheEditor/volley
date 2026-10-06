@@ -255,7 +255,7 @@ func plan(ctx context.Context, x Invocation, r *contract.Registry, opts Options)
 		if entry.provider == "codex" {
 			exe = settings.CodexBin
 		}
-		dependencies = append(dependencies, map[string]any{"path": exe, "sha256": "", "version": "not_checked"})
+		dependencies = append(dependencies, map[string]any{"path": exe, "version": "not_checked"})
 		displayExe := exe
 		if !filepath.IsAbs(displayExe) {
 			displayExe = filepath.Join(workspace, "<resolve-"+entry.provider+"-from-PATH>")

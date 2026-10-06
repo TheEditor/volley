@@ -133,7 +133,7 @@ func (o *Owner) newGashkiAdapter() (*gashkiAdapter, error) {
 		return agent.GuardBilling(ctx, agent.ResolveRoots(agent.CaptureIdentity(o.Options.Env), server), o.Options.Env, o.Store.Path, record.Billing, nil)
 	}
 	binary := record.Executables["gashki"]
-	c, err := gashki.NewClient(gashki.ClientOptions{RunID: record.RunID, Store: o.Store, Runner: o.Options.Runner, Binary: binary.Path, BinaryHash: binary.Hash, Config: filepath.Join(o.Store.Path, "gashki.config.toml"), Env: o.Options.Env, SourceProof: o.Options.GashkiSourceProof, Gate: gate,
+	c, err := gashki.NewClient(gashki.ClientOptions{RunID: record.RunID, Store: o.Store, Runner: o.Options.Runner, Binary: binary.Path, Config: filepath.Join(o.Store.Path, "gashki.config.toml"), Env: o.Options.Env, SourceProof: o.Options.GashkiSourceProof, Gate: gate,
 		Register: func(paths []string) error {
 			return o.Guard.Register(agent.PrimitiveRegistration{TurnID: a.current, Operation: "checked Gashki primitive", ControllerPaths: paths})
 		}, OnWrite: o.Guard.Authorize,

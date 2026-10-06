@@ -20,16 +20,15 @@ import (
 	"github.com/TheEditor/volley/internal/contract"
 	"github.com/TheEditor/volley/internal/process"
 	"github.com/TheEditor/volley/internal/store"
-	"golang.org/x/sys/unix"
 )
 
-type SourceProof struct{ SourceCommit, ArchiveHash, BinaryHash string }
+type SourceProof struct{ SourceCommit, ArchiveHash, BinaryPath string }
 type ClientOptions struct {
-	RunID                      string
-	Store                      *store.Store
-	Runner                     process.Runner
-	Binary, BinaryHash, Config string
-	Env                        []string
+	RunID          string
+	Store          *store.Store
+	Runner         process.Runner
+	Binary, Config string
+	Env            []string
 	// Gate checks frozen records, executable identity, billing sources and the
 	// effective identity before each subprocess. Registration names exact files.
 	Gate     func(context.Context, string) error
@@ -56,7 +55,7 @@ type CallIntent struct {
 	Args         []string `json:"args"`
 	InputHash    string   `json:"input_hash"`
 	ConfigHash   string   `json:"config_hash"`
-	BinaryHash   string   `json:"binary_hash"`
+	Binary       string   `json:"binary"`
 	ContractHash string   `json:"contract_hash"`
 }
 type CheckedCall struct {
@@ -92,9 +91,8 @@ func NewClient(o ClientOptions) (*Client, error) {
 	if e := o.Gate(context.Background(), "gashki config"); e != nil {
 		return nil, e
 	}
-	b, e := binaryBytes(o.Binary)
-	if e != nil || contract.HashBytes(b) != o.BinaryHash {
-		return nil, fmt.Errorf("Gashki binary binding differs")
+	if e := checkExecutable(o.Binary); e != nil {
+		return nil, e
 	}
 	o.Env = append([]string{}, o.Env...)
 	p, e := LoadProtocol()
@@ -108,27 +106,17 @@ func NewClient(o ClientOptions) (*Client, error) {
 	}
 	if o.SourceProof != nil {
 		proof := *o.SourceProof
-		c.sourceChecked = proof.SourceCommit == SourcePin && proof.BinaryHash == o.BinaryHash && proof.ArchiveHash == "7c67c1c039bf9fff4db5d6be1f2ee03f897b9e88a0262111f75b7c0fcea267b8"
+		c.sourceChecked = proof.SourceCommit == SourcePin && proof.BinaryPath == o.Binary && proof.ArchiveHash == "7c67c1c039bf9fff4db5d6be1f2ee03f897b9e88a0262111f75b7c0fcea267b8"
 	}
 	return c, nil
 }
 
-func binaryBytes(path string) ([]byte, error) {
-	fd, e := unix.Open(path, unix.O_RDONLY|unix.O_CLOEXEC|unix.O_NONBLOCK, 0)
-	if e != nil {
-		return nil, e
+func checkExecutable(path string) error {
+	info, err := os.Stat(path)
+	if err != nil || !info.Mode().IsRegular() || info.Mode().Perm()&0111 == 0 {
+		return fmt.Errorf("Gashki command is not an available executable file")
 	}
-	f := os.NewFile(uintptr(fd), path)
-	defer f.Close()
-	info, e := f.Stat()
-	if e != nil || !info.Mode().IsRegular() || info.Size() > 128<<20 {
-		return nil, fmt.Errorf("Bound binary is not a bounded regular file")
-	}
-	b, e := io.ReadAll(io.LimitReader(f, (128<<20)+1))
-	if e != nil || len(b) > 128<<20 {
-		return nil, fmt.Errorf("Bound binary read failed")
-	}
-	return b, nil
+	return nil
 }
 func validID(s string) bool {
 	if len(s) != 26 {
@@ -276,15 +264,14 @@ func (c *Client) Call(ctx context.Context, q CallRequest) (CheckedCall, error) {
 	if e := c.options.Gate(ctx, gateKind(q.Verb)); e != nil {
 		return result, e
 	}
-	bound, e := binaryBytes(c.options.Binary)
-	if e != nil || contract.HashBytes(bound) != c.options.BinaryHash {
-		return result, NativeError(decision("IDENTITY_CONFLICT", "bound_gashki_binary_changed"), nil)
+	if e := checkExecutable(c.options.Binary); e != nil {
+		return result, NativeError(decision("DEPENDENCY_MISSING", "gashki_executable_unavailable"), nil)
 	}
 	h, e := c.ConfigHash()
 	if e != nil {
 		return result, e
 	}
-	intent := CallIntent{q.ID, q.Verb, append([]string{}, q.Args...), contract.HashBytes(q.Input), h, c.options.BinaryHash, c.Protocol.Hash}
+	intent := CallIntent{q.ID, q.Verb, append([]string{}, q.Args...), contract.HashBytes(q.Input), h, c.options.Binary, c.Protocol.Hash}
 	paths := callPaths(q.ID)
 	// A recorded return can be re-read. A launch intent without a recorded
 	// return never releases this same process a second time.
@@ -485,7 +472,7 @@ func (c *Client) LoadCall(id string) (CheckedCall, bool, error) {
 	if e := decodeClosed(b, &intent); e != nil {
 		return result, true, e
 	}
-	if intent.ID != id || intent.BinaryHash != c.options.BinaryHash || intent.ContractHash != c.Protocol.Hash || intent.ConfigHash != c.configHash {
+	if intent.ID != id || intent.Binary != c.options.Binary || intent.ContractHash != c.Protocol.Hash || intent.ConfigHash != c.configHash {
 		return result, true, NativeError(decision("IDEMPOTENCY_CONFLICT", "saved_call_binding_changed"), nil)
 	}
 	if b, e := c.options.Store.ReadText(paths[5]); e == nil {

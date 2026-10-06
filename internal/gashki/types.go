@@ -19,6 +19,6 @@ type CallReceipt struct {
 	RawPath      string
 	StderrPath   string
 	Cursor       string
-	BinaryHash   string
+	Binary       string
 	ContractHash string
 }

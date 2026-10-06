@@ -55,3 +55,8 @@ Local tests use owned provider stubs. They prove controller mechanics and
 argument arrays. Vendor permissions, authentication, billing, session behavior
 and model choices remain unverified until the separately approved live check.
 Codex protection detects file changes after a turn. It cannot prevent a write.
+
+Dependency checks record command paths and reported versions. Volley does not
+read complete dependency program files or fingerprint their contents. Resume
+checks the reported versions. See [dependency checks](docs/go-migration.md#dependency-program-checks)
+for the saved-record format change and remaining checks.

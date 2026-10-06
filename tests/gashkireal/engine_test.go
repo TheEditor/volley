@@ -40,7 +40,7 @@ func engineFixture(t *testing.T, planner, placement string, plan map[string]any)
 		t.Fatal(err)
 	}
 	manifest := object(t, read(t, filepath.Join(f.dir, "fixture.json")))
-	proof := &gashki.SourceProof{SourceCommit: pin, ArchiveHash: text(manifest, "source_archive_sha256"), BinaryHash: text(member(member(manifest, "binaries"), "gashki-release"), "sha256")}
+	proof := &gashki.SourceProof{SourceCommit: pin, ArchiveHash: text(manifest, "source_archive_sha256"), BinaryPath: filepath.Join(f.dir, "gashki-release")}
 	return f, engine.Request{Workspace: ws, Resolved: &r}, engine.Options{Env: f.env, TmuxPath: f.tmux, GashkiSourceProof: proof}
 }
 
