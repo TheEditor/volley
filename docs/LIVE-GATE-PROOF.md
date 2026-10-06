@@ -31,7 +31,7 @@ a failed gate. No uncertain prompt is automatically retried.
 
 The approved procedure SHA-256 before execution was
 `cb138e83e7f3d2c225fff27e0359af9d410e556701411eb78569f5a5625efc12`.
-The procedure with the result has SHA-256
+The procedure with the earlier result had SHA-256
 `e804efefe8c641b0668af5e76a64d0aeeb8036745ad42930a2d44ac2ccec465e`.
 The compact execution record has SHA-256
 `07a767e834f2083800cccae0179a51b4f1ecfaa781dbe449bd679ecf6610348e`.
@@ -85,3 +85,6 @@ reported versions. Program contents are not read or fingerprinted. The historica
 failure record remains valid; it describes the earlier build. The live gate
 remains failed until the approved procedure supplies the required live facts.
 No live model or vendor-settings change is part of this correction.
+
+The procedure after fingerprint removal has SHA-256
+`e72152c2bfcba3b1d46f18f7dc9a89890355118552089718c9300d405b7386f2`. The conversation limits and stopped result are retained.

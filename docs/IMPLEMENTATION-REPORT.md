@@ -234,3 +234,15 @@ Only the four affected saved response examples were changed. Earlier pre-release
 Go workspace records require a fresh workspace; there is no automatic migration.
 The earlier 1 GiB streaming correction is superseded. This focused change makes
 no live call and does not settle the deferred T25 gate.
+
+The affected preparation/resume, inspection, saved-response, Gashki recovery,
+command registry, and generated command-format checks passed. One Claude-planner
+direct persistent review passed with owned stubs. No full provider matrix,
+real-Gashki fixture run, platform rerun, or live conversation ran.
+
+Implementation commit: `c1068f7`. Clean build source: `77f51010d0fb417db1b6f2f47f553e9bc27a88fb`.
+Binary SHA-256 for offline build evidence:
+`3a6ab9febb88c5d7471dd6220b3c4bc9fb6f5bb722f6be1c04d9774a1096856c`.
+The native version and preview checks passed. Preview dependency records contain
+only paths and reported-version status. The fixture made zero provider calls,
+created no workspace state, and was removed automatically.
