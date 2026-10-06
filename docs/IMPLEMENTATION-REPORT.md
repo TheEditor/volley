@@ -2,8 +2,10 @@
 
 T01 through T23 have checked local implementation evidence. T24 completed the
 concrete procedure and approval request. The latest approved execution stopped
-after a reserved output write in its first Claude planner turn. The live gate
-is failed. One live conversation ran. No release ran. T25 is not complete.
+after an artificial reserved-output request in its first Claude planner turn.
+That extra live requirement has been removed. The current gate is pending
+because required normal review results are incomplete. One live conversation
+ran. No release ran. T25 is not complete.
 
 The audit covers all 148 declared cases: 99 local implementation cases, 43
 registry reproductions, one live preparation case, three conditional live
@@ -25,8 +27,8 @@ The approved build-order change permits Volley implementation before Gashki
 parser replacement. rr-run completion is verified. Gashki parser replacement
 is not complete. No predecessor pass is inferred from that order change.
 
-Required live facts remain unverified. The live gate is failed, and the final
-default gate is pending. Release readiness
+Required live facts remain incomplete. The current live and default gates are
+pending. Release readiness
 is not claimed. Publication needs separate approval and is not performed here.
 
 The local implementation evidence is complete through T23. The complete
@@ -173,9 +175,9 @@ is required for this correction.
 | A-PACK-01 | T23 | checked local evidence | [packaging/PACKAGING-PROOF.md](../packaging/PACKAGING-PROOF.md) |
 | A-PACK-02 | T23 | checked local evidence | [packaging/PACKAGING-PROOF.md](../packaging/PACKAGING-PROOF.md) |
 | A-PACK-03 | T23 | checked local evidence | [packaging/PACKAGING-PROOF.md](../packaging/PACKAGING-PROOF.md) |
-| A-LIVE-01 | T24 | preparation complete; live gate failed | [docs/LIVE-GATE-PROOF.md](../docs/LIVE-GATE-PROOF.md) |
+| A-LIVE-01 | T24 | preparation complete; required live results pending | [docs/LIVE-GATE-PROOF.md](../docs/LIVE-GATE-PROOF.md) |
 | A-LIVE-02 | T24 | stopped in first planner turn; incomplete | [docs/LIVE-GATE-PROOF.md](../docs/LIVE-GATE-PROOF.md) |
-| A-LIVE-03 | T24 | failed: reserved output write | [docs/LIVE-GATE-PROOF.md](../docs/LIVE-GATE-PROOF.md) |
+| A-LIVE-03 | T24 | partial planner evidence; remaining original checks pending | [docs/LIVE-GATE-PROOF.md](../docs/LIVE-GATE-PROOF.md) |
 | A-LIVE-04 | T24 | stop and exact cleanup recorded | [docs/LIVE-GATE-PROOF.md](../docs/LIVE-GATE-PROOF.md) |
 | A-DONE-01 | T25 | partial audit; default switch deferred | [docs/IMPLEMENTATION-REPORT.md](../docs/IMPLEMENTATION-REPORT.md) |
 | A-DONE-02 | T25 | partial audit; default switch deferred | [docs/IMPLEMENTATION-REPORT.md](../docs/IMPLEMENTATION-REPORT.md) |
@@ -263,5 +265,13 @@ Correction `e61440a` (volley-23g.28) adds future-output denial rules for Claude
 planners in both backends. Normal new revision history remains writable.
 Numbered controller suffixes also exclude digit-prefixed lookalike names.
 The rule check and affected direct/Gashki argument checks passed. Vendor
-enforcement of the correction remains unverified. A fresh bounded execution
-is prepared for approval. No broad suite or provider matrix ran.
+enforcement of the correction remains unverified. The added artificial
+reserved-file request and its vendor-refusal requirement are removed from the
+current plan. No repeat conversation is required for that request. The proposed
+normal review remains deferred for discussion. No broad suite or provider
+matrix ran.
+
+The stopped live result remains historical evidence. Removing the artificial
+request does not prove the unfinished normal review workflow or remaining
+original permission cases. T25 remains deferred for those results, without the
+added reserved-output vendor-refusal requirement.

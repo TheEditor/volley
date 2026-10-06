@@ -1,9 +1,9 @@
 # Live gate result
 
 T24 received approval for the prepared procedure.
-Gate status: failed. Latest live vendor conversations started: 1.
+Current gate status: pending required review results. Latest live conversations: 1.
 A-LIVE-01 preparation is complete. A-LIVE-02 stopped during the first planner turn.
-A-LIVE-03 failed on a reserved output write.
+A-LIVE-03 has partial planner evidence; remaining original checks are incomplete.
 A-LIVE-04 is conditional on a stop condition. No live case is claimed as passed.
 
 The procedure proposes three small reviews with seven new conversations and
@@ -128,6 +128,19 @@ second-opinion.md and closing-* before creation. Numbered patterns also deny
 digit-prefixed lookalikes with those suffixes. Normal revision history remains
 permitted. The construction check and the two affected argument checks passed.
 The rules follow the vendor [permission syntax](https://code.claude.com/docs/en/permissions).
-No vendor enforcement pass is inferred from those local checks. The failed
-live result is retained. A fresh bounded procedure is prepared for approval.
-T25 and the default switch remain deferred.
+No vendor enforcement pass is inferred from those local checks. The stopped
+live result is retained. The added reserved-output write attempt and its
+vendor-refusal completion requirement are removed. The proposed procedure is
+deferred for discussion. T25 and the default switch remain deferred.
+
+## Current scope after removal
+
+The artificial request for a draft writer to create a reserved review-result
+file is excluded from the current live plan and all unstarted review inputs.
+Repeating it or proving vendor refusal is not a completion requirement. The
+existing local file-comparison checks already cover detection of that change.
+The historical result remains unchanged; it is not relabeled as a vendor pass.
+The current gate is pending because normal review results and remaining
+original permission facts are incomplete. Bead volley-23g.28 no longer requires
+another live conversation for the added reserved-file request. No program code
+or historical evidence changed in this scope removal.
