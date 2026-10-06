@@ -50,7 +50,7 @@ a 128 MiB limit. The checkpoint has no preparation receipt, current turn,
 delivery intent, or model-process record. No model conversation or resume ran.
 Four version/help processes ran. The preview passed; one run controller failed.
 No skill links or tmux server were created. Owned scratch evidence is retained.
-Vendor settings and normal state were not changed. Model and effort remain
+No vendor settings change was made by the procedure. Model and effort remain
 unknown because no model turn ran. The target is macOS arm64.
 
 The failure used the previously checked binary SHA-256
@@ -70,3 +70,9 @@ The approved procedure permits no change to existing user settings. A proposed
 one-entry removal and restoration is prepared for approval. Required live
 permission and workflow facts remain unverified. T25 and the default switch
 remain deferred.
+
+Corrected clean build source: `d90476272e4a8f2f70a380e94467a526c1f86b96`.
+Corrected binary SHA-256: `61e264f573c243f42621aa085993c9de7eaf6ae49288e28fbc2b628aab2ab4db`.
+The release build and provider-free version check passed. The five named
+focused checks passed. The existing startup and launcher checks remain evidence
+for their unchanged behavior. The live check was not resumed.
