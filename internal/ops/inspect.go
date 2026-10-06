@@ -453,8 +453,8 @@ func checkDependency(path, expected string) (bool, string) {
 		return false, "Saved executable is not an executable regular file"
 	}
 	h := sha256.New()
-	n, err := io.Copy(h, io.LimitReader(f, (128<<20)+1))
-	if err != nil || n > 128<<20 {
+	n, err := io.Copy(h, io.LimitReader(f, (1<<30)+1))
+	if err != nil || n > 1<<30 {
 		return false, "Executable hash could not be checked"
 	}
 	if hex.EncodeToString(h.Sum(nil)) != expected {

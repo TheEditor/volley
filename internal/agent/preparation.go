@@ -5,6 +5,8 @@ package agent
 import (
 	"bytes"
 	"context"
+	"crypto/sha256"
+	"encoding/hex"
 	"encoding/json"
 	"fmt"
 	"io"
@@ -132,6 +134,32 @@ func readRegular(path string, limit int) ([]byte, os.FileInfo, error) {
 	return b, info, nil
 }
 
+// Native vendor executables can exceed 128 MiB. Hash them without retaining
+// their bytes, while keeping a bounded read and checking the open file again.
+func executableHash(path string) (string, os.FileInfo, error) {
+	fd, err := unix.Open(path, unix.O_RDONLY|unix.O_CLOEXEC|unix.O_NONBLOCK, 0)
+	if err != nil {
+		return "", nil, err
+	}
+	f := os.NewFile(uintptr(fd), path)
+	defer f.Close()
+	info, err := f.Stat()
+	const limit = 1 << 30
+	if err != nil || !info.Mode().IsRegular() || info.Size() > limit {
+		return "", nil, safeError("INVALID_CONFIG", "Executable must be a regular file of at most 1 GiB", map[string]any{"path": path})
+	}
+	h := sha256.New()
+	n, err := io.Copy(h, io.LimitReader(f, limit+1))
+	if err != nil {
+		return "", nil, err
+	}
+	after, err := f.Stat()
+	if err != nil || n != info.Size() || !info.ModTime().Equal(after.ModTime()) || after.Size() != info.Size() {
+		return "", nil, safeError("IDENTITY_CONFLICT", "Executable changed during hashing", map[string]any{"path": path})
+	}
+	return hex.EncodeToString(h.Sum(nil)), info, nil
+}
+
 type cappedText struct {
 	bytes.Buffer
 	limit int
@@ -169,11 +197,10 @@ func bindExecutable(ctx context.Context, options PrepareOptions, path string, be
 	if !filepath.IsAbs(resolved) {
 		return ExecutableBinding{}, safeError("INVALID_CONFIG", "Resolved executable is not absolute", map[string]any{"path": resolved})
 	}
-	b, info, err := readRegular(resolved, 128<<20)
+	hash, info, err := executableHash(resolved)
 	if err != nil {
 		return ExecutableBinding{}, err
 	}
-	hash := contract.HashBytes(b)
 	if err := before(); err != nil {
 		return ExecutableBinding{}, err
 	}
@@ -181,8 +208,8 @@ func bindExecutable(ctx context.Context, options PrepareOptions, path string, be
 	if err != nil || !normalExit(result) {
 		return ExecutableBinding{}, safeError("INVALID_CONFIG", "Active executable version query failed", map[string]any{"path": resolved})
 	}
-	after, afterInfo, err := readRegular(resolved, 128<<20)
-	if err != nil || !os.SameFile(info, afterInfo) || contract.HashBytes(after) != hash {
+	after, afterInfo, err := executableHash(resolved)
+	if err != nil || !os.SameFile(info, afterInfo) || after != hash {
 		return ExecutableBinding{}, safeError("IDENTITY_CONFLICT", "Active executable changed during preparation", map[string]any{"path": resolved})
 	}
 	version = strings.TrimSpace(version)
@@ -575,8 +602,8 @@ func (g *FrozenGate) Check() error {
 		}
 	}
 	for _, binding := range g.executables {
-		b, _, err := readRegular(binding.Path, 128<<20)
-		if err != nil || contract.HashBytes(b) != binding.Hash {
+		hash, _, err := executableHash(binding.Path)
+		if err != nil || hash != binding.Hash {
 			return safeError("IDENTITY_CONFLICT", "Active executable bytes changed", map[string]any{"path": binding.Path, "reason": "saved executable hash differs"})
 		}
 	}

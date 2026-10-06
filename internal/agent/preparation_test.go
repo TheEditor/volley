@@ -30,6 +30,51 @@ type metadataRunner struct {
 	Malformed                  bool
 }
 
+func TestNativeExecutableAbove128MiB(t *testing.T) {
+	root := t.TempDir()
+	path := filepath.Join(root, "native-vendor")
+	f, err := os.OpenFile(path, os.O_CREATE|os.O_RDWR, 0700)
+	if err != nil {
+		t.Fatal(err)
+	}
+	// A sparse file reproduces the installed native executable's size without
+	// allocating a large byte slice or filling temporary storage.
+	if err = f.Truncate(129 << 20); err != nil {
+		f.Close()
+		t.Fatal(err)
+	}
+	f.Close()
+	s, err := store.Open(root)
+	if err != nil {
+		t.Fatal(err)
+	}
+	defer s.Close()
+	runner := &metadataRunner{}
+	binding, err := bindExecutable(context.Background(), PrepareOptions{Store: s, Runner: runner}, path, func() error { return nil })
+	if err != nil {
+		t.Fatal(err)
+	}
+	if len(runner.Calls) != 1 || binding.Version != "owned metadata stub 1.0" {
+		t.Fatal("Large executable did not complete the version binding")
+	}
+	gate := &FrozenGate{store: s, executables: map[string]ExecutableBinding{"claude": binding}}
+	if err = gate.Check(); err != nil {
+		t.Fatal(err)
+	}
+	f, err = os.OpenFile(path, os.O_WRONLY, 0)
+	if err != nil {
+		t.Fatal(err)
+	}
+	_, err = f.WriteAt([]byte{1}, (129<<20)-1)
+	f.Close()
+	if err != nil {
+		t.Fatal(err)
+	}
+	if err = gate.Check(); err == nil {
+		t.Fatal("Changed large executable was accepted")
+	}
+}
+
 func (r *metadataRunner) Run(_ context.Context, q process.Request) (process.Result, error) {
 	r.Calls = append(r.Calls, q)
 	if r.Hook != nil {

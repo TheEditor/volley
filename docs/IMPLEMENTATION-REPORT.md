@@ -1,7 +1,8 @@
 # Implementation and gate report
 
 T01 through T23 have checked local implementation evidence. T24 completed the
-concrete procedure and approval request. The live gate remains pending.
+concrete procedure and approval request. Approved execution failed during
+preparation. The live gate is failed.
 No live conversation or release ran. T25 is not complete.
 
 The audit covers all 148 declared cases: 99 local implementation cases, 43
@@ -24,7 +25,8 @@ The approved build-order change permits Volley implementation before Gashki
 parser replacement. rr-run completion is verified. Gashki parser replacement
 is not complete. No predecessor pass is inferred from that order change.
 
-Required live facts and the final default gate are pending. Release readiness
+Required live facts remain unverified. The live gate is failed, and the final
+default gate is pending. Release readiness
 is not claimed. Publication needs separate approval and is not performed here.
 
 The local implementation evidence is complete through T23. The complete
@@ -56,14 +58,17 @@ change or observed failure. Required behavior and approval gates remain intact.
 One release build from commit `ba75ad97070cd6cf13b89328510152c2a7deaba7` passed all 12
 native/launcher help, version and no-argument startup checks on macOS arm64.
 The temporary installed layout made zero provider calls and no writes to its
-binary directory. The fixture was removed. The engine, contract, prompts and
-prepared launchers have no changes since the checked T23 implementation.
+binary directory. The fixture was removed. At that check, the engine, contract, prompts and
+prepared launchers had no changes since the checked T23 implementation.
 The existing integration and conformance results are reused.
 
 Binary SHA-256: `7b40cc8c1ff644347363ba084a3916416432d335bd1d276a80cfaa84dd982eb0`.
 Compact startup record SHA-256: `720b8658d375af90c3f04ca09974fc514bad9b520169c71af64c8d997263f238`.
 The default-switch patch is prepared. Root commands remain unchanged pending
-the separate live approval and required result. T25 remains incomplete.
+the required live result. Approval was received, but preparation failed.
+T25 remains incomplete. The focused executable-hashing correction and its
+checks are recorded in [the live result](LIVE-GATE-PROOF.md). No broad rerun
+is required for this correction.
 
 ## Acceptance map
 
@@ -168,9 +173,9 @@ the separate live approval and required result. T25 remains incomplete.
 | A-PACK-01 | T23 | checked local evidence | [packaging/PACKAGING-PROOF.md](../packaging/PACKAGING-PROOF.md) |
 | A-PACK-02 | T23 | checked local evidence | [packaging/PACKAGING-PROOF.md](../packaging/PACKAGING-PROOF.md) |
 | A-PACK-03 | T23 | checked local evidence | [packaging/PACKAGING-PROOF.md](../packaging/PACKAGING-PROOF.md) |
-| A-LIVE-01 | T24 | preparation complete; live gate pending | [docs/LIVE-GATE-PROOF.md](../docs/LIVE-GATE-PROOF.md) |
-| A-LIVE-02 | T24 | not run; conditional live approval | [docs/LIVE-GATE-PROOF.md](../docs/LIVE-GATE-PROOF.md) |
-| A-LIVE-03 | T24 | not run; conditional live approval | [docs/LIVE-GATE-PROOF.md](../docs/LIVE-GATE-PROOF.md) |
+| A-LIVE-01 | T24 | preparation complete; live gate failed | [docs/LIVE-GATE-PROOF.md](../docs/LIVE-GATE-PROOF.md) |
+| A-LIVE-02 | T24 | failed at preparation | [docs/LIVE-GATE-PROOF.md](../docs/LIVE-GATE-PROOF.md) |
+| A-LIVE-03 | T24 | not run; approved procedure stopped | [docs/LIVE-GATE-PROOF.md](../docs/LIVE-GATE-PROOF.md) |
 | A-LIVE-04 | T24 | not run; conditional live approval | [docs/LIVE-GATE-PROOF.md](../docs/LIVE-GATE-PROOF.md) |
 | A-DONE-01 | T25 | partial audit; default switch deferred | [docs/IMPLEMENTATION-REPORT.md](../docs/IMPLEMENTATION-REPORT.md) |
 | A-DONE-02 | T25 | partial audit; default switch deferred | [docs/IMPLEMENTATION-REPORT.md](../docs/IMPLEMENTATION-REPORT.md) |

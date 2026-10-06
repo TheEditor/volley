@@ -545,7 +545,7 @@ func TestADIRECT03PermissionGrammar(t *testing.T) {
 				}
 			}
 		}
-		for _, bad := range []string{"Edit", "Write", "Edit(//**)", "Write(//owned/**)", "NotebookEdit"} {
+		for _, bad := range []string{"Edit", "Write", "Edit(//**)", "Write(//owned/**)", "NotebookEdit", "Bash(grep:*)"} {
 			q.InheritedAllow = []string{bad}
 			if _, _, err := BuildDirectArguments(q); err == nil {
 				t.Fatal("Broader inherited write accepted", bad)
