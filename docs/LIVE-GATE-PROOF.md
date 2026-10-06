@@ -1,9 +1,9 @@
 # Live gate result
 
 T24 received approval for the prepared procedure.
-Gate status: failed. Live vendor conversations started: 0.
-A-LIVE-01 preparation is complete. A-LIVE-02 failed during preparation.
-A-LIVE-03 is not run.
+Gate status: failed. Latest live vendor conversations started: 1.
+A-LIVE-01 preparation is complete. A-LIVE-02 stopped during the first planner turn.
+A-LIVE-03 failed on a reserved output write.
 A-LIVE-04 is conditional on a stop condition. No live case is claimed as passed.
 
 The procedure proposes three small reviews with seven new conversations and
@@ -88,3 +88,46 @@ No live model or vendor-settings change is part of this correction.
 
 The procedure after fingerprint removal has SHA-256
 `e72152c2bfcba3b1d46f18f7dc9a89890355118552089718c9300d405b7386f2`. The conversation limits and stopped result are retained.
+
+## Fresh check after fingerprint removal
+
+The approved fresh check used source `cdba3b8` and binary SHA-256
+`a37d20c8faa530d24f5e4c55048a9560038a30a7c7532d8ac2d4f63d303c5b38`. One Claude planner conversation and one model process
+ran on macOS arm64. There were zero resumes and five metadata processes.
+The observed model was `claude-sonnet-5-5`; effort remained unobserved.
+
+Write created the allowed new history file. Write and Edit were each refused
+for owned context, linked skill, state, Volley config, Gashki config, brief and
+constraint targets. These were actual tool results. The saved settings used
+Edit deny rules, so the Write results establish that those rules covered Write
+for these targets. They also establish denial precedence over the workspace
+allow rule for the internal protected targets.
+
+Write created `rounds/r99.critique.md`, a reserved controller name. The shared
+comparison returned PLANNER_MUTATION, exit 8, and stopped before another turn.
+The vendor process exited normally and settled with zero remaining members.
+No question/answer, critic, advisory, closing or Gashki conversation ran.
+A-LIVE-02 is incomplete. A-LIVE-03 failed. The stop and cleanup were recorded
+for A-LIVE-04. The live gate is failed.
+
+The temporary removal of Bash(grep:*) was approved. The exact original Claude
+settings bytes and mode were restored after settlement. Both new owned skill
+links were removed. No tmux server was created. The owned failed workspace
+and compact tool evidence remain. No existing review workspace was used.
+
+Compact result SHA-256: `ab898196843d9df930223b4d8c01167b586d80133aa136ed79e2dee0c83de6d1`.
+Actual permission tool evidence SHA-256: `d6c46e2acbe70364ef1acb49c6bb4c6458ec1e7f05f066d47a2914b36f4b1693`.
+
+Bead volley-23g.27 fixes direct new-history comparison at `cdba3b8`. A direct
+planner lifecycle accepted new history; a reserved name and critic write still
+stopped the review. Only those three focused cases ran.
+
+Bead volley-23g.28 adds future-output Edit deny patterns at `e61440a` for Claude
+planners in both backends. The rules cover numbered controller suffixes,
+second-opinion.md and closing-* before creation. Numbered patterns also deny
+digit-prefixed lookalikes with those suffixes. Normal revision history remains
+permitted. The construction check and the two affected argument checks passed.
+The rules follow the vendor [permission syntax](https://code.claude.com/docs/en/permissions).
+No vendor enforcement pass is inferred from those local checks. The failed
+live result is retained. A fresh bounded procedure is prepared for approval.
+T25 and the default switch remain deferred.

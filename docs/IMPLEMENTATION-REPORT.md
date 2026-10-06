@@ -1,9 +1,9 @@
 # Implementation and gate report
 
 T01 through T23 have checked local implementation evidence. T24 completed the
-concrete procedure and approval request. Approved execution failed during
-preparation. The live gate is failed.
-No live conversation or release ran. T25 is not complete.
+concrete procedure and approval request. The latest approved execution stopped
+after a reserved output write in its first Claude planner turn. The live gate
+is failed. One live conversation ran. No release ran. T25 is not complete.
 
 The audit covers all 148 declared cases: 99 local implementation cases, 43
 registry reproductions, one live preparation case, three conditional live
@@ -174,9 +174,9 @@ is required for this correction.
 | A-PACK-02 | T23 | checked local evidence | [packaging/PACKAGING-PROOF.md](../packaging/PACKAGING-PROOF.md) |
 | A-PACK-03 | T23 | checked local evidence | [packaging/PACKAGING-PROOF.md](../packaging/PACKAGING-PROOF.md) |
 | A-LIVE-01 | T24 | preparation complete; live gate failed | [docs/LIVE-GATE-PROOF.md](../docs/LIVE-GATE-PROOF.md) |
-| A-LIVE-02 | T24 | failed at preparation | [docs/LIVE-GATE-PROOF.md](../docs/LIVE-GATE-PROOF.md) |
-| A-LIVE-03 | T24 | not run; approved procedure stopped | [docs/LIVE-GATE-PROOF.md](../docs/LIVE-GATE-PROOF.md) |
-| A-LIVE-04 | T24 | not run; conditional live approval | [docs/LIVE-GATE-PROOF.md](../docs/LIVE-GATE-PROOF.md) |
+| A-LIVE-02 | T24 | stopped in first planner turn; incomplete | [docs/LIVE-GATE-PROOF.md](../docs/LIVE-GATE-PROOF.md) |
+| A-LIVE-03 | T24 | failed: reserved output write | [docs/LIVE-GATE-PROOF.md](../docs/LIVE-GATE-PROOF.md) |
+| A-LIVE-04 | T24 | stop and exact cleanup recorded | [docs/LIVE-GATE-PROOF.md](../docs/LIVE-GATE-PROOF.md) |
 | A-DONE-01 | T25 | partial audit; default switch deferred | [docs/IMPLEMENTATION-REPORT.md](../docs/IMPLEMENTATION-REPORT.md) |
 | A-DONE-02 | T25 | partial audit; default switch deferred | [docs/IMPLEMENTATION-REPORT.md](../docs/IMPLEMENTATION-REPORT.md) |
 | A-CONTRACT-R01 | T21 | checked registry reproduction | [internal/conformance/CONFORMANCE-PROOF.md](../internal/conformance/CONFORMANCE-PROOF.md) |
@@ -246,3 +246,22 @@ Binary SHA-256 for offline build evidence:
 The native version and preview checks passed. Preview dependency records contain
 only paths and reported-version status. The fixture made zero provider calls,
 created no workspace state, and was removed automatically.
+
+## Focused corrections after the fresh live stop
+
+Direct planners can now add new unreserved review history at `cdba3b8`
+(volley-23g.27). Three focused lifecycle checks passed, including rejection of
+a reserved name and a critic write.
+
+The live planner correctly refused Write and Edit for seven protected target
+classes, but created a future reserved output. Volley detected it and stopped
+with PLANNER_MUTATION before another turn. One conversation and one model
+process ran; there were zero resumes. Exact Claude settings restoration and
+owned-link removal passed. The live gate remains failed.
+
+Correction `e61440a` (volley-23g.28) adds future-output denial rules for Claude
+planners in both backends. Normal new revision history remains writable.
+Numbered controller suffixes also exclude digit-prefixed lookalike names.
+The rule check and affected direct/Gashki argument checks passed. Vendor
+enforcement of the correction remains unverified. A fresh bounded execution
+is prepared for approval. No broad suite or provider matrix ran.
