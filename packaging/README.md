@@ -1,8 +1,8 @@
-# Prepared Go distribution
+# Go distribution
 
-This directory contains the reviewable replacement launchers. The default
-switch is pending. Do not install these files over the current commands until
-the T25 gate permits the switch. No tag, upload or publication is performed.
+This directory contains the launchers used by the root commands. The default
+switch is complete: one Go engine runs the reviews. The required live gate
+passed. No tag, upload or publication is performed.
 
 The installed layout contains one Go engine:
 

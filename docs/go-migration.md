@@ -1,8 +1,9 @@
 # Go migration and limits
 
-The Go executable has completed local stub and real-Gashki integration checks.
-The prepared launchers are in `packaging/`. The default switch, live vendor
-check and release readiness remain gated. Publication needs separate approval.
+The Go executable has completed local stub, real-Gashki integration and
+bounded vendor checks. The root launchers match the files in `packaging/`.
+The default switch and required live gate passed. Publication needs separate
+approval and was not performed.
 The approved build-order change permits Volley implementation before the Gashki
 parser replacement. It does not claim that parser replacement is complete.
 
@@ -24,7 +25,7 @@ parser replacement. It does not claim that parser replacement is complete.
 | C12 | Tool settings are frozen before dependent calls. Unknown vendor choices remain unknown. Reusable settings preserve types. |
 | C13 | Commands use a versioned envelope, registry, schemas and generated conformance checks. Legacy exit mapping is explicit. |
 | C14 | Billing checks inspect effective direct roots and the checked Gashki execution identity. An absent root variable stays absent. |
-| C15 | Claude planners use `dontAsk`, declared Skill access and role-specific path rules. Context, skill sources, state, frozen configs, binding inputs and committed history are protected. New ordinary planner history is allowed; controller output names are reserved. A detected planner change returns `PLANNER_MUTATION` / 8 before another action. Live vendor enforcement is unverified. |
+| C15 | Claude planners use `dontAsk`, declared Skill access and role-specific path rules. Context, skill sources, state, frozen configs, binding inputs and committed history are protected. New ordinary planner history is allowed; controller output names are reserved. A detected planner change returns `PLANNER_MUTATION` / 8 before another action. The bounded live check records actual refusal for the original protected targets. Controller-output write requests are excluded from that live claim. |
 
 ## Command-standard departures
 
@@ -63,9 +64,13 @@ Pane answers require a later qualified completion before consumption. A changed
 specification or question during that answer turn is a conflict.
 
 Codex protection is detection after a turn. Its workspace sandbox does not
-provide Volley's exact path rules. Claude permission argument checks are local
-stub evidence until the live gate verifies actual vendor denial precedence and
-edit/write behavior. Neither vendor is claimed to be safely enforced by stubs.
+provide Volley's exact path rules. The bounded Claude live checks verified
+Write and Edit refusal for the original planner targets on both backends.
+The terminal Claude critic refused Write on those targets and SPEC.md; its
+Edit tool was unavailable. The direct critic had no Write or Edit tool.
+These results establish the checked boundary only. Future controller-output
+deny rules retain local evidence without an artificial vendor-write check.
+See [the live result](LIVE-GATE-PROOF.md) for settings and limits.
 
 Native import, old session reuse, stream output and webhook delivery are
 deferred. There is no daemon, remote state store, implementation agent or

@@ -1,16 +1,13 @@
 # Implementation and gate report
 
-T01 through T23 have checked local implementation evidence. T24 completed the
-concrete procedure and approval request. The direct live workflow passed,
-including exact answer application, persistent resume, separate opinion,
-closing changes and exact-byte confirmation. Approved folder trust then let
-the Codex terminal planner complete its question and answer application.
-Claude critic startup failed before any critique request. The second terminal
-review did not start. The current live gate failed at startup. T29 corrected
-the owned no-color test environment without product source changes. T25
-remains deferred for the real terminal reviews. The artificial reserved-file
-request remains removed.
-No release ran.
+The Go conversion is complete through T25. One production Go engine remains;
+the three root launchers now select it. Local implementation evidence is
+complete. The required direct and both terminal live workflows passed,
+including exact answers, persistent resume, ordinary approval, closing changes
+and confirmation of the final bytes. The original protected-file checks passed
+with tool-unavailable limits recorded. T29 corrected the owned terminal test
+environment without product source changes. The artificial reserved-file
+request remains excluded. Publication is a separate action; no release ran.
 
 The audit covers all 148 declared cases: 99 local implementation cases, 43
 registry reproductions, one live preparation case, three conditional live
@@ -22,9 +19,10 @@ was found. C01-C15 and D01-D06 are documented. Current release and full-ci
 profiles have zero failures with unchanged pins. Source checks found no deep
 production exit/stdout calls, initializer functions or impure review imports.
 
-The Go distribution contains one engine and prepared thin launchers. The root
-Bash defaults still exist. Their replacement is deferred until the required
-gates pass. The test-only Bash baseline is separately pinned and verified.
+The Go distribution contains one engine and thin root launchers. Their bytes
+and executable modes match the checked packaging files. The root Bash review
+implementation is removed. The test-only Bash baseline remains separately
+pinned and verified.
 The canonical handoff remains outside the repository in the planning root,
 as required by U14. There is no second current handoff.
 
@@ -32,35 +30,38 @@ The approved build-order change permits Volley implementation before Gashki
 parser replacement. rr-run completion is verified. Gashki parser replacement
 is not complete. No predecessor pass is inferred from that order change.
 
-Required terminal review facts remain incomplete. The current live gate failed
-at startup; the default switch is deferred. Release readiness
-is not claimed. Publication needs separate approval and is not performed here.
+Required implementation and bounded live gates are complete. The default
+switch is complete. Publication still needs separate approval and is not
+performed here. The implementation result does not authorize a release.
 
-The local implementation evidence is complete through T23. The complete
-conversion remains incomplete until the gated default change is done.
+The checked local evidence is reused. No new full test campaign ran.
 macOS arm64 and Linux arm64 have runtime evidence. amd64 runtime is unverified.
 Vendor permission, billing, session and model behavior are not proved by stubs.
 
 The audit archive SHA-256 is `691383c28907e7324d65d5622719d902167695618829c977b028644d480b00a0`. It records source and evidence hashes,
 nested record validation, profile results, baseline ownership and gate status.
 
-## Remaining T25 work
+## T25 completion
 
-The completed audit, baseline map, task-output checks, packaging behavior and
-conformance profiles are reused. They are not scheduled again. When the
-required gates permit the switch, copy the three checked launchers to the root,
-verify their bytes and executable modes, and build one current release binary.
-Check help, version, legacy metadata and installed no-argument behavior in one
-small temporary layout. These startup checks make no provider call.
+The completed audit, baseline map, T22 integrations, T23 packaging checks and
+conformance profiles are reused. Subsequent corrections have their focused
+evidence. Program source and prepared launcher source are unchanged since
+the current clean build, so no rebuild or broad suite was needed.
 
-Update only the pending entries in this report and the existing handoff.
-T25 does not repeat the T24 live procedure. It does not implement the Gashki
-parser, publish a release, collect another complete evidence archive, or add a
-collector. No full suite, race/fault campaign, role/session matrix or Linux VM
-restart is scheduled for unchanged code. Broader checks need a relevant source
-change or observed failure. Required behavior and approval gates remain intact.
+The three checked launchers were copied to the root and their bytes and
+executable modes matched. The clean binary is available at build/volley;
+build/ is ignored by Git. Four provider-free native/launcher version checks
+passed and reported the same clean build. The earlier twelve startup/layout
+checks remain evidence for unchanged help, version, legacy metadata,
+installed no-argument behavior and absence of binary-directory writes.
+No source prompts, runtime build, download or Bash engine fallback is needed.
 
-## T25 startup result
+Current binary source: `f18f7678382c48dd3ee46d4321666cbcc8cbeb56`.
+Binary SHA-256: `d09fc3abff6da2e6b98d740f20d98610bf65ec9dd0bc1929b047b0da4a606585`.
+Default-switch result SHA-256: `b9a33805be7bf8890b50c9db45af1e2195dd3ad63356edc73c3325e3b3b48f88`.
+Corrected live result SHA-256: `91adc2f1ad3e468837424d50e3ef9919f4fc170dd0df630d9c790b154e78a75c`.
+
+## Historical T25 startup preparation
 
 One release build from commit `ba75ad97070cd6cf13b89328510152c2a7deaba7` passed all 12
 native/launcher help, version and no-argument startup checks on macOS arm64.
@@ -71,41 +72,29 @@ The existing integration and conformance results are reused.
 
 Binary SHA-256: `7b40cc8c1ff644347363ba084a3916416432d335bd1d276a80cfaa84dd982eb0`.
 Compact startup record SHA-256: `720b8658d375af90c3f04ca09974fc514bad9b520169c71af64c8d997263f238`.
-The default-switch patch is prepared. Root commands remain unchanged pending
-the required live result. Approval was received, but preparation failed.
-T25 remains incomplete. The focused executable-hashing correction and its
-checks are recorded in [the live result](LIVE-GATE-PROOF.md). No broad rerun
-is required for this correction.
+At that time, the default switch was prepared but not applied. The first
+live preparation failed. The later corrections and successful live checks
+are recorded in [the live result](LIVE-GATE-PROOF.md). The current completion
+state is given above.
 
-## Latest live result and deferred work
+## Final live result
 
-The direct pass is reused. Folder trust passed for the first new terminal
-workspace. Codex resumed in the same run and pane, applied the exact saved
-answer, and changed the draft with checked hook completion. Claude critic
-startup then failed in pinned Gashki after 30 seconds. No critique was sent.
-The other terminal review did not start. No new broad tests or rebuild ran.
+The direct pass is reused. Both corrected terminal reviews passed. The first
+used exact command input; the second used a pane answer with a later checked
+turn-end event. The same run and pane identities persisted. Both closing
+passes changed the specifications and received exact-byte confirmation.
+The original Claude permission checks passed, with absent-tool limits saved.
 
-Cleanup restored exact Claude settings, removed only the added owned Codex
-trust entry, preserved other settings, removed both temporary skill links,
-and removed the idle owned pane and server. The count across attempts is
-seven, including two unverified startups, under the approved cap of nine.
-Model, effort and vendor conversation ID remain unknown for the completed
-terminal turns; their checked pane identity and hook evidence are saved.
+Four new conversations ran in the final check. Across attempts, the count is
+nine conversations with work observed plus two unverified startups: eleven
+under the updated cap of eleven. Exact Claude settings were restored. Added
+owned trust entries, temporary links and the owned server were removed.
 
-T25 and the parent epic remain deferred for required terminal review results.
-T29 corrected the owned test environment: the runner passed NO_COLOR=1 to
-its terminal server. The same unmodified Gashki build rejected the unstyled
-saved suggestion and accepted the faint suggestion in a two-case fake-agent
-check. No vendor call or product source change ran. The procedure now removes
-NO_COLOR only from the owned terminal child environment before server creation.
-The prior failure remains recorded. The next live procedure must account for
-the spent conversations and the approved cap. The prepared root-launcher
-change is still unapplied.
-The local evidence and direct pass remain valid for unchanged behavior.
-No release readiness is claimed.
-
-Compact remaining result SHA-256: `d48867f2a8cdd01867ab4e1b1ba5f7f272222a72e892b7bcefd1049efb588b84`. See
-[the live result](LIVE-GATE-PROOF.md) for the startup and cleanup record.
+Native bounded transcript warnings remain visible; they do not replace
+matching pane, send, completion, artifact and approval receipts. Separate
+owned Claude tool transcripts record actual refusals and the observed model.
+Codex model and effort, and Claude effort, remain unknown. See
+[the live result](LIVE-GATE-PROOF.md) for the checked limits.
 
 ## Acceptance map
 
@@ -210,12 +199,12 @@ Compact remaining result SHA-256: `d48867f2a8cdd01867ab4e1b1ba5f7f272222a72e892b
 | A-PACK-01 | T23 | checked local evidence | [packaging/PACKAGING-PROOF.md](../packaging/PACKAGING-PROOF.md) |
 | A-PACK-02 | T23 | checked local evidence | [packaging/PACKAGING-PROOF.md](../packaging/PACKAGING-PROOF.md) |
 | A-PACK-03 | T23 | checked local evidence | [packaging/PACKAGING-PROOF.md](../packaging/PACKAGING-PROOF.md) |
-| A-LIVE-01 | T24 | preparation complete; required live results pending | [docs/LIVE-GATE-PROOF.md](../docs/LIVE-GATE-PROOF.md) |
-| A-LIVE-02 | T24 | direct workflow passed; Gashki Claude startup failed | [docs/LIVE-GATE-PROOF.md](../docs/LIVE-GATE-PROOF.md) |
-| A-LIVE-03 | T24 | partial planner evidence; remaining original checks pending | [docs/LIVE-GATE-PROOF.md](../docs/LIVE-GATE-PROOF.md) |
+| A-LIVE-01 | T24 | passed preparation | [docs/LIVE-GATE-PROOF.md](../docs/LIVE-GATE-PROOF.md) |
+| A-LIVE-02 | T24 | passed direct and both terminal workflows | [docs/LIVE-GATE-PROOF.md](../docs/LIVE-GATE-PROOF.md) |
+| A-LIVE-03 | T24 | passed original checks; unavailable-tool limits recorded | [docs/LIVE-GATE-PROOF.md](../docs/LIVE-GATE-PROOF.md) |
 | A-LIVE-04 | T24 | stop and exact cleanup recorded | [docs/LIVE-GATE-PROOF.md](../docs/LIVE-GATE-PROOF.md) |
-| A-DONE-01 | T25 | partial audit; default switch deferred | [docs/IMPLEMENTATION-REPORT.md](../docs/IMPLEMENTATION-REPORT.md) |
-| A-DONE-02 | T25 | partial audit; default switch deferred | [docs/IMPLEMENTATION-REPORT.md](../docs/IMPLEMENTATION-REPORT.md) |
+| A-DONE-01 | T25 | passed audit and Go default switch | [docs/IMPLEMENTATION-REPORT.md](../docs/IMPLEMENTATION-REPORT.md) |
+| A-DONE-02 | T25 | passed audit and Go default switch | [docs/IMPLEMENTATION-REPORT.md](../docs/IMPLEMENTATION-REPORT.md) |
 | A-CONTRACT-R01 | T21 | checked registry reproduction | [internal/conformance/CONFORMANCE-PROOF.md](../internal/conformance/CONFORMANCE-PROOF.md) |
 | A-CONTRACT-R02 | T21 | checked registry reproduction | [internal/conformance/CONFORMANCE-PROOF.md](../internal/conformance/CONFORMANCE-PROOF.md) |
 | A-CONTRACT-R03 | T21 | checked registry reproduction | [internal/conformance/CONFORMANCE-PROOF.md](../internal/conformance/CONFORMANCE-PROOF.md) |
@@ -260,7 +249,7 @@ Compact remaining result SHA-256: `d48867f2a8cdd01867ab4e1b1ba5f7f272222a72e892b
 | A-CONTRACT-R42 | T21 | checked registry reproduction | [internal/conformance/CONFORMANCE-PROOF.md](../internal/conformance/CONFORMANCE-PROOF.md) |
 | A-CONTRACT-R43 | T21 | checked registry reproduction | [internal/conformance/CONFORMANCE-PROOF.md](../internal/conformance/CONFORMANCE-PROOF.md) |
 
-## Focused correction: volley-23g.26
+## Historical focused correction: volley-23g.26
 
 Program-file fingerprints have been removed from normal operation for Claude,
 Codex, and Gashki. Command paths and reported versions remain in saved records.
@@ -270,7 +259,7 @@ The updated preview, preparation, and manifest schemas omit dependency `sha256` 
 Only the four affected saved response examples were changed. Earlier pre-release
 Go workspace records require a fresh workspace; there is no automatic migration.
 The earlier 1 GiB streaming correction is superseded. This focused change makes
-no live call and does not settle the deferred T25 gate.
+no live call. T25 was deferred at that time.
 
 The affected preparation/resume, inspection, saved-response, Gashki recovery,
 command registry, and generated command-format checks passed. One Claude-planner
@@ -284,7 +273,7 @@ The native version and preview checks passed. Preview dependency records contain
 only paths and reported-version status. The fixture made zero provider calls,
 created no workspace state, and was removed automatically.
 
-## Focused corrections after the fresh live stop
+## Historical corrections after the fresh live stop
 
 Direct planners can now add new unreserved review history at `cdba3b8`
 (volley-23g.27). Three focused lifecycle checks passed, including rejection of
@@ -294,7 +283,7 @@ The live planner correctly refused Write and Edit for seven protected target
 classes, but created a future reserved output. Volley detected it and stopped
 with PLANNER_MUTATION before another turn. One conversation and one model
 process ran; there were zero resumes. Exact Claude settings restoration and
-owned-link removal passed. The live gate remains failed.
+owned-link removal passed. That live attempt remains failed.
 
 Correction `e61440a` (volley-23g.28) adds future-output denial rules for Claude
 planners in both backends. Normal new revision history remains writable.
@@ -302,16 +291,16 @@ Numbered controller suffixes also exclude digit-prefixed lookalike names.
 The rule check and affected direct/Gashki argument checks passed. Vendor
 enforcement of the correction remains unverified. The added artificial
 reserved-file request and its vendor-refusal requirement are removed from the
-current plan. No repeat conversation is required for that request. The proposed
-normal review remains deferred for discussion. No broad suite or provider
+current plan. No repeat conversation is required for that request. At that time, the proposed
+normal review was deferred for discussion. No broad suite or provider
 matrix ran.
 
 The stopped live result remains historical evidence. Removing the artificial
 request does not prove the unfinished normal review workflow or remaining
-original permission cases. T25 remains deferred for those results, without the
+original permission cases. At that time, T25 was deferred for those results, without the
 added reserved-output vendor-refusal requirement.
 
-## Revised direct live result
+## Historical direct pass and folder-trust stop
 
 The direct workflow passed on clean source `f18f7678382c48dd3ee46d4321666cbcc8cbeb56` with
 binary SHA-256 `d09fc3abff6da2e6b98d740f20d98610bf65ec9dd0bc1929b047b0da4a606585`. Three conversations,
@@ -319,5 +308,6 @@ six model processes and three resumes ran. The answer changed the final
 artifact; identity and exact-byte approval checks passed. The Gashki startup
 stopped at Codex folder trust before a review send. Its pane was removed.
 Exact Claude settings restoration, owned-link removal and idle owned-server
-cleanup completed. The direct result is reused. Only two terminal reviews
-remain in the concrete proposal, pending folder-trust and budget approval.
+cleanup completed. At that time, two terminal reviews still required
+folder-trust and budget approval. The later successful reviews are recorded
+in the final live result above.

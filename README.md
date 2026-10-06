@@ -4,10 +4,10 @@ Volley uses Claude Code and Codex to review a specification. One agent drafts
 and revises `SPEC.md`. The other agent critiques it. The controller records
 questions, answers, turns and approval for exact file bytes.
 
-The Go implementation and its local integration checks are complete through
-T22. Go distribution files are prepared in `packaging/`. The root Bash
-launchers remain the current default until the final gates pass. The live
-vendor check is pending. No release is published by this work.
+Volley now uses one Go engine. The root commands `volley.sh`, `cc-volley`,
+and `codex-volley` are thin launchers for that engine. Local integration checks
+and the required direct and terminal live reviews passed. No release is
+published by this work.
 
 ## Use the Go executable
 
@@ -44,7 +44,7 @@ validate premises, or prove runtime behavior.
 - [Saved state, stop and recovery](docs/go-inspection.md)
 - [Legacy workspaces and uncertain turns](docs/go-legacy.md)
 - [Migration: C01–C15, D01–D06 and safety limits](docs/go-migration.md)
-- [Prepared distribution and supported targets](packaging/README.md)
+- [Distribution and supported targets](packaging/README.md)
 - [Change log](CHANGELOG.md)
 
 Use `capabilities --json`, `schema`, and `robot-docs guide` for the complete
@@ -52,8 +52,9 @@ native contract. Prompts are embedded in the executable. Runtime use does not
 need the source prompt directory, Go, a download, or a build.
 
 Local tests use owned provider stubs. They prove controller mechanics and
-argument arrays. Vendor permissions, authentication, billing, session behavior
-and model choices remain unverified until the separately approved live check.
+argument arrays. The bounded live check records actual vendor permission and workflow evidence;
+it does not establish behavior for every vendor version or setting. Unknown
+model and effort choices remain recorded as unknown.
 Codex protection detects file changes after a turn. It cannot prevent a write.
 
 Dependency checks record command paths and reported versions. Volley does not

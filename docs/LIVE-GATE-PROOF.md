@@ -1,19 +1,20 @@
 # Live gate result
 
 T24 received approval for the prepared procedure.
-Current gate status: failed during Claude terminal startup. T29 corrected the
-owned test environment; required terminal reviews remain incomplete. The direct review remains
-passed. Across attempts, five conversations performed work. Two startup
-attempts have no confirmed conversation ID. The conservative count is seven
-under the approved upper cap of nine.
-A-LIVE-01 preparation is complete. A-LIVE-02 direct workflow passed; Gashki workflow stopped before ordinary critique.
-A-LIVE-03 has partial planner evidence; remaining original checks are incomplete.
-A-LIVE-04 has checked stop and cleanup evidence. The complete live gate has not passed.
+Current gate status: passed. The direct review is reused. Both corrected
+terminal reviews passed with four new conversations. Across attempts, nine
+conversations performed work and two startups remain unverified. The
+conservative total is eleven under the updated cap of eleven.
+A-LIVE-01 preparation is complete. A-LIVE-02 direct and both terminal
+workflows passed. A-LIVE-03 passed the original protected-file checks with
+tool-unavailable limits recorded. A-LIVE-04 has checked stop and cleanup
+evidence. Earlier stopped attempts retain their failed results.
 
 The original procedure proposed three small reviews. Later approvals removed
 the replacement slot and allowed folder trust for two fresh terminal reviews.
-Those remaining reviews had a four-conversation limit. The approved combined
-upper cap across attempts was nine. The procedure counts direct
+The final corrected terminal reviews had a four-conversation limit. Work
+continued after the test-environment correction. The combined upper cap
+across attempts became eleven. The procedure counts direct
 persistent resume processes separately: at most 21 resumes and 24 direct model
 processes in total. Version/help and Gashki controller calls have separate
 counters. Each turn is bounded by three minutes; total time is 40 minutes.
@@ -43,8 +44,8 @@ The compact execution record has SHA-256
 `07a767e834f2083800cccae0179a51b4f1ecfaa781dbe449bd679ecf6610348e`.
 Exact records stay outside the repository.
 
-Required terminal review facts remain incomplete. The default switch stays
-deferred. Release readiness and publication are not claimed. Gate vocabulary
+Required terminal review facts are complete within the recorded limits.
+The default switch is complete. Publication was not performed. Gate vocabulary
 is pending, declined, passed or failed. Publication always needs separate authorization.
 
 ## Preparation failure and focused fix
@@ -246,3 +247,60 @@ correction; the real terminal reviews and default switch remain incomplete.
 
 Offline environment result SHA-256:
 `3902c44a96c7ef6631ed2204e3f6bc20588f00c2a0c68410c4fa7e7ad8f85b79`.
+
+## Corrected terminal reviews passed
+
+The corrected execution kept NO_COLOR absent from the owned terminal child
+environment. It used the unchanged clean Volley build and pinned Gashki.
+The direct pass was reused. Four new conversations completed both terminal
+role assignments in about ten minutes, within the 40-minute limit. Claude
+startup succeeded, confirming the test-environment correction in live use.
+
+The Codex-planner review saved the exact command answer, resumed the same
+run and panes, and applied the answer to changed specification bytes. The
+Claude-planner review received the same answer through its pane. A checked
+turn-end hook event was later than the send cursor. During that answer turn,
+SPEC.md and QUESTIONS.md stayed unchanged. HUMAN.md held the exact answer,
+including the final line feed. The controller archived and applied it before
+critique. Gashki trims surrounding whitespace from its submitted payload;
+that public behavior is recorded separately from the exact answer archive.
+No answer or prompt was sent twice.
+
+Both reviews received ordinary approval. Their closing passes changed the
+specifications. The ordinary critic then confirmed the exact final hashes:
+
+- Codex planner / Claude critic:
+  `aa3f28336f38e2010e785dc1578f48041dfbad99b2b5cb7498a047ae4251bc00`.
+- Claude planner / Codex critic:
+  `02422d6978a31871613ca3ddfcf10adb2e3aed4ee1c491253631fdac05e762e9`.
+
+Actual Claude planner Write and Edit results refused all seven original
+protected target classes. Ordinary specification and new history writes
+succeeded. Claude critic Write refused those seven targets plus SPEC.md.
+Its Edit tool was unavailable, as recorded in its critique and actual launch
+tool selection. Writes to its declared pending critique outputs succeeded.
+The direct critic's unavailable Write/Edit results are retained from the
+completed direct check. No artificial reserved-output write was requested.
+The observed Claude model in both terminal conversations was
+claude-sonnet-5-5. Effort remains unobserved.
+
+The native Gashki receipts bind persistent pane identities and matching send
+and later completion events. They do not supply vendor conversation IDs.
+Bounded transcript discovery left native model/reply warnings: Codex
+discovery_byte_limit and Claude unsupported_or_invalid_record. Those warnings
+remain in the native results. Exact owned Claude transcripts supplied the
+separate model and tool evidence above. Codex model and effort remain unknown.
+No broad discovery scan or extra conversation was used to remove a warning.
+
+Native cleanup removed the checked idle panes. Exact original Claude settings
+bytes and mode were restored. Only the two added owned Codex trust entries
+were removed; cleanup preserved all other current settings. Both owned skill
+links and the matching owned terminal server were removed. All earlier
+failure records remain unchanged.
+
+Clean Volley source: `f18f7678382c48dd3ee46d4321666cbcc8cbeb56`.
+Binary SHA-256: `d09fc3abff6da2e6b98d740f20d98610bf65ec9dd0bc1929b047b0da4a606585`.
+Gashki source: `8eaecc9b31c965bab6c63a6a5562ebf38c43e363`.
+Target: macOS arm64. Compact corrected result SHA-256: `91adc2f1ad3e468837424d50e3ef9919f4fc170dd0df630d9c790b154e78a75c`.
+The checked local and other-platform evidence is reused for unchanged code.
+No release was published.
