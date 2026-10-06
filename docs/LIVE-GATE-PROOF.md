@@ -1,7 +1,8 @@
 # Live gate result
 
 T24 received approval for the prepared procedure.
-Current gate status: failed at Gashki Claude startup. The direct review remains
+Current gate status: failed during Claude terminal startup. T29 corrected the
+owned test environment; required terminal reviews remain incomplete. The direct review remains
 passed. Across attempts, five conversations performed work. Two startup
 attempts have no confirmed conversation ID. The conservative count is seven
 under the approved upper cap of nine.
@@ -221,3 +222,27 @@ the default switch stay deferred on volley-23g.29. Gashki source changes remain
 outside the conversion task. No release or default switch occurred.
 
 Remaining check result SHA-256: `d48867f2a8cdd01867ab4e1b1ba5f7f272222a72e892b7bcefd1049efb588b84`.
+
+## T29 narrowed to the owned test environment
+
+The test runner inherited NO_COLOR=1 and passed it to the new owned tmux
+server. Both the old Bash caller and the Go caller pass the inherited
+environment to Gashki. Neither adds a new color setting. Gashki distinguishes
+faint suggestions from typed input by the captured text style.
+
+A two-case check reused the saved screen, a fake Claude program, and the
+unchanged pinned Gashki build. Without color, startup failed with
+LAUNCH_PROMPT_UNHANDLED. With the suggestion faint, startup passed. All small
+owned roots and processes were removed. Zero vendor calls ran. The original
+live failure retained plain text only, so its color escapes cannot be checked.
+This result establishes the mechanism and corrects the earlier assignment
+of an upstream source fault; it does not claim a new vendor pass.
+
+The live procedure now removes NO_COLOR only from the owned terminal child
+environment before server creation. User shell and vendor settings stay
+unchanged by that correction. No Gashki or Volley program source changed.
+No source-pin change or rebuild is needed. T29 completes the procedure
+correction; the real terminal reviews and default switch remain incomplete.
+
+Offline environment result SHA-256:
+`3902c44a96c7ef6631ed2204e3f6bc20588f00c2a0c68410c4fa7e7ad8f85b79`.

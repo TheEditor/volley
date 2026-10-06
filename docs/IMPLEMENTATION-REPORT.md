@@ -6,8 +6,10 @@ including exact answer application, persistent resume, separate opinion,
 closing changes and exact-byte confirmation. Approved folder trust then let
 the Codex terminal planner complete its question and answer application.
 Claude critic startup failed before any critique request. The second terminal
-review did not start. The current live gate failed at startup. T25 is deferred
-on volley-23g.29. The artificial reserved-file request remains removed.
+review did not start. The current live gate failed at startup. T29 corrected
+the owned no-color test environment without product source changes. T25
+remains deferred for the real terminal reviews. The artificial reserved-file
+request remains removed.
 No release ran.
 
 The audit covers all 148 declared cases: 99 local implementation cases, 43
@@ -90,9 +92,15 @@ seven, including two unverified startups, under the approved cap of nine.
 Model, effort and vendor conversation ID remain unknown for the completed
 terminal turns; their checked pane identity and hook evidence are saved.
 
-T25 and the parent epic remain deferred. volley-23g.29 tracks the external
-Gashki startup compatibility result. Resolve that result before preparing
-another terminal attempt. The prepared root-launcher change is still unapplied.
+T25 and the parent epic remain deferred for required terminal review results.
+T29 corrected the owned test environment: the runner passed NO_COLOR=1 to
+its terminal server. The same unmodified Gashki build rejected the unstyled
+saved suggestion and accepted the faint suggestion in a two-case fake-agent
+check. No vendor call or product source change ran. The procedure now removes
+NO_COLOR only from the owned terminal child environment before server creation.
+The prior failure remains recorded. The next live procedure must account for
+the spent conversations and the approved cap. The prepared root-launcher
+change is still unapplied.
 The local evidence and direct pass remain valid for unchanged behavior.
 No release readiness is claimed.
 
